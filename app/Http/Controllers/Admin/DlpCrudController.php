@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Requests\DlpRequest;
+use Backpack\CRUD\app\Http\Controllers\CrudController;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\URL;
+
+/**
+ * Class DlpCrudController
+ * @package App\Http\Controllers\Admin
+ * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
+ */
+class DlpCrudController extends CrudController
+{
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+
+    /**
+     * Configure the CrudPanel object. Apply settings to all operations.
+     * 
+     * @return void
+     */
+    public function setup()
+    {
+        CRUD::setModel(\App\Models\Dlp::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/dlp');
+        CRUD::setEntityNameStrings('dlp', 'DLP');
+        CRUD::operation('list', function() {
+            CRUD::removeButton('update');
+            CRUD::removeButton('show');
+            CRUD::removeButton('create');
+        });
+        $id = request()->input('id', '');
+        $this->crud->addColumns($this->CustomListDlp($id));
+    }
+
+    /**
+     * Define what happens when the List operation is loaded.
+     * 
+     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
+     * @return void
+     */
+    public function CustomListDlp($id){
+        // CRUD::setFromDb();
+             $this->crud->hasAccessOrFail('list');
+             $request = $this->crud->validateRequest();
+             $this->crud->removeButtonFromStack('create','top','end');
+             $this->crud->addButtonFromModelFunction('top','button_name','AddDlp','end');
+     
+             if ($id) {
+                 $this->crud->addClause('where', 'child_id', '=', $id);
+             }
+            
+             return [
+                 [
+                     'name'=>'file_dlp',
+                     'label'=>'Nama File',
+                     'type' => 'link',
+                     'wrapper' => [
+                         'href' => function ( $crud,$column,$entry,$related_key ) {
+                          return  '/pesat/public/storage/'.$entry->file_dlp;
+                        },
+                        
+                     'target' => '__blank'
+                    ]
+                 ],
+                 
+             ];
+             $this->CustomCreatedlp($id);
+             //CRUD::setFromDb(); 
+             
+         }
+     
+    protected function setupListOperation()
+    {
+        
+        //CRUD::setFromDb();
+        /**
+         * Columns can be defined using the fluent syntax or array syntax:
+         * - CRUD::column('price')->type('number');
+         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
+         */
+    }
+
+    /**
+     * Define what happens when the Create operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * @return void
+     */
+    protected function setupCreateOperation()
+    {
+        CRUD::setValidation(DlpRequest::class);     
+        $link   = URL::previous();
+        //$childid =substr($link,43);
+        $cek_id = explode("=",$link);
+        $childid= $cek_id[1];
+
+        $filepdlp         = [
+            'label'  => "File DLP",
+            'name'   => "file_dlp",
+            'type'   => 'upload',
+            'upload' => true,
+            'crop'   => false,
+            'disks'  => 'uploads_dlp',
+            'prefix' => '/storage/'
+          ];
+           $childid         = [
+            'name'      => 'child_id',
+            'type'      => 'hidden',
+             'default'  =>  $childid,
+            'label'     =>  "id",
+          ];
+          $this->crud->addFields([$childid,$filepdlp]);
+
+        
+
+        /**
+         * Fields can be defined using the fluent syntax or array syntax:
+         * - CRUD::field('price')->type('number');
+         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
+         */
+    }
+
+    /**
+     * Define what happens when the Update operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-update
+     * @return void
+     */
+    protected function setupUpdateOperation()
+    {
+        $this->setupCreateOperation();
+    }
+}
