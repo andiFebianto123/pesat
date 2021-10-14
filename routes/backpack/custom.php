@@ -22,6 +22,8 @@ Route::group([
     Route::crud('project-master', 'ProjectMasterCrudController');
     Route::crud('project-master-detail', 'ProjectMasterDetailCrudController');
     Route::crud('dlp', 'DlpCrudController');
+    Route::crud('user-role', 'UserRoleCrudController');
+    Route::crud('users', 'UsersCrudController');
 }); // this should be the absolute last line of this file
 Route::get('/api/provice', 'App\Http\Controllers\Admin\ProvinceCustomController@index');
 Route::get('/api/city', 'App\Http\Controllers\Admin\ProvinceCustomController@getCity');
