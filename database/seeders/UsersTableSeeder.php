@@ -20,6 +20,7 @@ class UsersTableSeeder extends Seeder
                 'name'       => 'superadmin',
                 'email'      => 'bian@rectmedia.id',
                 'password'   => bcrypt('superrect89'),
+                'user_role_id'=> 1,
             ],
            
         );
@@ -28,6 +29,7 @@ class UsersTableSeeder extends Seeder
                 'name'       => 'admin',
                 'email'      => 'michaelmurbianto@gmail.com',
                 'password'   => bcrypt('superrect89'),
+                'user_role_id'=> 1,
             ],
            
         );
