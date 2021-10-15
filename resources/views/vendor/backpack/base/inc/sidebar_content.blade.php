@@ -15,4 +15,5 @@
 </li>
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('project-master-detail') }}'><i class='nav-icon la la-question'></i> Project master details</a></li> -->
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('dlp') }}'><i class='nav-icon la la-question'></i> Dlp</a></li> -->
+<!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-attribute') }}'><i class='nav-icon la la-question'></i> User attributes</a></li> -->
 

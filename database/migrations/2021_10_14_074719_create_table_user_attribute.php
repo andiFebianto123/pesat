@@ -14,8 +14,9 @@ class CreateTableUserAttribute extends Migration
     public function up()
     {
         Schema::create('user_attribute', function (Blueprint $table) {
-            $table->increments('>user_attribute_id');
+            $table->increments('user_attribute_id');
             $table->bigInteger('user_id')->unsigned();
+            $table->string('website_url')->nullable();
             $table->string('facebook_url')->nullable();
             $table->string('instagram_url')->nullable();
             $table->string('linkedin_url')->nullable();
