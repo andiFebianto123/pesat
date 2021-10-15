@@ -39,6 +39,10 @@ class Users extends Model
     {
       return $this->belongsTo(UserRole::class, 'user_role_id','user_role_id');
     }
+    public function UserAttribute()
+    {
+      return $this->hasOne(UserAttribute::class,'user_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

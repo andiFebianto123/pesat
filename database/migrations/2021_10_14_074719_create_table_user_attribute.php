@@ -27,7 +27,7 @@ class CreateTableUserAttribute extends Migration
             $table->string('twitter_url')->nullable();
             $table->string('youtube_url')->nullable();
             $table->string('biograpical')->nullable();
-            $table->string('photo_profile')->nullable();
+            $table->longText('photo_profile')->nullable();
             $table->timestamps();
         });
     }
