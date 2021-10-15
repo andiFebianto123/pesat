@@ -175,9 +175,9 @@ class UsersCrudController extends CrudController
                       ]
                 ];
         $address                = [
-                'name' => 'date_of_birth',
+                'name' => 'address',
                 'type' => 'text',
-                'label' => "Tanggal Lahir",
+                'label' => "Tempat Tinggal",
                 'attributes'=>[
                             'required'=>true,
                             ]
@@ -406,9 +406,9 @@ class UsersCrudController extends CrudController
                       ]
                 ];
         $address                = [
-                'name' => 'date_of_birth',
+                'name' => 'address',
                 'type' => 'text',
-                'label' => "Tanggal Lahir",
+                'label' => "Tempat Tinggal",
                 'attributes'=>[
                             'required'=>true,
                             ]
