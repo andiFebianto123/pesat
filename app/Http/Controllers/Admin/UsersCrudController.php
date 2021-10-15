@@ -267,15 +267,7 @@ class UsersCrudController extends CrudController
                     'disks'  => 'image',
                     'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
         ];
-        $filepdlp         = [
-            'label'  => "File DLP",
-            'name'   => "file_dlp",
-            'type'   => 'upload',
-            'upload' => true,
-            'crop'   => false,
-            'disks'  => 'uploads_dlp',
-            'prefix' => '/storage/'
-          ];
+
         $this->crud->addFields([$username,$email,$firstname,$lastname,
                                 $fullname,$role,$password,$passwordvalue,
                                 $hometown,$dateofbirth,$address,$noHP,
@@ -297,11 +289,10 @@ class UsersCrudController extends CrudController
     // execute the FormRequest authorization and validation, if one is required 
     $request = $this->crud->validateRequest();
     // insert item in the db
-    //$x=$request->input('photo_profile');
-    //dd($x);
+
     $item = $this->crud->create($this->crud->getStrippedSaveRequest());
     $this->data['entry'] = $this->crud->entry = $item;
- 
+    
 
      $lastUserdId = User::latest()->pluck('id')->first(); //get lastest child id
      $userattribute = new UserAttribute();
@@ -517,7 +508,7 @@ class UsersCrudController extends CrudController
             'default'=> $userAttribute->photo_profile,
             'type' => 'image',
             'crop' => true, // set to true to allow cropping, false to 
-            'prefix'=>'/storage/',
+            'prefix'=>'/storage',
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
         ];
         $this->crud->addFields([$username,$email,$firstname,$lastname,
@@ -551,7 +542,6 @@ class UsersCrudController extends CrudController
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-        
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
                             $this->crud->getStrippedSaveRequest());
                            
@@ -561,6 +551,7 @@ class UsersCrudController extends CrudController
         ->update(['website_url' => $request->input('website_url'),
                   'facebook_url'=> $request->input('facebook_url'),
                   'instagram_url'=> $request->input('instagram_url'),
+                  'linkedin_url'=> $request->input('linkedin_url'),
                   'my_space_url'=> $request->input('my_space_url'),
                   'pinterest_url'=> $request->input('pinterest_url'),
                   'sound_cloud_url'=> $request->input('sound_cloud_url'),

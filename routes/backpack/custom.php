@@ -25,6 +25,7 @@ Route::group([
     Route::crud('user-role', 'UserRoleCrudController');
     Route::crud('users', 'UsersCrudController');
     Route::crud('user-attribute', 'UserAttributeCrudController');
+    Route::crud('data-sponsor', 'DataSponsorCrudController');
 }); // this should be the absolute last line of this file
 Route::get('/api/provice', 'App\Http\Controllers\Admin\ProvinceCustomController@index');
 Route::get('/api/city', 'App\Http\Controllers\Admin\ProvinceCustomController@getCity');
