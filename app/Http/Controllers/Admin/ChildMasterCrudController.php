@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ChildMasterRequest;
+use App\Models\City;
+use App\Models\Religion;
+use App\Models\SponsorType;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,6 +21,8 @@ class ChildMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -105,18 +110,14 @@ class ChildMasterCrudController extends CrudController
                                 'required'=>true,
                                 ]
                               ];
-        $sponsor_type       = [ // Select2Multiple = n-n relationship (with pivot table)
-                                'label' => "Type Sponsor",
-                                'type' => 'select',
-                                'name' => 'sponsor_type', // the method that defines the relationship in your Model// optional
-                                'entity' => 'sponsor_type', // the method that defines the relationship in your Model
-                                'model' => "App\Models\SponsorType", // foreign key model
-                                'attribute' => 'sponsor_type_name', // foreign key attribute that is shown to user
-                                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
-                                
-                                //'value' => $this->crud->getCurrentEntryId() ? ChildMaster::find($this->crud->getCurrentEntryId())->sponsor()->where('sponsor_type_id', $this->crud->getCurrentEntryId())->get() : null // <-- Add the default value from the database, with $this->crud->getCurrentEntryId() as the primary key being edited
-                              ];
-                             
+
+        $sponsor_type       = [
+                                    'name'        => 'sponsor_type_id',
+                                    'label'       => "Type Sponsor",
+                                    'type'        => 'select2_from_array',
+                                    'allows_null' => false,
+                                    'options'     => $this->sponsor(),
+        ];                   
         $childdiscription   = [
                                 'name' => 'child_discription',
                                 'label' => 'Deskripsi Anak',
@@ -152,35 +153,40 @@ class ChildMasterCrudController extends CrudController
                                 'required'=>true,
                                 ]
                               ];
-        $hometown           =   [
-                                'label' => "Tempat Lahir",
-                                'type' => 'select',
-                                'name' => 'city', // the method that defines the relationship in your Model// optional
-                                'entity' => 'city', // the method that defines the relationship in your Model
-                                'model' => "App\Models\City", // foreign key model
-                                'attribute' => 'city_name', // foreign key attribute that is shown to user
-                                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
-                                'wrapperAttributes' => [
-                                  'class' => 'form -grup col-md-6'
-                                ]
-                              ];  
-        $dateofbirth        = [
-                                'name'  => 'date_of_birth',
-                                'label' => 'Tanggal Lahir',
-                                'type'  => 'date',
-                                'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-6'
-                            ]
-                              ];
-        $religion           = [
-                                'label' => "Agama",
-                                'type' => 'select',
-                                'name' => 'religion', // the method that defines the relationship in your Model// optional
-                                'entity' => 'religion', // the method that defines the relationship in your Model
-                                'model' => "App\Models\Religion", // foreign key model
-                                'attribute' => 'religion_name', // foreign key attribute that is shown to user
-                                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
-                              ];
+
+        $hometown       = [
+          'name'        => 'hometown',
+          'label'       => "Tempat Lahir",
+          'type'        => 'select2_from_array',
+          'allows_null' => false,
+          'options'     => $this->hometown(),
+          'wrapperAttributes' => [
+                                       'class' => 'form -grup col-md-6'
+                                 ]
+        ];
+        $dateofbirth        =[   // date_picker
+                            'name'  => 'date_of_birth',
+                            'type'  => 'date_picker',
+                            'label' => 'Tanggal Lahir',
+                            'wrapperAttributes' => [
+                                     'class' => 'form -grup col-md-6'
+                            ],
+
+                            'date_picker_options' => [
+                            'todayBtn' => 'linked',
+                            'format'   => 'dd-mm-yyyy',
+                            'language' => 'en'
+          ],
+        ];
+
+        $religion       = [
+          'name'        => 'religion_id',
+          'label'       => "Agama",
+          'type'        => 'select2_from_array',
+          'allows_null' => false,
+          'options'     => $this->religion(),
+
+        ];
         $FC                 = [
                                 'name'  => 'fc',
                                 'label' => 'FC',
@@ -274,21 +280,35 @@ class ChildMasterCrudController extends CrudController
                                 'class' => 'form -grup col-md-4'
                                   ]
                               ];
-        $signinfc           = [
+
+       $signinfc        =     [   // date_picker
                                 'name'  => 'sign_in_fc',
+                                'type'  => 'date_picker',
                                 'label' => 'Masuk FC',
-                                'type'  => 'date',
                                 'wrapperAttributes' => [
                                 'class' => 'form -grup col-md-6'
-                                  ]
-                              ];
-        $leavefc            = [
+                                        ],
+
+                                'date_picker_options' => [
+                                'todayBtn' => 'linked',
+                                'format'   => 'dd-mm-yyyy',
+                                'language' => 'en'
+                                      ],
+                            ];
+
+        $leavefc        =     [   // date_picker
                                 'name'  => 'leave_fc',
+                                'type'  => 'date_picker',
                                 'label' => 'Keluar FC',
-                                'type'  => 'date',
                                 'wrapperAttributes' => [
                                 'class' => 'form -grup col-md-6'
-                                  ]
+                                          ],
+
+                                'date_picker_options' => [
+                                'todayBtn' => 'linked',
+                                'format'   => 'dd-mm-yyyy',
+                                'language' => 'en'
+                                          ],
                               ];
         $reasontoleave      = [
                                 'name'  => 'reason_to_leave',
@@ -306,10 +326,12 @@ class ChildMasterCrudController extends CrudController
                                 'label' => "Profile Image",
                                 'name' => "photo_profile",
                                 'type' => 'image',
+                                'updload'=>true,
                                 'crop' => true, // set to true to allow cropping, false to disable
                                 'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+                                'prefix' =>'/storage/'
                                ];
-        
+
         $fileprofile         = [
                                 'label'  => "File Profile",
                                 'name'   => "file_profile",
@@ -346,4 +368,175 @@ class ChildMasterCrudController extends CrudController
     {
         $this->setupCreateOperation();
     }
+
+  protected function setupShowOperation()
+  {
+    $this->crud->set('show.setFromDb', false);
+
+    // example logic
+   
+    $this->crud->addColumns([
+      [
+          'name'=>'full_name',
+          'label'=>'Nama Lengkap'
+      ],
+      [
+        'name'=>'sponsor_type',
+        'label'=>'Type Sponsor'
+      ],
+      [
+        'name'=>'child_discription',
+        'label'=>'Diskripsi Anak'
+        
+      ],
+
+      [
+        'name'=>'registration_number',
+        'label'=>'No Induk'
+      ],
+      [
+        'name'=>'nickname',
+        'label'=>'Nama Panggilan'
+      ],
+      [
+        'name'=>'gender',
+        'label'=>'Jenis Kelamin'
+      ],
+      [
+        'name'=>'city',
+        'label'=>'Tempat Lahir'
+      ],
+      [
+        'name'=>'date_of_birth',
+        'label'=>'Tanggal Lahir'
+      ],
+      [
+        'name'=>'religion',
+        'label'=>'Agama'
+      ],
+      [
+        'name'=>'fc',
+        'label'=>'FC'
+      ],
+      [
+        'name'=>'sponsor_name',
+        'label'=>'Nama Sponsor'
+      ],
+      [
+        'name'=>'districts',
+        'label'=>'Kecamatan'
+      ],
+      [
+        'name'=>'province_id',
+        'label'=>'Provinsi'
+      ],
+      [
+        'name'=>'city_id',
+        'label'=>'Kota/Kabupaten'
+      ],
+      [
+        'name'=>'father',
+        'label'=>'Ayah'
+      ],
+      [
+        'name'=>'mother',
+        'label'=>'Ibu'
+      ],
+      [
+        'name'=>'profession',
+        'label'=>'Pekerjaan'
+      ],
+      [
+        'name'=>'economy',
+        'label'=>'Ekonomi'
+      ],
+      [
+        'name'=>'class',
+        'label'=>'Kelas'
+      ],
+      [
+        'name'=>'school',
+        'label'=>'Sekolah'
+      ],
+      [
+        'name'=>'school_year',
+        'label'=>'Tahun Ajaran'
+      ],
+      [
+        'name'=>'sign_in_fc',
+        'label'=>'Masuk FC'
+      ],
+      [
+        'name'=>'leave_fc',
+        'label'=>'Keluar FC'
+      ],
+      [
+        'name'=>'reason_to_leave',
+        'label'=>'Alasan Keluar'
+      ],
+      [
+        'name'=>'internal_discription',
+        'label'=>'Diskripsi Internal'
+      ],
+      [
+        'name'=>'photo_profile',
+        'label'=>'Foto Profile',
+        'type'=> 'link',
+        'wrapper' => [
+          'href' => function ( $crud,$column,$entry,$related_key ) {
+           return  '/pesat/public/storage/'.$entry->photo_profile;
+         },
+         
+      'target' => '__blank'
+     ]
+      ],
+      [
+        'name'=>'file_profile',
+        'label'=>'File Profile',
+        'type'=> 'link',
+        'wrapper' => [
+          'href' => function ( $crud,$column,$entry,$related_key ) {
+           return  '/pesat/public/storage/'.$entry->file_profile;
+         },
+         
+      'target' => '__blank'
+     ]
+      ],
+
+
+
+    ]);
+
+
+}
+public function sponsor()
+{
+  $getsponsor = SponsorType::where('deleted_at',null)->get()
+  ->map
+  ->only(['sponsor_type_id', 'sponsor_type_name']);
+  $collection=collect($getsponsor);
+  $sponsor = $collection->pluck('sponsor_type_name','sponsor_type_id') ? $collection->pluck('sponsor_type_name','sponsor_type_id') : 0/null;
+ return $sponsor;
+}
+
+public function hometown()
+{
+  $getcity = City::where('deleted_at',null)->get()
+  ->map
+  ->only(['city_id', 'city_name']);
+  $collection=collect($getcity);
+  $city = $collection->pluck('city_name','city_id') ? $collection->pluck('city_name','city_id') : 0/null;
+ return $city;
+}
+
+public function religion()
+{
+  $getreligion = Religion::where('deleted_at',null)->get()
+  ->map
+  ->only(['religion_id', 'religion_name']);
+  $collection=collect($getreligion);
+  $religion = $collection->pluck('religion_name','religion_id') ? $collection->pluck('religion_name','religion_id') : 0/null;
+ return $religion;
+}
+
 }

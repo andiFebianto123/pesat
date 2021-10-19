@@ -163,17 +163,21 @@ class UsersCrudController extends CrudController
                             'class' => 'form -grup col-md-6'
                      ]
                 ];
-        $dateofbirth            = [
-                'name' => 'date_of_birth',
-                'type' => 'date',
-                'label' => "Tanggal Lahir",
-                'attributes'=>[
-                                'required'=>true,
-                ],
-                'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
-                      ]
-                ];
+
+        $dateofbirth        =[   // date_picker
+            'name'  => 'date_of_birth',
+            'type'  => 'date_picker',
+            'label' => 'Tanggal Lahir',
+            'wrapperAttributes' => [
+                     'class' => 'form -grup col-md-6'
+            ],
+
+            'date_picker_options' => [
+            'todayBtn' => 'linked',
+            'format'   => 'dd-mm-yyyy',
+            'language' => 'en'
+],
+];
         $address                = [
                 'name' => 'address',
                 'type' => 'text',
@@ -394,17 +398,21 @@ class UsersCrudController extends CrudController
                             'class' => 'form -grup col-md-6'
                      ]
                 ];
-        $dateofbirth            = [
-                'name' => 'date_of_birth',
-                'type' => 'date',
-                'label' => "Tanggal Lahir",
-                'attributes'=>[
-                                'required'=>true,
-                ],
-                'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
-                      ]
-                ];
+
+        $dateofbirth        =[   // date_picker
+            'name'  => 'date_of_birth',
+            'type'  => 'date_picker',
+            'label' => 'Tanggal Lahir',
+            'wrapperAttributes' => [
+                     'class' => 'form -grup col-md-6'
+            ],
+
+            'date_picker_options' => [
+            'todayBtn' => 'linked',
+            'format'   => 'dd-mm-yyyy',
+            'language' => 'en'
+],
+];
         $address                = [
                 'name' => 'address',
                 'type' => 'text',
