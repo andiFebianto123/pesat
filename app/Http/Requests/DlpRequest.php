@@ -27,6 +27,7 @@ class DlpRequest extends FormRequest
     {
         return [
             // 'name' => 'required|min:5|max:255'
+            'file_dlp' => 'required'
         ];
     }
 

@@ -33,7 +33,7 @@ class ChildMasterCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ChildMaster::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/child-master');
-        CRUD::setEntityNameStrings('child master', 'Data Anak');
+        CRUD::setEntityNameStrings('Data Anak', 'Data Anak');
     }
 
     /**
@@ -139,9 +139,6 @@ class ChildMasterCrudController extends CrudController
                                 'name'  => 'gender',
                                 'label' => 'Jenis Kelamin',
                                 'type'  => 'text',
-                                'attributes'=>[
-                                'required'=>true,
-                                ]
                               ];
 
         $hometown         =   [

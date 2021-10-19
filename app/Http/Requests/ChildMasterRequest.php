@@ -40,7 +40,8 @@ class ChildMasterRequest extends FormRequest
             'economy'               =>  'required',
             'class'                 =>  'required',
             'school'                =>  'required',
-            'school_year'           =>  'required'
+            'school_year'           =>  'required',
+            'gender'                =>  'required'
 
         ];
     }

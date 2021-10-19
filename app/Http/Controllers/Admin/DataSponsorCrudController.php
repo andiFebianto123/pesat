@@ -28,7 +28,7 @@ class DataSponsorCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\DataSponsor::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/data-sponsor');
-        CRUD::setEntityNameStrings('data sponsor', 'data sponsors');
+        CRUD::setEntityNameStrings('Data Sponsor', 'Data Sponsor');
     }
 
     /**

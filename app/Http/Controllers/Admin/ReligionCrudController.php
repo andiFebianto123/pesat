@@ -28,7 +28,7 @@ class ReligionCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Religion::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/religion');
-        CRUD::setEntityNameStrings('religion', 'religions');
+        CRUD::setEntityNameStrings('Agama', 'Agama');
     }
 
     /**

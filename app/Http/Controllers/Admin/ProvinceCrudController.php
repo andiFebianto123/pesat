@@ -28,7 +28,7 @@ class ProvinceCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Province::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/province');
-        CRUD::setEntityNameStrings('province', 'provinces');
+        CRUD::setEntityNameStrings('Provinsi', 'Provinsi');
     }
 
     /**

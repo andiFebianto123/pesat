@@ -28,7 +28,7 @@ class CityCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\City::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/city');
-        CRUD::setEntityNameStrings('city', 'cities');
+        CRUD::setEntityNameStrings('Kota', 'Kota / Kabupaten');
     }
 
     /**
@@ -40,7 +40,13 @@ class CityCrudController extends CrudController
     protected function setupListOperation()
     {
         
-        CRUD::setFromDb();
+       // CRUD::setFromDb();
+       $this->crud->addColumns([
+        [
+            'name'=>'city_name',
+            'label'=>'Nama Kota'
+        ]
+        ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');

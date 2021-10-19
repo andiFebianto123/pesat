@@ -35,8 +35,7 @@ class ProjectMasterDetailCrudController extends CrudController
         CRUD::operation('list', function() {
             CRUD::removeButton('update');
             CRUD::removeButton('show');
-           // CRUD::removeButton('create');
-        });
+         });
         $this->crud->headerId = \Route::current()->parameter('header_id');
 
         ProjectMasterDetail::addGlobalScope('header_id', function (Builder $builder) {

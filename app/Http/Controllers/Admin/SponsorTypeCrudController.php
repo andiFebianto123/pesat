@@ -28,7 +28,7 @@ class SponsorTypeCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\SponsorType::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/sponsor-type');
-        CRUD::setEntityNameStrings('sponsor type', 'sponsor types');
+        CRUD::setEntityNameStrings('Type Sponsor', 'Type Sponsor');
     }
 
     /**

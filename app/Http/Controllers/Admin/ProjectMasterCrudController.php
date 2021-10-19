@@ -29,7 +29,7 @@ class ProjectMasterCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ProjectMaster::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/project-master');
-        CRUD::setEntityNameStrings('project master', 'project masters');
+        CRUD::setEntityNameStrings('Data Proyek', 'Data Proyek');
     }
 
     /**
@@ -56,15 +56,14 @@ class ProjectMasterCrudController extends CrudController
             'type'=>'boolean',
             'options'=>[0=>'Not Publish',1=>'Publish']
         ],
-         [
-             //'type' => 'text',
+        [
              'type' => 'relationship',
              'name' => 'users', // the relationship name in your Model
              'label' => 'Author',
              'entity' => 'users', // the relationship name in your Model
              'attribute' => 'name', // attribute on Article that is shown to admin
              'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
-         ],
+        ],
 
     ]);
         /**

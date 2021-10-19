@@ -37,6 +37,9 @@ class UsersCrudController extends CrudController
         CRUD::setModel(\App\Models\Users::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/users');
         CRUD::setEntityNameStrings('users', 'users');
+        CRUD::operation('list', function() {
+            CRUD::removeButton('show');
+         });
     }
 
     /**
@@ -146,7 +149,6 @@ class UsersCrudController extends CrudController
                 'name' => 'hometown',
                 'type' => 'text',
                 'label' => "Tempat Lahir",
-
                 'wrapperAttributes' => [
                             'class' => 'form -grup col-md-6'
                      ]
@@ -371,9 +373,6 @@ class UsersCrudController extends CrudController
                 'name' => 'hometown',
                 'type' => 'text',
                 'label' => "Tempat Lahir",
-                'attributes'=>[
-                            'required'=>true,
-                ],
                 'wrapperAttributes' => [
                             'class' => 'form -grup col-md-6'
                      ]
@@ -391,15 +390,12 @@ class UsersCrudController extends CrudController
             'todayBtn' => 'linked',
             'format'   => 'dd-mm-yyyy',
             'language' => 'en'
-],
-];
+            ],
+        ];
         $address                = [
                 'name' => 'address',
                 'type' => 'text',
                 'label' => "Tempat Tinggal",
-                'attributes'=>[
-                            'required'=>true,
-                            ]
                 ];
         $noHP                  = [
                 'name' => 'no_hp',
@@ -413,9 +409,6 @@ class UsersCrudController extends CrudController
                 'name' => 'church_member_of',
                 'type' => 'text',
                 'label' => "Jemaat Dari Gereja",
-                'attributes'=>[
-                            'required'=>true,
-                            ]
                 ];
         $label                  = [   
                     'name'  => 'separator',
