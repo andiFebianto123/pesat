@@ -64,7 +64,7 @@ class Dlp extends Model
     public function AddDlp()
       { 
         
-        return '<a href="'.url('admin/dlp/create/?childid='.$this->child_id).'" class="btn btn-primary" data-style="zoom-in">
+        return '<a href="'.url('admin/dlp/'.$this->child_id.'/detail/create').'" class="btn btn-primary" data-style="zoom-in">
                   <span class="ladda-label">
                     <i class="la la-plus">
                     </i>
@@ -73,3 +73,5 @@ class Dlp extends Model
                 </a>';
       }
 }
+//AddDlp
+//url('admin/dlp/create/?childid='.$this->child_id)

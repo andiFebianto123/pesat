@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\UserAttribute;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
         $this->call(UserRole::class);
         $this->call(UsersTableSeeder::class);
+        $this->call(UserAttribute::class);
         $this->call(ProvinceTableSeeder::class);
         $this->call(CityTableSeeder::class);
         $this->call(ReligionTableSeeder::class);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterRequest;
+use App\Models\SponsorType;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -92,13 +93,11 @@ class ProjectMasterCrudController extends CrudController
           ];
 
         $sponsor_type       = [ // Select2Multiple = n-n relationship (with pivot table)
-            'label' => "Type Sponsor",
-            'type' => 'select',
-            'name' => 'sponsor_type', // the method that defines the relationship in your Model// optional
-            'entity' => 'sponsor_type', // the method that defines the relationship in your Model
-            'model' => "App\Models\SponsorType", // foreign key model
-            'attribute' => 'sponsor_type_name', // foreign key attribute that is shown to user
-            'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
+            'name'        => 'sponsor_type_id',
+            'label'       => "Type Sponsor",
+            'type'        => 'select2_from_array',
+            'allows_null' => false,
+            'options'     => $this->sponsor(),
             
             //'value' => $this->crud->getCurrentEntryId() ? ChildMaster::find($this->crud->getCurrentEntryId())->sponsor()->where('sponsor_type_id', $this->crud->getCurrentEntryId())->get() : null // <-- Add the default value from the database, with $this->crud->getCurrentEntryId() as the primary key being edited
           ];
@@ -125,7 +124,7 @@ class ProjectMasterCrudController extends CrudController
             'type'=>'hidden',
             'label'=>'id',
             'default'=>$userid
-        ];
+            ];
 
 
           $this->crud->addFields([$title,$sponsor_type,$discription,$photo,$createdby]);
@@ -146,5 +145,14 @@ class ProjectMasterCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+    public function sponsor()
+    {
+        $getsponsor = SponsorType::where('deleted_at',null)->get()
+                        ->map
+                        ->only(['sponsor_type_id', 'sponsor_type_name']);
+        $collection=collect($getsponsor);
+        $sponsor = $collection->pluck('sponsor_type_name','sponsor_type_id') ? $collection->pluck('sponsor_type_name','sponsor_type_id') : 0/null;
+        return $sponsor;
     }
 }

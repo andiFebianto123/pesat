@@ -89,14 +89,12 @@ class ProjectMasterDetail extends Model
     public function AddImage()
     { 
       
-       // return '<a class="btn btn-sm btn-link" href="'.url('admin/dlp/create/?id='.$this->child_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Add DLP</a>';
-      return '<a href="'.url('admin/project-master-detail/create/?projectid='.$this->project_id).'" class="btn btn-primary" data-style="zoom-in">
+      return '<a href="'.url('admin/project-master-detail/'.$this->project_id.'/detail/create').'" class="btn btn-primary" data-style="zoom-in">
                 <span class="ladda-label">
                   <i class="la la-plus">
                   </i>
                     Add Image Detail
                 </span>
               </a>';
-//'admin/dlp/create/?childid='.$this->child_id      
     }
 }

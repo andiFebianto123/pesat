@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\UsersRequest;
 use App\Models\User;
 use App\Models\UserAttribute;
+use App\Models\UserRole;
 use App\Models\Users;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -90,17 +91,11 @@ class UsersCrudController extends CrudController
             'name' => 'name',
             'type' => 'text',
             'label' => "username",
-            'attributes'=>[
-            'required'=>true,
-            ]
             ];
         $email                  = [
                 'name' => 'email',
                 'type' => 'text',
                 'label' => "Email",
-                'attributes'=>[
-                'required'=>true,
-                    ]
                 ];
         $firstname              = [
                 'name' => 'first_name',
@@ -122,28 +117,23 @@ class UsersCrudController extends CrudController
                 'name' => 'full_name',
                 'type' => 'text',
                 'label' => "Full Name",
-                'attributes'=>[
-                            'required'=>true,
-                        ]
                 ];
-        $role                   = [ // Select2Multiple = n-n relationship (with pivot table)
-                'label' => "Role",
-                'type' => 'select',
-                'name' => 'role', // the method that defines the relationship in your Model// optional
-                'entity' => 'role', // the method that defines the relationship in your Model
-                'model' => "App\Models\UserRole", // foreign key model
-                'value'=>"user_role_id",
-                'attribute' => 'user_role_name', // foreign key attribute that is shown to user
-                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
-                  ];
+        $role                   = [
+            'name'        => 'user_role_id',
+            'label'       => "Role",
+            'type'        => 'select2_from_array',
+            'allows_null' => false,
+            'options'     => $this->userrole(),
+            ];                   
         $password          = [   
                 'name'      => 'pass',
                 'label'     => 'Password',
                 'type'      => 'text',
                 'default'   => $randforpass,
                 'attributes'=>[
-                     'disabled'=>true,
-                     ]
+                  'disabled'=>true
+                ]
+
         ];
         $passwordvalue               =[
                 'name' => 'password',
@@ -156,51 +146,41 @@ class UsersCrudController extends CrudController
                 'name' => 'hometown',
                 'type' => 'text',
                 'label' => "Tempat Lahir",
-                'attributes'=>[
-                            'required'=>true,
-                ],
+
                 'wrapperAttributes' => [
                             'class' => 'form -grup col-md-6'
                      ]
                 ];
 
         $dateofbirth        =[   // date_picker
-            'name'  => 'date_of_birth',
-            'type'  => 'date_picker',
-            'label' => 'Tanggal Lahir',
-            'wrapperAttributes' => [
+                'name'  => 'date_of_birth',
+                'type'  => 'date_picker',
+                'label' => 'Tanggal Lahir',
+                'wrapperAttributes' => [
                      'class' => 'form -grup col-md-6'
-            ],
+                ],
 
-            'date_picker_options' => [
-            'todayBtn' => 'linked',
-            'format'   => 'dd-mm-yyyy',
-            'language' => 'en'
-],
-];
+                'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format'   => 'dd-mm-yyyy',
+                'language' => 'en'
+                    ],
+                ];
         $address                = [
                 'name' => 'address',
                 'type' => 'text',
                 'label' => "Tempat Tinggal",
-                'attributes'=>[
-                            'required'=>true,
-                            ]
                 ];
         $noHP                  = [
                 'name' => 'no_hp',
                 'type' => 'text',
                 'label' => "No Hp",
-                'attributes'=>[
-                            'required'=>true,
-                        ]
             ];
         $churchmemberof        = [
                 'name' => 'church_member_of',
                 'type' => 'text',
                 'label' => "Jemaat Dari Gereja",
-                'attributes'=>[
-                            'required'=>true,
-                            ]
+
                 ];
         $label                  = [   
                     'name'  => 'separator',
@@ -579,8 +559,13 @@ class UsersCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
-   // protected function setupUpdateOperation()
-   // {
-
-    //}
+    public function userrole()
+    {
+        $getsponsor = UserRole::where('deleted_at',null)->get()
+                        ->map
+                        ->only(['user_role_id', 'user_role_name']);
+        $collection=collect($getsponsor);
+        $sponsor = $collection->pluck('user_role_name','user_role_id') ? $collection->pluck('user_role_name','user_role_id') : 0/null;
+        return $sponsor;
+    }
 }

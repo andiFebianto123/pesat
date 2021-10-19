@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterDetailRequest;
+use App\Models\ProjectMasterDetail;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -33,10 +35,17 @@ class ProjectMasterDetailCrudController extends CrudController
         CRUD::operation('list', function() {
             CRUD::removeButton('update');
             CRUD::removeButton('show');
-            CRUD::removeButton('create');
+           // CRUD::removeButton('create');
         });
-        $id = request()->input('id', '');
-        $this->crud->addColumns($this->CustomListImageDetail($id));
+        $this->crud->headerId = \Route::current()->parameter('header_id');
+
+        ProjectMasterDetail::addGlobalScope('header_id', function (Builder $builder) {
+            $builder->where('project_id', $this->crud->headerId);
+        });
+
+        CRUD::setModel(ProjectMasterDetail::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/project-master-detail/' . ($this->crud->headerId ?? '-') . '/image');
+        CRUD::setEntityNameStrings('Add Image', 'Add Image');
     }
 
     /**
@@ -68,8 +77,21 @@ class ProjectMasterDetailCrudController extends CrudController
     }
     protected function setupListOperation()
     {
-       // CRUD::setFromDb();
 
+        CRUD::addColumns([
+            [
+                'name'=>'image_detail',
+                'label'=>'Nama File',
+                'type' => 'link',
+                'wrapper' => [
+                    'href' => function ( $crud,$column,$entry,$related_key ) {
+                     return  '/pesat/public/storage/'.$entry->image_detail;
+                   },
+                   
+                'target' => '__blank'
+               ]
+            ]
+        ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -87,17 +109,12 @@ class ProjectMasterDetailCrudController extends CrudController
     {
         CRUD::setValidation(ProjectMasterDetailRequest::class);
 
-        $link   = URL::previous();
-        $cek_id = explode("=",$link);
-      //  dd($cek_id);
-        $project_id= $cek_id[1];
-
-        //CRUD::setFromDb(); // fields
+        $project_id=$this->crud->headerId;
         $projectid         = [
             'name'      => 'project_id',
             'type'      => 'hidden',
-            'default'  =>  $project_id,
-            'label'     =>  "id",
+            'default'   =>  $project_id,
+            'label'     => "id",
           ];
         $imagedetail     = [
             'label'  => "File Gambar",

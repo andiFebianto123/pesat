@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\DlpRequest;
+use App\Models\Dlp;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -33,10 +35,15 @@ class DlpCrudController extends CrudController
         CRUD::operation('list', function() {
             CRUD::removeButton('update');
             CRUD::removeButton('show');
-            CRUD::removeButton('create');
         });
-        $id = request()->input('id', '');
-        $this->crud->addColumns($this->CustomListDlp($id));
+        $this->crud->child_id = \Route::current()->parameter('header_id');
+
+        Dlp::addGlobalScope('header_id', function (Builder $builder) {
+            $builder->where('child_id', $this->crud->child_id);
+        });
+        CRUD::setModel(Dlp::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/dlp/' . ($this->crud->child_id ?? '-') . '/detail');
+        CRUD::setEntityNameStrings('Add DLP', 'Add DLP');
     }
 
     /**
@@ -45,41 +52,25 @@ class DlpCrudController extends CrudController
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
-    public function CustomListDlp($id){
-        // CRUD::setFromDb();
-             $this->crud->hasAccessOrFail('list');
-             $request = $this->crud->validateRequest();
-             $this->crud->removeButtonFromStack('create','top','end');
-             $this->crud->addButtonFromModelFunction('top','button_name','AddDlp','end');
-     
-             if ($id) {
-                 $this->crud->addClause('where', 'child_id', '=', $id);
-             }
-            
-             return [
-                 [
-                     'name'=>'file_dlp',
-                     'label'=>'Nama File',
-                     'type' => 'link',
-                     'wrapper' => [
-                         'href' => function ( $crud,$column,$entry,$related_key ) {
-                          return  '/pesat/public/storage/'.$entry->file_dlp;
-                        },
-                        
-                     'target' => '__blank'
-                    ]
-                 ],
-                 
-             ];
-             $this->CustomCreatedlp($id);
-             //CRUD::setFromDb(); 
-             
-         }
+
      
     protected function setupListOperation()
     {
         
-        //CRUD::setFromDb();
+        CRUD::addColumns([
+            [
+                'name'=>'file_dlp',
+                'label'=>'Nama File',
+                'type' => 'link',
+                'wrapper' => [
+                    'href' => function ( $crud,$column,$entry,$related_key ) {
+                     return  '/pesat/public/storage/'.$entry->file_dlp;
+                   },
+                   
+                'target' => '__blank'
+               ]
+            ]
+        ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -96,11 +87,8 @@ class DlpCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(DlpRequest::class);     
-        $link   = URL::previous();
-        //$childid =substr($link,43);
-        $cek_id = explode("=",$link);
-        $childid= $cek_id[1];
 
+        $childid=$this->crud->child_id;
         $filepdlp         = [
             'label'  => "File DLP",
             'name'   => "file_dlp",

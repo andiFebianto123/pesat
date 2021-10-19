@@ -27,6 +27,21 @@ class ChildMasterRequest extends FormRequest
     {
         return [
             // 'name' => 'required|min:5|max:255'
+            'full_name'             =>  'required',
+            'nickname'              =>  'required',
+            'date_of_birth'         =>  'required',
+            'registration_number'   =>  'required',
+            'city_id'               =>  'required',
+            'province_id'           =>  'required',
+            'districts'             =>  'required',
+            'father'                =>  'required',
+            'mother'                =>  'required',
+            'profession'            =>  'required',
+            'economy'               =>  'required',
+            'class'                 =>  'required',
+            'school'                =>  'required',
+            'school_year'           =>  'required'
+
         ];
     }
 

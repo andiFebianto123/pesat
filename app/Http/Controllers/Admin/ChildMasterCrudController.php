@@ -45,10 +45,8 @@ class ChildMasterCrudController extends CrudController
     protected function setupListOperation()
     {
         
-       // CRUD::setFromDb();
        $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
-        //$this->crud->addButtonFromModelFunction('top', 'email', 'TestEmail', 'beginning');
-      //  $this->crud->addButtonFromView('top', 'sendmail', 'test', 'beginning');
+
         $this->crud->removeButton('delete');
         $this->crud->addColumns([
             [
@@ -62,7 +60,6 @@ class ChildMasterCrudController extends CrudController
                 'options'=>[0=>'Not Publish',1=>'Publish']
             ],
             [
-              //'type' => 'text',
               'type' => 'relationship',
               'name' => 'users', // the relationship name in your Model
               'label' => 'Author',
@@ -107,7 +104,6 @@ class ChildMasterCrudController extends CrudController
                                 'type' => 'text',
                                 'label' => "Nama Lengkap",
                                 'attributes'=>[
-                                'required'=>true,
                                 ]
                               ];
 
@@ -127,9 +123,6 @@ class ChildMasterCrudController extends CrudController
                                 'name'  => 'registration_number',
                                 'label' => 'No Induk',
                                 'type'  => 'text',
-                                'attributes'=>[
-                                  'required'=>true,
-                                ],
                                 'wrapperAttributes' => [
                                   'class' => 'form -grup col-md-6'
                                 ]
@@ -138,9 +131,6 @@ class ChildMasterCrudController extends CrudController
                                 'name'  => 'nickname',
                                 'label' => 'Nama Panggilan',
                                 'type'  => 'text',
-                                'attributes'=>[
-                                'required'=>true,
-                                ],
                                 'wrapperAttributes' => [
                                   'class' => 'form -grup col-md-6'
                                 ]
@@ -154,39 +144,39 @@ class ChildMasterCrudController extends CrudController
                                 ]
                               ];
 
-        $hometown       = [
-          'name'        => 'hometown',
-          'label'       => "Tempat Lahir",
-          'type'        => 'select2_from_array',
-          'allows_null' => false,
-          'options'     => $this->hometown(),
-          'wrapperAttributes' => [
+        $hometown         =   [
+                                'name'        => 'hometown',
+                                'label'       => "Tempat Lahir",
+                                'type'        => 'select2_from_array',
+                                'allows_null' => false,
+                                'options'     => $this->hometown(),
+                                'wrapperAttributes' => [
                                        'class' => 'form -grup col-md-6'
-                                 ]
-        ];
-        $dateofbirth        =[   // date_picker
-                            'name'  => 'date_of_birth',
-                            'type'  => 'date_picker',
-                            'label' => 'Tanggal Lahir',
-                            'wrapperAttributes' => [
+                                        ]
+                              ];
+        $dateofbirth      =   [   // date_picker
+                                'name'  => 'date_of_birth',
+                                'type'  => 'date_picker',
+                                'label' => 'Tanggal Lahir',
+                                'wrapperAttributes' => [
                                      'class' => 'form -grup col-md-6'
-                            ],
+                                ],
 
-                            'date_picker_options' => [
-                            'todayBtn' => 'linked',
-                            'format'   => 'dd-mm-yyyy',
-                            'language' => 'en'
-          ],
-        ];
+                                'date_picker_options' => [
+                                'todayBtn' => 'linked',
+                                'format'   => 'dd-mm-yyyy',
+                                'language' => 'en'
+                                ],
+                              ];
 
-        $religion       = [
-          'name'        => 'religion_id',
-          'label'       => "Agama",
-          'type'        => 'select2_from_array',
-          'allows_null' => false,
-          'options'     => $this->religion(),
+        $religion       =     [
+                                'name'        => 'religion_id',
+                                'label'       => "Agama",
+                                'type'        => 'select2_from_array',
+                                'allows_null' => false,
+                                'options'     => $this->religion(),
 
-        ];
+                              ];
         $FC                 = [
                                 'name'  => 'fc',
                                 'label' => 'FC',
