@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SendMail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');

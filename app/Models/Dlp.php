@@ -72,6 +72,8 @@ class Dlp extends Model
                   </span>
                 </a>';
       }
+      public function Send_Email(){
+        return '<a class="btn btn-sm btn-link" href="'.url('send-mail/'.$this->dlp_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Kirim Email</a>';
+       
+      }
 }
-//AddDlp
-//url('admin/dlp/create/?childid='.$this->child_id)

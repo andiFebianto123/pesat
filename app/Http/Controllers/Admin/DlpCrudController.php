@@ -56,6 +56,7 @@ class DlpCrudController extends CrudController
      
     protected function setupListOperation()
     {
+        $this->crud->addButtonFromModelFunction('line', 'sendmail', 'Send_Email', 'beginning');
         
         CRUD::addColumns([
             [
