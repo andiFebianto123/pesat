@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return view('welcome');
+//});
+Route::get('/', 'App\Http\Controllers\Home@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
+Route::get('/test', 'App\Http\Controllers\Home@index');

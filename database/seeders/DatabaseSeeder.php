@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CityTableSeeder::class);
         $this->call(ReligionTableSeeder::class);
         $this->call(SponsorTypeTableSeeder::class);
+        $this->call(StockStatusSeeder::class);
     }
 }

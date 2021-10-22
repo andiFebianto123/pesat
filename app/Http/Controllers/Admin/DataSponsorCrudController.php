@@ -78,7 +78,182 @@ class DataSponsorCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(DataSponsorRequest::class);
-        CRUD::setFromDb();
+        
+        $randforpass = Str::random(10);
+        $encryppass  = bcrypt($randforpass); 
+        $username               = [
+            'name' => 'name',
+            'type' => 'text',
+            'label' => "username",
+            ];
+        $email                  = [
+                'name' => 'email',
+                'type' => 'text',
+                'label' => "Email",
+                ];
+        $firstname              = [
+                'name' => 'first_name',
+                'type' => 'text',
+                'label' => "First Name",
+                'wrapperAttributes' => [
+                    'class' => 'form -grup col-md-6'
+                      ]
+                ];
+        $lastname              = [
+                'name' => 'last_name',
+                'type' => 'text',
+                'label' => "Last Name",
+                'wrapperAttributes' => [
+                    'class' => 'form -grup col-md-6'
+                      ]
+                    ];
+        $fullname              = [
+                'name' => 'full_name',
+                'type' => 'text',
+                'label' => "Full Name",
+                ];
+        $role                   = [
+            'name'        => 'user_role_id',
+            'label'       => "Role",
+            'type'        => 'select2_from_array',
+            'allows_null' => false,
+            'options'     => $this->userrole(),
+            ];                   
+        $password          = [   
+                'name'      => 'pass',
+                'label'     => 'Password',
+                'type'      => 'text',
+                'default'   => $randforpass,
+                'attributes'=>[
+                  'disabled'=>true
+                ]
+
+        ];
+        $passwordvalue               =[
+                'name' => 'password',
+                'type' => 'hidden',
+                'label' => "Password",
+                'default'=> $encryppass,
+                ];
+
+        $hometown              = [
+                'name' => 'hometown',
+                'type' => 'text',
+                'label' => "Tempat Lahir",
+                'wrapperAttributes' => [
+                            'class' => 'form -grup col-md-6'
+                     ]
+                ];
+
+        $dateofbirth        =[   // date_picker
+                'name'  => 'date_of_birth',
+                'type'  => 'date_picker',
+                'label' => 'Tanggal Lahir',
+                'wrapperAttributes' => [
+                     'class' => 'form -grup col-md-6'
+                ],
+
+                'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format'   => 'dd-mm-yyyy',
+                'language' => 'en'
+                    ],
+                ];
+        $address                = [
+                'name' => 'address',
+                'type' => 'text',
+                'label' => "Tempat Tinggal",
+                ];
+        $noHP                  = [
+                'name' => 'no_hp',
+                'type' => 'text',
+                'label' => "No Hp",
+            ];
+        $churchmemberof        = [
+                'name' => 'church_member_of',
+                'type' => 'text',
+                'label' => "Jemaat Dari Gereja",
+
+                ];
+        $label                  = [   
+                    'name'  => 'separator',
+                    'type'  => 'custom_html',
+                    'value' => '<h4>Contact Info</h4>'
+                ];
+
+        $website                   = [
+                    'label'  => "Website",
+                    'name'   => "website_url",
+                    'type'   => 'text',
+        ];
+        $facebook                   = [
+                    'label'  => "Facebook",
+                    'name'   => "facebook_url",
+                    'type'   => 'text',
+        ];
+        $instagram                   = [
+                    'label'  => "Instagram",
+                    'name'   => "instagram_url",
+                    'type'   => 'text',
+        ];
+        $linkedin                    = [
+                    'label'  => "Linkedin",
+                    'name'   => "linkedin_url",
+                    'type'   => 'text',
+        ];
+        $myspace                    = [
+                    'label'  => "MySpace",
+                    'name'   => "my_space_url",
+                    'type'   => 'text',
+        ];
+        $pinterest                    = [
+                    'label'  => "Pinterest",
+                    'name'   => "pinterest_url",
+                    'type'   => 'text',
+        ];
+        $soundcloud                    = [
+                    'label'  => "SoundCloud",
+                    'name'   => "sound_cloud_url",
+                    'type'   => 'text',
+        ];
+        $tumblr                        = [
+                    'label'  => "Tumblr",
+                    'name'   => "tumblr_url",
+                    'type'   => 'text',
+        ];
+        $twitter                    = [
+                    'label'  => "Twitter",
+                    'name'   => "twitter_url",
+                    'type'   => 'text',
+        ];
+        $youtube                    = [
+                    'label'  => "Youtube",
+                    'name'   => "youtube_url",
+                    'type'   => 'text',
+        ];
+        $biograpical                 = [
+                    'label'  => "Biograpical",
+                    'name'   => "biograpical",
+                    'type'   => 'textarea',
+        ];
+        $photo                    = [
+                    'label' => "Photo Profile",
+                    'name' => "photo_profile",
+                    'type' => 'image',
+                    'crop' => true, // set to true to allow cropping, false to disable
+                    'disks'  => 'image',
+                    'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+        ];
+
+        $this->crud->addFields([$username,$email,$firstname,$lastname,
+                                $fullname,$role,$password,$passwordvalue,
+                                $hometown,$dateofbirth,$address,$noHP,
+                                $churchmemberof,$label,$website,$facebook,
+                                $instagram,$linkedin,$myspace,$pinterest,
+                                $soundcloud,$tumblr,$twitter,$youtube,
+                                $biograpical,$photo
+
+        ]);
         
 
         /**

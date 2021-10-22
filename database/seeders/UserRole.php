@@ -33,11 +33,11 @@ class UserRole extends Seeder
             ],
            
         );
-        DB::table('user_role')->insert(
-            [
-                'user_role_name'       => 'Sponsor',
-            ],
+        // DB::table('user_role')->insert(
+        //     [
+        //         'user_role_name'       => 'Sponsor',
+        //     ],
            
-        );
+        // );
     }
 }
