@@ -55,11 +55,6 @@ class ChildMasterCrudController extends CrudController
             ],
                 
             [
-                'name'=>'status',
-                'type'=>'boolean',
-                'options'=>[0=>'Not Publish',1=>'Publish']
-            ],
-            [
               'type' => 'relationship',
               'name' => 'users', // the relationship name in your Model
               'label' => 'Author',
@@ -106,14 +101,7 @@ class ChildMasterCrudController extends CrudController
                                 'attributes'=>[
                                 ]
                               ];
-
-        $sponsor_type       = [
-                                    'name'        => 'sponsor_type_id',
-                                    'label'       => "Type Sponsor",
-                                    'type'        => 'select2_from_array',
-                                    'allows_null' => false,
-                                    'options'     => $this->sponsor(),
-        ];                   
+              
         $childdiscription   = [
                                 'name' => 'child_discription',
                                 'label' => 'Deskripsi Anak',
@@ -329,7 +317,7 @@ class ChildMasterCrudController extends CrudController
                                 'prefix' => '/storage/'
                               ];
         
-        $this->crud->addFields([$createdby,$name,$sponsor_type,$childdiscription, 
+        $this->crud->addFields([$createdby,$name,$childdiscription, 
                                 $noRegistration,$nickname,$gender,$hometown,
                                 $dateofbirth,$religion,$FC,$sponsor,$province,
                                 $city,$districts, $father,$mother,
