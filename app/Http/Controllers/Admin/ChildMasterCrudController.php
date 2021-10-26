@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\ChildMasterRequest;
 use App\Models\City;
 use App\Models\Religion;
+use App\Models\ChildMaster;
 use App\Models\SponsorType;
+use App\Http\Requests\ChildMasterRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -21,8 +22,7 @@ class ChildMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
-
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;} 
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -124,7 +124,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'No Induk',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                  'class' => 'form -grup col-md-6'
+                                  'class' => 'form-group col-md-6'
                                 ]
                               ];
         $nickname           = [
@@ -132,7 +132,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Nama Panggilan',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                  'class' => 'form -grup col-md-6'
+                                  'class' => 'form-group col-md-6'
                                 ]
                               ];   
         $gender           =   [
@@ -148,7 +148,7 @@ class ChildMasterCrudController extends CrudController
                                 'allows_null' => false,
                                 'options'     => $this->hometown(),
                                 'wrapperAttributes' => [
-                                       'class' => 'form -grup col-md-6'
+                                       'class' => 'form-group col-md-6'
                                         ]
                               ];
         $dateofbirth      =   [   // date_picker
@@ -156,7 +156,7 @@ class ChildMasterCrudController extends CrudController
                                 'type'  => 'date_picker',
                                 'label' => 'Tanggal Lahir',
                                 'wrapperAttributes' => [
-                                     'class' => 'form -grup col-md-6'
+                                     'class' => 'form-group col-md-6'
                                 ],
 
                                 'date_picker_options' => [
@@ -200,7 +200,7 @@ class ChildMasterCrudController extends CrudController
                                 'placeholder'             => "Select a Province", // placeholder for the select
                                 'minimum_input_length'    => 2, // minimum characters to type before querying results
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-6'
+                                'class' => 'form-group col-md-6'
                                 ]
                                 ];
         $city             =   [   // 1-n relationship
@@ -213,7 +213,7 @@ class ChildMasterCrudController extends CrudController
                                 'placeholder'             => "Select a City", // placeholder for the select
                                 'minimum_input_length'    => 2, // minimum characters to type before querying results
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-6'
+                                'class' => 'form-group col-md-6'
                                 ]
                               ];
 
@@ -222,7 +222,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Ayah',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                  'class' => 'form -grup col-md-6'
+                                  'class' => 'form-group col-md-6'
                                   ]
                               ];
         $mother             = [
@@ -230,7 +230,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Ibu',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                  'class' => 'form -grup col-md-6'
+                                  'class' => 'form-group col-md-6'
                                   ]
                               ];
         $profession         = [
@@ -248,7 +248,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Kelas',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-4'
+                                'class' => 'form-group col-md-4'
                                   ]
                               ];
         $school             = [
@@ -256,7 +256,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Sekolah',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-4'
+                                'class' => 'form-group col-md-4'
                                   ]
                               ];
         $schoolyear         = [
@@ -264,7 +264,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => 'Tahun Ajaran',
                                 'type'  => 'text',
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-4'
+                                'class' => 'form-group col-md-4'
                                   ]
                               ];
 
@@ -273,7 +273,7 @@ class ChildMasterCrudController extends CrudController
                                 'type'  => 'date_picker',
                                 'label' => 'Masuk FC',
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-6'
+                                'class' => 'form-group col-md-6'
                                         ],
 
                                 'date_picker_options' => [
@@ -288,7 +288,7 @@ class ChildMasterCrudController extends CrudController
                                 'type'  => 'date_picker',
                                 'label' => 'Keluar FC',
                                 'wrapperAttributes' => [
-                                'class' => 'form -grup col-md-6'
+                                'class' => 'form-group col-md-6'
                                           ],
 
                                 'date_picker_options' => [
