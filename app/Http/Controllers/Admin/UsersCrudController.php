@@ -105,7 +105,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "First Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                 ];
         $lastname              = [
@@ -113,7 +113,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Last Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                     ];
         $fullname              = [
@@ -150,7 +150,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Tempat Lahir",
                 'wrapperAttributes' => [
-                            'class' => 'form -grup col-md-6'
+                            'class' => 'form-group col-md-6'
                      ]
                 ];
 
@@ -159,7 +159,7 @@ class UsersCrudController extends CrudController
                 'type'  => 'date_picker',
                 'label' => 'Tanggal Lahir',
                 'wrapperAttributes' => [
-                     'class' => 'form -grup col-md-6'
+                     'class' => 'form-group col-md-6'
                 ],
 
                 'date_picker_options' => [
@@ -341,7 +341,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "First Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                 ];
         $lastname              = [
@@ -349,7 +349,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Last Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                     ];
         $fullname              = [
@@ -374,7 +374,7 @@ class UsersCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Tempat Lahir",
                 'wrapperAttributes' => [
-                            'class' => 'form -grup col-md-6'
+                            'class' => 'form-group col-md-6'
                      ]
                 ];
 
@@ -383,7 +383,7 @@ class UsersCrudController extends CrudController
             'type'  => 'date_picker',
             'label' => 'Tanggal Lahir',
             'wrapperAttributes' => [
-                     'class' => 'form -grup col-md-6'
+                     'class' => 'form-group col-md-6'
             ],
 
             'date_picker_options' => [

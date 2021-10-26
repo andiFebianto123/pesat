@@ -96,7 +96,7 @@ class DataSponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "First Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                 ];
         $lastname              = [
@@ -104,7 +104,7 @@ class DataSponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Last Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                     ];
         $fullname              = [
@@ -141,7 +141,7 @@ class DataSponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Tempat Lahir",
                 'wrapperAttributes' => [
-                            'class' => 'form -grup col-md-6'
+                            'class' => 'form-group col-md-6'
                      ]
                 ];
 
@@ -150,7 +150,7 @@ class DataSponsorCrudController extends CrudController
                 'type'  => 'date_picker',
                 'label' => 'Tanggal Lahir',
                 'wrapperAttributes' => [
-                     'class' => 'form -grup col-md-6'
+                     'class' => 'form-group col-md-6'
                 ],
 
                 'date_picker_options' => [

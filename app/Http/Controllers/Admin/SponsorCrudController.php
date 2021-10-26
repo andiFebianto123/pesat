@@ -132,7 +132,7 @@ class SponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "First Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                 ];
         $lastname              = [
@@ -140,7 +140,7 @@ class SponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Last Name",
                 'wrapperAttributes' => [
-                    'class' => 'form -grup col-md-6'
+                    'class' => 'form-group col-md-6'
                       ]
                     ];
         $fullname              = [
@@ -177,7 +177,7 @@ class SponsorCrudController extends CrudController
                 'type' => 'text',
                 'label' => "Tempat Lahir",
                 'wrapperAttributes' => [
-                            'class' => 'form -grup col-md-6'
+                            'class' => 'form-group col-md-6'
                      ]
                 ];
 
@@ -186,7 +186,7 @@ class SponsorCrudController extends CrudController
                 'type'  => 'date_picker',
                 'label' => 'Tanggal Lahir',
                 'wrapperAttributes' => [
-                     'class' => 'form -grup col-md-6'
+                     'class' => 'form-group col-md-6'
                 ],
 
                 'date_picker_options' => [
@@ -336,7 +336,7 @@ public function edit($id)
             'type' => 'text',
             'label' => "First Name",
             'wrapperAttributes' => [
-                'class' => 'form -grup col-md-6'
+                'class' => 'form-group col-md-6'
                   ]
             ];
     $lastname              = [
@@ -344,7 +344,7 @@ public function edit($id)
             'type' => 'text',
             'label' => "Last Name",
             'wrapperAttributes' => [
-                'class' => 'form -grup col-md-6'
+                'class' => 'form-group col-md-6'
                   ]
                 ];
     $fullname              = [
@@ -361,7 +361,7 @@ public function edit($id)
             'type' => 'text',
             'label' => "Tempat Lahir",
             'wrapperAttributes' => [
-                        'class' => 'form -grup col-md-6'
+                        'class' => 'form-group col-md-6'
                  ]
             ];
 
@@ -370,7 +370,7 @@ public function edit($id)
         'type'  => 'date_picker',
         'label' => 'Tanggal Lahir',
         'wrapperAttributes' => [
-                 'class' => 'form -grup col-md-6'
+                 'class' => 'form-group col-md-6'
         ],
 
         'date_picker_options' => [

@@ -8,12 +8,6 @@
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
     
     <style>
-    .col-example {
-      border: 1px solid #eee;
-      padding: 10px;
-      background-color: #33b5e5;
-      color: #fff;
-    }
     body { background: #f8f8f8 !important; }
     header{
         background:#FFFFFF;
@@ -33,8 +27,8 @@
 </br>
     </header>
 <div class="container">
-    <div class="col-12 col-example" >
-       <h3>Sponsor Anak</h3>
+    <div class="col-12" >
+       <h2>Sponsor Anak</h2>
        </br>
        <p>
        Kami melayani ribuan anak desa dan membimbing serta memperlengkapi mereka menjadi pemimpin masa depan bangsa. Untuk itu setiap anak 
@@ -43,42 +37,54 @@
        formulir di bawah ini:
        </p>
     </div>
+    <form id="form-filter" action="{{url('/')}}" method="GET" >
+   
+    {!! csrf_field() !!}
     <div class="card card-body">
         <div class="row">
-        <div class="col-4">
-        <p>Provinsi :</p>
-        <select class="form-select" aria-label="Default select example">
-            <option selected></option>
-            <option value="1">Jawa tengah</option>
-            <option value="2">Jawa Timur</option>
-            <option value="3">Jawa Barat</option>
-        </select>
+            <div class="col-4">
+                <p>Provinsi :</p>
+                    <select class="form-select" name = "provinceid" aria-label="Default select example">
+                        <option selected></option>
+                        @foreach ($provinces as $province)
+                        <option value="{{$province->province_id}}">{{$province->province_name}}</option>
+                        @endforeach
+
+                    </select>
+            </div>
+            <div class='col-4'>
+                <p>Gender :<p>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected></option>
+                        <option value="1">Laki-Laki</option>
+                        <option value="2">Perempuan</option>
+                    </select>
+            </div>
+            <div class='col-4'>
+                <p>Kelas :<p>
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected></option>
+                        @foreach($class as $key => $data) 
+                        <option value="{{$key}}">{{$key}}</option>
+                        @endforeach
+                    </select>
+            </div>
+       </div>
+       <div class="row">
+            <div class="col-10">
+            </div>
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-left:80px">Apply Filter</button>
+            </div>
+           
         </div>
-        <div class='col-4'>
-        <p>Gender :<p>
-        <select class="form-select" aria-label="Default select example">
-            <option selected></option>
-            <option value="1">Laki-Laki</option>
-            <option value="2">Perempuan</option>
-        </select>
-       </div>
-       <div class='col-4'>
-       <p>Kelas :<p>
-        <select class="form-select" aria-label="Default select example">
-            <option selected></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-        </select>
-       </div>
-       </div>
     </div>
+    </form>
        </br>
     <div class="row">
     @foreach ($childs as $key => $child)
     <div class="col-4">
         <div class="card" style="width: 26rem; margin-bottom:30px;">
-        <!-- /pesat/public/storage/'.$entry->file_dlp -->
             <img class="card-img-top" src="{{asset('storage/'.$child->photo_profile)}}" alt="Card image cap">
             <div class="card-body">
                 <h5 class="card-title">{{$child->full_name}}</h5>
@@ -106,7 +112,7 @@
        Silakan mengirimkan e-mail, telepon, atau join facebook kami:
           </div>
     <section class="mb-4">
-      <!-- Facebook -->
+
       <ul class="nav justify-content-center">
         <li class="nav-item">
             <a class="nav-link link-light" aria-current="page" href="#"><i class="fa fa-envelope"></i> pesatjkt@gmail.com</a>
