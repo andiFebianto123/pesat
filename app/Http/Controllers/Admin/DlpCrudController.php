@@ -65,7 +65,8 @@ class DlpCrudController extends CrudController
                 'type' => 'link',
                 'wrapper' => [
                     'href' => function ( $crud,$column,$entry,$related_key ) {
-                     return  '/pesat/public/storage/'.$entry->file_dlp;
+                    return url('storage/'.$entry->file_dlp);
+                    // / return  '/pesat/public/storage/'.$entry->file_dlp;
                    },
                    
                 'target' => '__blank'

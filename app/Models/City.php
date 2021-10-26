@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class City extends Model
 {
@@ -14,14 +15,14 @@ class City extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    use SoftDeletes;
     protected $table = 'city';
     protected $primaryKey = 'city_id';
     // public $timestamps = false;
     protected $guarded = ['city_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

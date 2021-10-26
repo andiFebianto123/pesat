@@ -47,7 +47,7 @@ class ChildMasterCrudController extends CrudController
         
        $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
 
-        $this->crud->removeButton('delete');
+   //     $this->crud->removeButton('delete');
         $this->crud->addColumns([
             [
                 'name'=>'full_name',

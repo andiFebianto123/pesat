@@ -39,7 +39,14 @@ class ReligionCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb();     
+       // CRUD::setFromDb();
+       $this->crud->addColumns([
+        [
+            'name' => 'religion_name',
+            'type' => 'text',
+        ],
+
+    ]);    
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -58,7 +65,16 @@ class ReligionCrudController extends CrudController
     {
         CRUD::setValidation(ReligionRequest::class);
 
-        CRUD::setFromDb();
+        $religion          = [
+            'name' => 'religion_name',
+            'type' => 'text',
+            'label' => "Nama Agama",
+    
+            ];
+
+            $this->crud->addFields([
+            $religion
+        ]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:

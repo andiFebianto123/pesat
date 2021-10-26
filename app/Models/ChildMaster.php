@@ -131,7 +131,7 @@ class ChildMaster extends Model
     public function DetailDlp($crud)
     {
       $link = "add-dlp";
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/dlp/'.$this->child_id.'/detail').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Detail DLP</a>';
+        return '<a class="btn btn-sm btn-link" href="'.url('admin/dlp/'.$this->child_id.'/detail').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-file"></i> DLP</a>';
     }
   
 }

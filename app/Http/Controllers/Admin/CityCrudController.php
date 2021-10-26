@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\CityRequest;
+use App\Models\Province;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -64,7 +65,25 @@ class CityCrudController extends CrudController
     {
         CRUD::setValidation(CityRequest::class);
 
-        CRUD::setFromDb();
+        //CRUD::setFromDb();
+        $provinces       =     [
+            'name'        => 'province_id',
+            'label'       => "Provinsi",
+            'type'        => 'select2_from_array',
+            'allows_null' => false,
+            'options'     => $this->province(),
+
+          ];
+        $cityname          = [
+            'name' => 'city_name',
+            'type' => 'text',
+            'label' => "Nama Kota",
+            
+          ];
+
+          $this->crud->addFields([
+            $provinces,$cityname
+    ]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -82,5 +101,15 @@ class CityCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function province()
+    {
+        $province = Province::where('deleted_at',null)->get()
+            ->map
+            ->only(['province_id', 'province_name']);
+        $collection=collect($province);
+        $province = $collection->pluck('province_name','province_id') ? $collection->pluck('province_name','province_id') : 0/null;
+        return $province;
     }
 }
