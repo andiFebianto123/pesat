@@ -5,6 +5,7 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Faker\Provider\Image;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProjectMaster extends Model
 {
@@ -15,14 +16,14 @@ class ProjectMaster extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    use SoftDeletes;
     protected $table = 'project_master';
     protected $primaryKey = 'project_id';
     // public $timestamps = false;
     protected $guarded = ['project_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------
