@@ -91,15 +91,6 @@ class ProjectMasterCrudController extends CrudController
             'label' => "Nama Proyek",
           ];
 
-        $sponsor_type       = [ // Select2Multiple = n-n relationship (with pivot table)
-            'name'        => 'sponsor_type_id',
-            'label'       => "Type Sponsor",
-            'type'        => 'select2_from_array',
-            'allows_null' => false,
-            'options'     => $this->sponsor(),
-            
-            //'value' => $this->crud->getCurrentEntryId() ? ChildMaster::find($this->crud->getCurrentEntryId())->sponsor()->where('sponsor_type_id', $this->crud->getCurrentEntryId())->get() : null // <-- Add the default value from the database, with $this->crud->getCurrentEntryId() as the primary key being edited
-          ];
         $discription     = [
             'name' => 'discription',
             'type' => 'ckeditor',
@@ -126,7 +117,7 @@ class ProjectMasterCrudController extends CrudController
             ];
 
 
-          $this->crud->addFields([$title,$sponsor_type,$discription,$photo,$createdby]);
+          $this->crud->addFields([$title,$discription,$photo,$createdby]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -145,13 +136,5 @@ class ProjectMasterCrudController extends CrudController
     {
         $this->setupCreateOperation();
     }
-    public function sponsor()
-    {
-        $getsponsor = SponsorType::where('deleted_at',null)->get()
-                        ->map
-                        ->only(['sponsor_type_id', 'sponsor_type_name']);
-        $collection=collect($getsponsor);
-        $sponsor = $collection->pluck('sponsor_type_name','sponsor_type_id') ? $collection->pluck('sponsor_type_name','sponsor_type_id') : 0/null;
-        return $sponsor;
-    }
+
 }

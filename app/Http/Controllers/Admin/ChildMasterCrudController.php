@@ -301,7 +301,7 @@ class ChildMasterCrudController extends CrudController
                                 'label' => "Profile Image",
                                 'name' => "photo_profile",
                                 'type' => 'image',
-                                'updload'=>true,
+                                'upload'=>true,
                                 'crop' => true, // set to true to allow cropping, false to disable
                                 'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
                                 'prefix' =>'/storage/'
@@ -356,12 +356,10 @@ class ChildMasterCrudController extends CrudController
           'label'=>'Nama Lengkap'
       ],
       [
-        'name'=>'sponsor_type',
-        'label'=>'Type Sponsor'
-      ],
-      [
-        'name'=>'child_discription',
-        'label'=>'Diskripsi Anak'
+        'name'  =>'child_discription',
+        'label' =>'Diskripsi Anak',
+        'type'  =>'text',
+        'escaped'=> false
         
       ],
 
@@ -378,16 +376,22 @@ class ChildMasterCrudController extends CrudController
         'label'=>'Jenis Kelamin'
       ],
       [
-        'name'=>'city',
-        'label'=>'Tempat Lahir'
+        'name'      => 'hometown',
+        'label'     => 'Tempat Lahir',
+        'entity'    => 'city',
+        'attribute' => 'city_name', // foreign key attribute that is shown to user
+        'model'     => 'App\Models\City', // foreign key model
       ],
       [
-        'name'=>'date_of_birth',
-        'label'=>'Tanggal Lahir'
+        'name'      => 'date_of_birth',
+        'label'     => 'Tanggal Lahir'
       ],
       [
-        'name'=>'religion',
-        'label'=>'Agama'
+        'name'      => 'religion_id',
+        'label'     => 'Agama',
+        'entity'    => 'religion',
+        'attribute' => 'religion_name',
+        'model'     => 'App\Models\Religion'
       ],
       [
         'name'=>'fc',
@@ -402,12 +406,18 @@ class ChildMasterCrudController extends CrudController
         'label'=>'Kecamatan'
       ],
       [
-        'name'=>'province_id',
-        'label'=>'Provinsi'
+        'name'      => 'province_id',
+        'label'     => 'Provinsi',
+        'entity'    => 'province',
+        'attribute' => 'province_name',
+        'model'     => 'App\Models\Province'
       ],
       [
-        'name'=>'city_id',
-        'label'=>'Kota/Kabupaten'
+        'name'      => 'city_id',
+        'label'     => 'Kota/Kabupaten',
+        'entity'    => 'city2',
+        'attribute' => 'city_name',
+        'model'     => 'App\Models\City'
       ],
       [
         'name'=>'father',
@@ -453,32 +463,48 @@ class ChildMasterCrudController extends CrudController
         'name'=>'internal_discription',
         'label'=>'Diskripsi Internal'
       ],
-      [
-        'name'=>'photo_profile',
-        'label'=>'Foto Profile',
-        'type'=> 'link',
-        'wrapper' => [
-          'href' => function ( $crud,$column,$entry,$related_key ) {
-           return  '/pesat/public/storage/'.$entry->photo_profile;
-         },
-         
-      'target' => '__blank'
-     ]
-      ],
-      [
-        'name'=>'file_profile',
-        'label'=>'File Profile',
-        'type'=> 'link',
-        'wrapper' => [
-          'href' => function ( $crud,$column,$entry,$related_key ) {
-           return  '/pesat/public/storage/'.$entry->file_profile;
-         },
-         
-      'target' => '__blank'
-     ]
-      ],
 
-
+      [
+        'name'     => 'photo_profile',
+        'label'    => 'Foto Profile',
+        'type'     => 'image',
+        'prefix'   => 'storage/',
+        'height'   => '150px',
+        'function' => function($entry) {          
+         return   url($entry->photo_profile);
+        }
+      ],
+  
+    //   [
+    //     'name'=>'file',
+    //     'label'=>'File Profile',       
+    //     'type'=> 'text',
+    //     'default'=>'test',
+    //     'wrapper' => [
+    //       'elemen' => 'span',
+    //       //'span' => '<a href=#></a>',//function ( $crud,$column,$entry,$related_key ) {
+    //        //return url('storage/'.$entry->file_profile);
+    //     //   return '<a href=#>test</a>';
+    //     // },
+         
+    //   'target' => '__blank'
+    //   ]
+    // ],
+    [
+      'name'     => 'file',
+      'label'    => 'File Profile',
+      'type'     => 'custom_html',
+      'value' => '<span>File</span>',
+      'wrapper' => [
+        'href' => function ( $crud,$column,$entry,$related_key ) {
+        return url('storage/'.$entry->file_profile);
+        // / return  '/pesat/public/storage/'.$entry->file_dlp;
+       },
+       
+    'target' => '__blank'
+   ]
+     // 'escaped' => false //optional, if the "value" should be escaped when displayed in the page. 
+    ],
 
     ]);
 

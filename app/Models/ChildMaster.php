@@ -79,14 +79,6 @@ class ChildMaster extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    // public function setPhotoProfileAttribute($value)
-    // {
-    //     $attribute_name = "photo_profile";
-    //     $disk = "public";
-    //     $destination_path = "folder_1/subfolder_1";
-    //     $this->uploadFileToDisk($value, $attribute_name, $disk, $destination_path);
-       
-    // }
     public function setPhotoProfileAttribute($value)
     {
        // $attribute_name = "featured_image";
@@ -133,5 +125,9 @@ class ChildMaster extends Model
       $link = "add-dlp";
         return '<a class="btn btn-sm btn-link" href="'.url('admin/dlp/'.$this->child_id.'/detail').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-file"></i> DLP</a>';
     }
+
+    public function getSlugWithLink() {
+      return '<a href="'.url($this->slug).'" target="_blank">'.$this->slug.'</a>';
+  }
   
 }

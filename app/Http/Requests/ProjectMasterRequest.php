@@ -27,7 +27,6 @@ class ProjectMasterRequest extends FormRequest
     {
         return [
             // 'name' => 'required|min:5|max:255'
-            'sponsor_type_id'=> 'required',
             'title'          => 'required',
             'discription'    => 'required',
             'featured_image' => 'required'
