@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\DlpRequest;
+use App\Models\ChildMaster;
 use App\Models\Dlp;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -47,9 +49,24 @@ class DlpCrudController extends CrudController
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
+    public function getChildMaster($id){
+      
+        $cekdata = ChildMaster::where('child_id', $id)
+                            ->where('deleted_at',null);
+       
+
+        $cekdata =  $cekdata->first();
+        if($cekdata == null){
+            DB::rollback();
+            abort(404, trans('custom.model_not_found'));
+        }
+        return $cekdata;
+    }
 
     protected function setupListOperation()
     {
+        $this->crud->cekdata = $this->getChildMaster($this->crud->child_id);
+
         $this->crud->addButtonFromModelFunction('line', 'sendmail', 'Send_Email', 'beginning');
 
         CRUD::addColumns([
@@ -83,6 +100,8 @@ class DlpCrudController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
+
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(DlpRequest::class);
