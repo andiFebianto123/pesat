@@ -53,17 +53,21 @@ class DlpCrudController extends CrudController
         $this->crud->addButtonFromModelFunction('line', 'sendmail', 'Send_Email', 'beginning');
 
         CRUD::addColumns([
+
             [
                 'name' => 'file_dlp',
-                'label' => 'Nama File',
-                'type' => 'link',
+                'label' => 'Nama Profile',
+                'type' => 'custom_html',
+                'value' => '<span>File</span>',
                 'wrapper' => [
                     'href' => function ($crud, $column, $entry, $related_key) {
                         return url('storage/' . $entry->file_dlp);
+
                     },
 
                     'target' => '__blank',
                 ],
+
             ],
         ]);
         /**

@@ -8,9 +8,12 @@ use App\Models\UserAttribute;
 use App\Models\UserRole;
 use App\Models\Users;
 use App\Http\Requests\UsersUpdateRequest as UpdateRequest;
+use App\Models\ChildMaster;
+use App\Models\ProjectMaster;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Str;
+
 
 /**
  * Class UsersCrudController
@@ -27,6 +30,7 @@ class UsersCrudController extends CrudController
    // use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
 
 
     /**
@@ -655,5 +659,24 @@ class UsersCrudController extends CrudController
         $collection=collect($getsponsor);
         $sponsor = $collection->pluck('user_role_name','user_role_id') ? $collection->pluck('user_role_name','user_role_id') : 0/null;
         return $sponsor;
+    }
+
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        
+
+        $cekchild = ChildMaster::where('created_by',$id);
+        $cekproject = ProjectMaster::where('created_by',$id);
+        $child = $cekchild->exists();
+        $project = $cekproject->exists();
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if($child == true || $project == true){
+            return response()->json(array('status'=>'error', 'msg'=>'Error!','message'=>'The selected data has already had relation with other data.'), 403);
+        }else{
+            return $this->crud->delete($id);
+
+        }
     }
 }

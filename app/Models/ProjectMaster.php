@@ -94,6 +94,6 @@ class ProjectMaster extends Model
 
     public function DetailImage($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/project-master-detail/'.$this->project_id.'/image').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Detail Image</a>';
+        return '<a class="btn btn-sm btn-link" href="'.url('admin/project-master-detail/'.$this->project_id.'/image').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-file-photo-o"></i> Detail Image</a>';
     }
 }

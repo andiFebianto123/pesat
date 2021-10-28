@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ReligionRequest;
+use App\Models\ChildMaster;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,6 +19,7 @@ class ReligionCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -39,7 +41,6 @@ class ReligionCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-       // CRUD::setFromDb();
        $this->crud->addColumns([
         [
             'name' => 'religion_name',
@@ -92,5 +93,22 @@ class ReligionCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        
+
+        $client = ChildMaster::where('religion_id',$id);
+        $exists = $client->exists();
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if($exists == true){
+            return response()->json(array('status'=>'error', 'msg'=>'Error!','message'=>'The selected data has already had relation with other data.'), 403);
+        }else{
+            return $this->crud->delete($id);
+
+        }
     }
 }

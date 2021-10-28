@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProvinceRequest;
+use App\Models\ChildMaster;
 use App\Models\City;
 use App\Models\Province;
 use App\Traits\RedirectCrud;
@@ -44,7 +45,13 @@ class ProvinceCrudController extends CrudController
     protected function setupListOperation()
     {
         
-        CRUD::setFromDb();
+        $this->crud->addColumns([
+            [
+                'name' => 'province_name',
+                'type' => 'text',
+            ],
+    
+        ]);    
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -135,16 +142,20 @@ class ProvinceCrudController extends CrudController
 
     public function destroy($id)
     {
-        $this->crud->hasAccessOrFail('delete');
+        $this->crud->hasAccessOrFail('delete');        
         
+        $cekcity = City::where('province_id',$id);
+        $city = $cekcity->exists();
 
-    $client = City::where('province_id',$id);
-    $exists = $client->exists();
-   // dd($exists);
-
+        $cekchild = ChildMaster::where('province_id',$id);
+        $child = $cekchild->exists();
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
+        if($city == true || $child == true){
+            return response()->json(array('status'=>'error', 'msg'=>'Error!','message'=>'The selected data has already had relation with other data.'), 403);
+        }else{
+            return $this->crud->delete($id);
 
-        return $this->crud->delete($id);
+        }
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\CityRequest;
+use App\Models\ChildMaster;
+use App\Models\City;
 use App\Models\Province;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -19,6 +21,7 @@ class CityCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -111,5 +114,23 @@ class CityCrudController extends CrudController
         $collection=collect($province);
         $province = $collection->pluck('province_name','province_id') ? $collection->pluck('province_name','province_id') : 0/null;
         return $province;
+    }
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        
+
+        $cekhometown = ChildMaster::where('hometown',$id);
+        $cekcity     = ChildMaster::where('city_id',$id);
+        $hometown    = $cekhometown->exists();
+        $city        = $cekcity->exists();
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if($hometown == true || $city == true){
+            return response()->json(array('status'=>'error', 'msg'=>'Error!','message'=>'The selected data has already had relation with other data.'), 403);
+        }else{
+            return $this->crud->delete($id);
+
+        }
     }
 }
