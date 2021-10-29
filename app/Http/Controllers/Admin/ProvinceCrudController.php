@@ -7,6 +7,7 @@ use App\Models\ChildMaster;
 use App\Models\City;
 use App\Models\Province;
 use App\Traits\RedirectCrud;
+use App\Http\Requests\ProvinceUpdateRequest as UpdateRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -67,9 +68,10 @@ class ProvinceCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(ProvinceRequest::class);
 
-       $provincename          = [
+        CRUD::setValidation(ProvinceRequest::class);
+        
+        $provincename          = [
         'name' => 'province_name',
         'type' => 'text',
         'label' => "Nama Provinsi",
@@ -93,7 +95,17 @@ class ProvinceCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+//        $this->setupCreateOperation();
+        CRUD::setValidation(UpdateRequest::class);
+        $provincename          = [
+            'name' => 'province_name',
+            'type' => 'text',
+            'label' => "Nama Provinsi",
+            ];
+
+        $this->crud->addFields([$provincename
+
+            ]);
     }
 
     public function store()
@@ -117,28 +129,28 @@ class ProvinceCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
-    public function update($id)
-    {
-        $this->crud->hasAccessOrFail('update');
+    // public function update($id)
+    // {
+    //     $this->crud->hasAccessOrFail('update');
 
-        // execute the FormRequest authorization and validation, if one is required
-        $request = $this->crud->validateRequest();
+    //     // execute the FormRequest authorization and validation, if one is required
+    //     $request = $this->crud->validateRequest();
 
-        return $this->redirectUpdateCrud($id,['province_name'=>['abc']]);
+    //     return $this->redirectUpdateCrud($id,['province_name'=>['abc']]);
 
-        // update the row in the db
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-                            $this->crud->getStrippedSaveRequest());
-        $this->data['entry'] = $this->crud->entry = $item;
+    //     // update the row in the db
+    //     $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
+    //                         $this->crud->getStrippedSaveRequest());
+    //     $this->data['entry'] = $this->crud->entry = $item;
 
-        // show a success message
-        \Alert::success(trans('backpack::crud.update_success'))->flash();
+    //     // show a success message
+    //     \Alert::success(trans('backpack::crud.update_success'))->flash();
 
-        // save the redirect choice for next time
-        $this->crud->setSaveAction();
+    //     // save the redirect choice for next time
+    //     $this->crud->setSaveAction();
 
-        return $this->crud->performSaveAction($item->getKey());
-    }
+    //     return $this->crud->performSaveAction($item->getKey());
+    // }
 
     public function destroy($id)
     {

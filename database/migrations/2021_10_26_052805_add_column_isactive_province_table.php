@@ -21,9 +21,11 @@ class AddColumnIsactiveProvinceTable extends Migration
 
         Schema::table('province', function (Blueprint $table) {
            
-            $table->string('province_name')->unique()->change();
-                  
+            $table->string('province_name')->change();
+            $table->unique(['province_name','is_active']);
+            
         });
+
 
     }
 

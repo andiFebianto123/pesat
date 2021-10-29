@@ -6,7 +6,7 @@ use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ProvinceRequest extends FormRequest
+class ProjectMasterUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,12 +26,11 @@ class ProvinceRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->get('id') ?? request()->route('id');
         return [
-             'province_name' => ['required','max:255',Rule::unique('province','province_name')->where(function($query){
-
-                                    return $query->where('is_active',1);
-                                })->ignore($this->province_id,'province_id')
-                                ]//'required|max:255|unique:Province'
+            'title'          => ['required', Rule::unique('project_master', 'title')->ignore($id, 'project_id'),],
+            'discription'    => 'required',
+            'featured_image' => 'required'
         ];
     }
 

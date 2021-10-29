@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReligionRequest extends FormRequest
 {
@@ -26,7 +27,11 @@ class ReligionRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+                'religion_name' =>  ['required','max:255',Rule::unique('religion','religion_name')->where(function($query){
+                 return $query->where('is_active',1);
+                }
+                )->ignore($this->religion_id,'religion_id')
+                ]
         ];
     }
 

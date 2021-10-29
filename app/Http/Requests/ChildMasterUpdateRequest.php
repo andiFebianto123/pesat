@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\ChildMaster;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class ChildMasterRequest extends FormRequest
+class ChildMasterUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +27,9 @@ class ChildMasterRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->get('id') ?? request()->route('id');
         return [
-            // 'name' => 'required|min:5|max:255'
-            'registration_number'   =>  'required|unique:Child_Master',
+           // 'registration_number'   => ['required', Rule::unique('child_master', 'registration_number')->ignore($id, 'child_id'),],
             'full_name'             =>  'required|max:255',
             'nickname'              =>  'required|max:255',
             'gender'                =>  'required|max:255',
@@ -36,9 +38,9 @@ class ChildMasterRequest extends FormRequest
             'religion_id'           =>  'regex:/^[0-9]+$/',
             'fc'                    =>  'max:255',
             'sponsor_name'          =>  'max:255',
-            'city_id'               =>  'required|regex:/^[0-9]+$/',
-            'districts'             =>  'required|max:255',
-            'province_id'           =>  'required|regex:/^[0-9]+$/',
+            'city_id'               =>  'required',
+            'districts'             =>  'required',            
+            'province_id'           =>  'required',
             'father'                =>  'required|max:255',
             'mother'                =>  'required|max:255',
             'profession'            =>  'required|max:255',
@@ -46,12 +48,13 @@ class ChildMasterRequest extends FormRequest
             'class'                 =>  'required|max:255',
             'school'                =>  'required|max:255',
             'school_year'           =>  'required|max:255',
-            'sign_in_fc'            =>  'nullable|date|date_format:Y-m-d',
-            'leave_fc'              =>  'nullable|date|date_format:Y-m-d',
+            'sign_in_fc'            =>  'nullable|date_format:Y-m-d',
+            'leave_fc'              =>  'nullable|date_format:Y-m-d',
             'reason_to_leave'       =>  'max:255', 
             'internal_discription'  =>  'max:255',
             'file_profile'          =>  'file|max:5000 (5000 kb)'
-            
+
+
         ];
     }
 

@@ -8,6 +8,9 @@ use App\Models\City;
 use App\Models\Religion;
 use App\Models\SponsorType;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Requests\ChildMasterUpdateRequest as UpdateRequest;
+use App\Models\Province;
+use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
@@ -23,6 +26,7 @@ class ChildMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+    use RedirectCrud;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -85,7 +89,6 @@ class ChildMasterCrudController extends CrudController
     {
         CRUD::setValidation(ChildMasterRequest::class);
 
-        //CRUD::setFromDb();
         $userid = backpack_user()->id;
 
         $createdby = [
@@ -341,7 +344,245 @@ class ChildMasterCrudController extends CrudController
      */
     function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setValidation(UpdateRequest::class);
+
+        $createdby = [
+            'name' => 'created_by',
+            'type' => 'hidden',
+            'label' => "Nama Lengkap",
+           // 'default' => $userid,
+        ];
+        $name = [
+            'name' => 'full_name',
+            'type' => 'text',
+            'label' => "Nama Lengkap",
+            'attributes' => [
+            ],
+        ];
+
+        $childdiscription = [
+            'name' => 'child_discription',
+            'label' => 'Deskripsi Anak',
+            'type' => 'ckeditor',
+        ];
+        $noRegistration = [
+            'name' => 'registration_number',
+            'label' => 'No Induk',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $nickname = [
+            'name' => 'nickname',
+            'label' => 'Nama Panggilan',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $gender = [
+            'name' => 'gender',
+            'label' => 'Jenis Kelamin',
+            'type' => 'text',
+        ];
+
+        $hometown = [
+            'name' => 'hometown',
+            'label' => "Tempat Lahir",
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'options' => $this->hometown(),
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $dateofbirth = [ // date_picker
+            'name' => 'date_of_birth',
+            'type' => 'date_picker',
+            'label' => 'Tanggal Lahir',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+
+        $religion = [
+            'name' => 'religion_id',
+            'label' => "Agama",
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'options' => $this->religion(),
+
+        ];
+        $FC = [
+            'name' => 'fc',
+            'label' => 'FC',
+            'type' => 'text',
+        ];
+        $sponsor = [
+            'name' => 'sponsor_name',
+            'label' => 'Sponsor',
+            'type' => 'text',
+        ];
+
+        $districts = [
+            'name' => 'districts',
+            'label' => 'Kecamatan',
+            'type' => 'text',
+        ];
+        $province = [ // 1-n relationship
+            'label' => "Propinsi", // Table column heading
+            'type' => "select2_from_ajax",
+            'name' => 'province_id', // the column that contains the ID of that connected entity
+            'entity' => 'province', // the method that defines the relationship in your Model
+            'attribute' => "province_name", // foreign key attribute that is shown to user
+            'data_source' => url("api/provice"), // url to controller search function (with /{id} should return model)
+            'placeholder' => "Select a Province", // placeholder for the select
+            'minimum_input_length' => 2, // minimum characters to type before querying results
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $city = [ // 1-n relationship
+            'label' => "Kabupaten", // Table column heading
+            'type' => "select2_from_ajax",
+            'name' => 'city_id', // the column that contains the ID of that connected entity
+            'entity' => 'city2', // the method that defines the relationship in your Model
+            'attribute' => "city_name", // foreign key attribute that is shown to user
+            'data_source' => url("api/city"), // url to controller search function (with /{id} should return model)
+            'placeholder' => "Select a City", // placeholder for the select
+            'minimum_input_length' => 2, // minimum characters to type before querying results
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+
+        $father = [
+            'name' => 'father',
+            'label' => 'Ayah',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $mother = [
+            'name' => 'mother',
+            'label' => 'Ibu',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $profession = [
+            'name' => 'profession',
+            'label' => 'Pekerjaan',
+            'type' => 'text',
+        ];
+        $economy = [
+            'name' => 'economy',
+            'label' => 'Ekonomi',
+            'type' => 'text',
+        ];
+        $class = [
+            'name' => 'class',
+            'label' => 'Kelas',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-4',
+            ],
+        ];
+        $school = [
+            'name' => 'school',
+            'label' => 'Sekolah',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-4',
+            ],
+        ];
+        $schoolyear = [
+            'name' => 'school_year',
+            'label' => 'Tahun Ajaran',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-4',
+            ],
+        ];
+
+        $signinfc = [ // date_picker
+            'name' => 'sign_in_fc',
+            'type' => 'date_picker',
+            'label' => 'Masuk FC',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+
+        $leavefc = [ // date_picker
+            'name' => 'leave_fc',
+            'type' => 'date_picker',
+            'label' => 'Keluar FC',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+        $reasontoleave = [
+            'name' => 'reason_to_leave',
+            'label' => 'Alasan Keluar',
+            'type' => 'textarea',
+        ];
+
+        $internaldiscription = [
+            'name' => 'internal_discription',
+            'label' => 'Keterangan Internal',
+            'type' => 'textarea',
+        ];
+
+        $photo = [
+            'label' => "Profile Image",
+            'name' => "photo_profile",
+            'type' => 'image',
+            'upload' => true,
+            'crop' => true, // set to true to allow cropping, false to disable
+            'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+            'prefix' => '/storage/',
+        ];
+
+        $fileprofile = [
+            'label' => "File Profile",
+            'name' => "file_profile",
+            'type' => 'upload',
+            'upload' => true,
+            'crop' => false,
+            'disks' => 'uploads',
+            'prefix' => '/storage/',
+        ];
+
+        $this->crud->addFields([$createdby, $name, $childdiscription,
+            $noRegistration, $nickname, $gender, $hometown,
+            $dateofbirth, $religion, $FC, $sponsor, $province,
+            $city, $districts, $father, $mother,
+            $profession, $economy, $class, $school,
+            $schoolyear, $signinfc, $leavefc, $reasontoleave,
+            $internaldiscription, $photo, $fileprofile,
+        ]);
     }
 
     function setupShowOperation()
@@ -520,6 +761,39 @@ class ChildMasterCrudController extends CrudController
         $collection = collect($getreligion);
         $religion = $collection->pluck('religion_name', 'religion_id') ? $collection->pluck('religion_name', 'religion_id') : 0 / null;
         return $religion;
+    }
+
+    public function store()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+
+        $error = [];
+
+        $cekcity = Province::where('province_id',$request->province_id);
+        $city = $cekcity->exists();
+
+        if(!$city){
+            $error['province_id'] = ['The Seletected item is not valid'];
+        }
+
+
+        if(count($error)!=0){
+            return $this->redirectStoreCrud($error);
+        }
+        // insert item in the db
+        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.insert_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
     }
 
 }

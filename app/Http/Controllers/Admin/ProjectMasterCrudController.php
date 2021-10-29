@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Requests\ProjectMasterUpdateRequest as UpdateRequest;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
@@ -123,7 +124,38 @@ class ProjectMasterCrudController extends CrudController
      */
     function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setValidation(UpdateRequest::class);
+
+        $title = [
+            'name' => 'title',
+            'type' => 'text',
+            'label' => "Nama Proyek",
+        ];
+
+        $discription = [
+            'name' => 'discription',
+            'type' => 'ckeditor',
+            'label' => "Deskripsi",
+            'attributes' => [
+                'required' => true,
+            ],
+        ];
+        $photo = [
+            'label' => "Gambar Unggulan",
+            'name' => "featured_image",
+            'type' => 'image',
+            'upload' => true,
+            'crop' => true, // set to true to allow cropping, false to disable
+            'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+            'prefix' => '/storage',
+        ];
+        $createdby = [
+            'name' => 'created_by',
+            'type' => 'hidden',
+            'label' => 'id',
+        ];
+
+        $this->crud->addFields([$title, $discription, $photo, $createdby]);
     }
 
     function setupShowOperation()

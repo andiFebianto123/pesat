@@ -21,7 +21,8 @@ class AddColumnIsactiveReligionTable extends Migration
 
         Schema::table('religion', function (Blueprint $table) {
            
-            $table->string('religion_name')->unique()->change();
+            $table->string('religion_name')->change();
+            $table->unique(['religion_name','is_active']);
                   
         });
     }

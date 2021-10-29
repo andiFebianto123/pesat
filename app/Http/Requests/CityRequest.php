@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CityRequest extends FormRequest
 {
@@ -26,7 +27,12 @@ class CityRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'city_name' =>  ['required','max:255',Rule::unique('city','city_name')->where(function($query){
+
+                return $query->where('is_active',1);
+            }
+            )->ignore($this->city_id,'city_id')
+     ]
         ];
     }
 

@@ -21,7 +21,8 @@ class AddColumnIsactiveCityTable extends Migration
 
         Schema::table('city', function (Blueprint $table) {
            
-            $table->string('city_name')->unique()->change();
+            $table->string('city_name')->change();
+            $table->unique(['city_name','is_active']);
                   
         });
     }

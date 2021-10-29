@@ -27,7 +27,8 @@ class ProjectMasterDetailRequest extends FormRequest
     {
         return [
             // 'name' => 'required|min:5|max:255'
-            'image_detail'  => 'required'
+            'image_detail'  => 'required',
+            'discription'   => 'max:255'
         ];
     }
 

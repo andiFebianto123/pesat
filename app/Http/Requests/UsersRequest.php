@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UsersRequest extends FormRequest
 {
@@ -26,13 +27,35 @@ class UsersRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          =>  'required',
-            'email'         =>  'required',
-            'full_name'     =>  'required',
-            'no_hp'         =>  'required',
-            'user_role_id'  =>  'required',
-            'password'      =>  'required|min:6|confirmed',
-            'password_confirmation'=>'min:6|required'
+            'name'              =>  'required|max:255',
+            'first_name'        =>  'max:255',
+            'last_name'         =>  'max:255',
+            'full_name'         =>  'required|max255',
+            'hometown'          =>  'max:255|',
+            'date_of_birth'     =>  'nullable|date|date_format:Y-m-d',
+            'address'           =>  'max:255',
+            'no_hp'             =>  'required|max:255',
+            'church_of_member'  =>  'max:255',
+            'email'             =>  [ 'required','max:255',Rule::unique('users','email')->where(function($query){
+
+                                        return $query->where('deleted_at',null);
+                                        }
+                                    )->ignore($this->id,'id')
+                                    ],
+            'password'          =>  'required|min:6|confirmed',
+            'password_confirmation'=>'min:6|required',
+            'user_role_id'      =>  'required|regex:/^[0-9]+$/',
+            'website_url'       =>  'max:255',
+            'facebook_url'      =>  'max:255',
+            'instagram_url'     =>  'max:255',
+            'linkedin_url'      =>  'max:255',
+            'my_space_url'      =>  'max:255',
+            'pinterest_url'     =>  'max:255',
+            'sound_cloud_url'   =>  'max:255',
+            'tumblr_url'        =>  'max:255',
+            'twitter_url'       =>  'max:255',
+            'youtube_url'       =>  'max:255',
+            'biograpical'       =>  'max:255',
 
         ];
     }
