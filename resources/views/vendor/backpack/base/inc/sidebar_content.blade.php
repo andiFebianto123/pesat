@@ -11,7 +11,7 @@
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('province') }}'><i class='nav-icon la la-building'></i> Provinsi</a></li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('city') }}'><i class='nav-icon la la-university'></i> Kota/Kabupaten</a></li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('religion') }}'><i class='nav-icon la la-venus-double'></i> Agama</a></li>
-        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor-type') }}'><i class='nav-icon la la-diamond'></i> Type Sponsor</a></li>
+        <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor-type') }}'><i class='nav-icon la la-diamond'></i> Type Sponsor</a></li> -->
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-role') }}'><i class='nav-icon la la-gears'></i> User Role</a></li>
     </ul>
 </li>

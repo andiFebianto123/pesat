@@ -30,7 +30,7 @@ class UsersRequest extends FormRequest
             'name'              =>  'required|max:255',
             'first_name'        =>  'max:255',
             'last_name'         =>  'max:255',
-            'full_name'         =>  'required|max255',
+            'full_name'         =>  'required|max:255',
             'hometown'          =>  'max:255|',
             'date_of_birth'     =>  'nullable|date|date_format:Y-m-d',
             'address'           =>  'max:255',
