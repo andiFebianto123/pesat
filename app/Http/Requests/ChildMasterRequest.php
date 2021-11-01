@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ChildMasterRequest extends FormRequest
 {
@@ -27,7 +28,12 @@ class ChildMasterRequest extends FormRequest
     {
         return [
             // 'name' => 'required|min:5|max:255'
-            'registration_number'   =>  'required|unique:Child_Master',
+            //'registration_number'   =>  'required|unique:Child_Master',
+            'registration_number'   => ['required', Rule::unique('child_master','registration_number')->where(function($query){
+
+                return $query->where('is_active',1);
+            }
+            )->ignore($this->child_id,'child_id')],
             'full_name'             =>  'required|max:255',
             'nickname'              =>  'required|max:255',
             'gender'                =>  'required|max:255',

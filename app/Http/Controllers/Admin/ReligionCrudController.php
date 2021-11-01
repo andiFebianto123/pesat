@@ -20,6 +20,7 @@ class ReligionCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -110,5 +111,17 @@ class ReligionCrudController extends CrudController
             return $this->crud->delete($id);
 
         }
+    }
+
+    function setupShowOperation()
+    {
+        $this->crud->set('show.setFromDb', false);
+
+        $this->crud->addColumns([
+            [
+                'name' => 'religion_name',
+                'label' => 'Nama Agama',
+            ]
+        ]);
     }
 }

@@ -24,6 +24,7 @@ class ProvinceCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
  //   use RedirectCrud;
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -129,28 +130,6 @@ class ProvinceCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
-    // public function update($id)
-    // {
-    //     $this->crud->hasAccessOrFail('update');
-
-    //     // execute the FormRequest authorization and validation, if one is required
-    //     $request = $this->crud->validateRequest();
-
-    //     return $this->redirectUpdateCrud($id,['province_name'=>['abc']]);
-
-    //     // update the row in the db
-    //     $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-    //                         $this->crud->getStrippedSaveRequest());
-    //     $this->data['entry'] = $this->crud->entry = $item;
-
-    //     // show a success message
-    //     \Alert::success(trans('backpack::crud.update_success'))->flash();
-
-    //     // save the redirect choice for next time
-    //     $this->crud->setSaveAction();
-
-    //     return $this->crud->performSaveAction($item->getKey());
-    // }
 
     public function destroy($id)
     {
@@ -169,5 +148,17 @@ class ProvinceCrudController extends CrudController
             return $this->crud->delete($id);
 
         }
+    }
+
+    function setupShowOperation()
+    {
+        $this->crud->set('show.setFromDb', false);
+
+        $this->crud->addColumns([
+            [
+                'name' => 'province_name',
+                'label' => 'Nama Provinsi',
+            ]
+        ]);
     }
 }

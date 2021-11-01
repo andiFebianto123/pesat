@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChildMaster extends Model
 {
@@ -14,14 +15,14 @@ class ChildMaster extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    use SoftDeletes;
     protected $table = 'child_master';
     protected $primaryKey = 'child_id';
     // public $timestamps = false;
     protected $guarded = ['child_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

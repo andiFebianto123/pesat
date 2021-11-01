@@ -51,14 +51,11 @@ class DlpCrudController extends CrudController
      */
     public function getChildMaster($id){
       
-        $cekdata = ChildMaster::where('child_id', $id)
-                            ->where('deleted_at',null);
-       
-
+        $cekdata = ChildMaster::where('child_id', $id);
         $cekdata =  $cekdata->first();
         if($cekdata == null){
             DB::rollback();
-            abort(404, trans('custom.model_not_found'));
+            abort(404, trans('Data Tidak Ditemukan'));
         }
         return $cekdata;
     }

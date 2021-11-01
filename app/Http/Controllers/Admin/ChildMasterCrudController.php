@@ -8,7 +8,6 @@ use App\Models\City;
 use App\Models\Religion;
 use App\Models\SponsorType;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use App\Http\Requests\ChildMasterUpdateRequest as UpdateRequest;
 use App\Models\Province;
 use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -344,8 +343,8 @@ class ChildMasterCrudController extends CrudController
      */
     function setupUpdateOperation()
     {
-        CRUD::setValidation(UpdateRequest::class);
-
+      //  CRUD::setValidation(UpdateRequest::class);
+      CRUD::setValidation(ChildMasterRequest::class);
         $createdby = [
             'name' => 'created_by',
             'type' => 'hidden',
@@ -733,19 +732,10 @@ class ChildMasterCrudController extends CrudController
         ]);
 
     }
-    function sponsor()
-    {
-        $getsponsor = SponsorType::where('deleted_at', null)->get()
-            ->map
-            ->only(['sponsor_type_id', 'sponsor_type_name']);
-        $collection = collect($getsponsor);
-        $sponsor = $collection->pluck('sponsor_type_name', 'sponsor_type_id') ? $collection->pluck('sponsor_type_name', 'sponsor_type_id') : 0 / null;
-        return $sponsor;
-    }
 
     function hometown()
     {
-        $getcity = City::where('deleted_at', null)->get()
+        $getcity = City::get()
             ->map
             ->only(['city_id', 'city_name']);
         $collection = collect($getcity);
@@ -755,7 +745,7 @@ class ChildMasterCrudController extends CrudController
 
     function religion()
     {
-        $getreligion = Religion::where('deleted_at', null)->get()
+        $getreligion = Religion::get()
             ->map
             ->only(['religion_id', 'religion_name']);
         $collection = collect($getreligion);

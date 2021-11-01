@@ -22,6 +22,7 @@ class CityCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -46,6 +47,12 @@ class CityCrudController extends CrudController
         
        // CRUD::setFromDb();
        $this->crud->addColumns([
+        [
+            'name'=>'province_id',
+            'label'=>'Nama Province',
+            'entity'=>'province',
+            'attribute'=>'province_name'
+        ],
         [
             'name'=>'city_name',
             'label'=>'Nama Kota'
@@ -108,7 +115,7 @@ class CityCrudController extends CrudController
 
     public function province()
     {
-        $province = Province::where('deleted_at',null)->get()
+        $province = Province::get()
             ->map
             ->only(['province_id', 'province_name']);
         $collection=collect($province);
@@ -132,5 +139,22 @@ class CityCrudController extends CrudController
             return $this->crud->delete($id);
 
         }
+    }
+    function setupShowOperation()
+    {
+        $this->crud->set('show.setFromDb', false);
+
+        $this->crud->addColumns([
+            [
+                'name'  => 'province_id',
+                'label' => 'Nama Provinsi',
+                'entity'=> 'province',
+                'attribute' =>'province_name'
+            ],
+            [
+                'name' => 'city_name',
+                'label' => 'Nama Provinsi',
+            ]
+        ]);
     }
 }

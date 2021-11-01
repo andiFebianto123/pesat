@@ -14,14 +14,15 @@ class ModifyColumnRegistrationNumberAndAddColumnIsactiveChildMasterTable extends
     public function up()
     {
         //
-        Schema::table('child_master', function (Blueprint $table) {
-           
-            $table->string('registration_number')->unique()->change();
-                  
-        });
+
         Schema::table('child_master', function (Blueprint $table) {
             
             $table->boolean('is_active')->nullable()->storedAs('CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END');
+        });
+        Schema::table('child_master', function (Blueprint $table) {
+          
+            $table->unique(['registration_number','is_active']);
+                  
         });
     }
 

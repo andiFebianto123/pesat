@@ -35,7 +35,10 @@ class City extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
+    public function province()
+    {
+      return $this->belongsTo(Province::class, 'province_id','province_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

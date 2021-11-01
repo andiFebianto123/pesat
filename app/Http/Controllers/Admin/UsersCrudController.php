@@ -653,7 +653,7 @@ class UsersCrudController extends CrudController
     }
     public function userrole()
     {
-        $getsponsor = UserRole::where('deleted_at',null)->get()
+        $getsponsor = UserRole::get()
                         ->map
                         ->only(['user_role_id', 'user_role_name']);
         $collection=collect($getsponsor);
