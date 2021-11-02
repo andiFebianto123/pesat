@@ -8,6 +8,7 @@
 
 use App\Http\Controllers\Admin\DlpCrudController;
 use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
+use App\Http\Controllers\Admin\ProvinceCustomController;
 
 Route::group([
     'prefix'     => config('backpack.base.route_prefix', 'admin'),
@@ -33,11 +34,15 @@ Route::group([
         Route::crud('detail', 'DlpCrudController');
         Route::get('detail/{id}/document', [DlpCrudController::class, 'document']);
     });
+
+    Route::prefix('api')->group(function () {
+        Route::get('province-select', 'ProvinceCustomController@index');
+        Route::get('city-select', 'ProvinceCustomController@getCity');
+    });
+//    Route::get('/api/provice', 'App\Http\Controllers\Admin\ProvinceCustomController@index');
     Route::crud('user-role', 'UserRoleCrudController');
     Route::crud('users', 'UsersCrudController');
     Route::crud('user-attribute', 'UserAttributeCrudController');
     Route::crud('data-sponsor', 'DataSponsorCrudController');
     Route::crud('sponsor', 'SponsorCrudController');
 }); // this should be the absolute last line of this file
-Route::get('/api/provice', 'App\Http\Controllers\Admin\ProvinceCustomController@index');
-Route::get('/api/city', 'App\Http\Controllers\Admin\ProvinceCustomController@getCity');

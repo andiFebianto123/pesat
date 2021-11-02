@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserRole extends Model
 {
@@ -14,14 +15,14 @@ class UserRole extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    use SoftDeletes;
     protected $table = 'user_role';
     protected $primaryKey = 'user_role_id';
     // public $timestamps = false;
     protected $guarded = ['user_role_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

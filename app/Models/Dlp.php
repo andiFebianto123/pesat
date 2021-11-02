@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Dlp extends Model
 {
@@ -14,6 +15,7 @@ class Dlp extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
+    use SoftDeletes;
 
     protected $table = 'dlp';
     protected $primaryKey = 'dlp_id';
@@ -21,7 +23,7 @@ class Dlp extends Model
     protected $guarded = ['dlp_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

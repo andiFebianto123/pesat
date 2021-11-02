@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterDetailRequest;
+use App\Models\ProjectMaster;
 use App\Models\ProjectMasterDetail;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -53,7 +55,18 @@ class ProjectMasterDetailCrudController extends CrudController
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
+    public function getProjectMaster($id){
+        $cekdata = ProjectMaster::where('project_id', $id);
+        $cekdata =  $cekdata->first();
+        if($cekdata == null){
+            DB::rollback();
+            abort(404, trans('Data Tidak Ditemukan'));
+        }
+        return $cekdata;
+    }
+
     public function CustomListImageDetail($id){
+        
         $this->crud->addButtonFromModelFunction('top','button_name','AddImage','end');
         $this->crud->hasAccessOrFail('list');
         $request = $this->crud->validateRequest();
@@ -76,6 +89,7 @@ class ProjectMasterDetailCrudController extends CrudController
     }
     protected function setupListOperation()
     {
+        $this->crud->cekdata = $this->getProjectMaster($this->crud->headerId);
 
         CRUD::addColumns([
             [

@@ -38,7 +38,7 @@ class UsersRequest extends FormRequest
             'church_of_member'  =>  'max:255',
             'email'             =>  [ 'required','max:255',Rule::unique('users','email')->where(function($query){
 
-                                        return $query->where('deleted_at',null);
+                                        return $query;//->where('deleted_at',null);
                                         }
                                     )->ignore($this->id,'id')
                                     ],
