@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\ChildMasterRequest;
 use App\Models\ChildMaster;
 use App\Models\City;
-use App\Models\Religion;
-use App\Models\SponsorType;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Models\Province;
+use App\Models\Religion;
 use App\Traits\RedirectCrud;
+use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
@@ -343,13 +342,13 @@ class ChildMasterCrudController extends CrudController
      */
     function setupUpdateOperation()
     {
-      //  CRUD::setValidation(UpdateRequest::class);
-      CRUD::setValidation(ChildMasterRequest::class);
+        //  CRUD::setValidation(UpdateRequest::class);
+        CRUD::setValidation(ChildMasterRequest::class);
         $createdby = [
             'name' => 'created_by',
             'type' => 'hidden',
             'label' => "Nama Lengkap",
-           // 'default' => $userid,
+            // 'default' => $userid,
         ];
         $name = [
             'name' => 'full_name',
@@ -753,7 +752,7 @@ class ChildMasterCrudController extends CrudController
         return $religion;
     }
 
-    public function store()
+    function store()
     {
         $this->crud->hasAccessOrFail('create');
 
@@ -762,30 +761,29 @@ class ChildMasterCrudController extends CrudController
 
         $error = [];
 
-        $cekprovince    = Province::where('province_id',$request->province_id);
-        $province       = $cekprovince->exists();
-        $cekcity        = City::where('city_id',$request->city_id);
-        $city           = $cekcity->exists();
-        $cekhometown    = City::where('city_id',$request->hometown);
-        $hometown       = $cekhometown->exists();
-        $cekreligion    = Religion::where('religion_id',$request->religion_id);
-        $religion       = $cekreligion->exists();
+        $cekprovince = Province::where('province_id', $request->province_id);
+        $province = $cekprovince->exists();
+        $cekcity = City::where('city_id', $request->city_id);
+        $city = $cekcity->exists();
+        $cekhometown = City::where('city_id', $request->hometown);
+        $hometown = $cekhometown->exists();
+        $cekreligion = Religion::where('religion_id', $request->religion_id);
+        $religion = $cekreligion->exists();
 
-        if(!$province){
-            $error['province_id']   = ['The selected Province is not valid'];
+        if (!$province) {
+            $error['province_id'] = ['The selected Province is not valid'];
         }
-        if(!$city){
-            $error['city_id']       = ['The selected City is not valid'];
+        if (!$city) {
+            $error['city_id'] = ['The selected City is not valid'];
         }
-        if(!$hometown){
-            $error['hometown']      = ['The selected Hometown is not valid'];
+        if (!$hometown) {
+            $error['hometown'] = ['The selected Hometown is not valid'];
         }
-        if(!$religion){
-            $error['religion_id']   = ['The selected Religion is not valid'];
+        if (!$religion) {
+            $error['religion_id'] = ['The selected Religion is not valid'];
         }
 
-
-        if(count($error)>0){
+        if (count($error) > 0) {
             return $this->redirectStoreCrud($error);
         }
         // insert item in the db
@@ -801,46 +799,45 @@ class ChildMasterCrudController extends CrudController
         return $this->crud->performSaveAction($item->getKey());
     }
 
-    public function update()
+    function update()
     {
         $this->crud->hasAccessOrFail('update');
 
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-        $error  =   [];
+        $error = [];
 
         $id = $request->id;
 
-        $cekprovince    = Province::where('province_id',$request->province_id);
-        $province       = $cekprovince->exists();
-        $cekcity        = City::where('city_id',$request->city_id);
-        $city           = $cekcity->exists();
-        $cekhometown    = City::where('city_id',$request->hometown);
-        $hometown       = $cekhometown->exists();
-        $cekreligion    = Religion::where('religion_id',$request->religion_id);//
-        $religion       = $cekreligion->exists();
+        $cekprovince = Province::where('province_id', $request->province_id);
+        $province = $cekprovince->exists();
+        $cekcity = City::where('city_id', $request->city_id);
+        $city = $cekcity->exists();
+        $cekhometown = City::where('city_id', $request->hometown);
+        $hometown = $cekhometown->exists();
+        $cekreligion = Religion::where('religion_id', $request->religion_id); //
+        $religion = $cekreligion->exists();
 
-        if(!$province){
-            $error['province_id']   = ['The selected Province is not valid'];
+        if (!$province) {
+            $error['province_id'] = ['The selected Province is not valid'];
         }
-        if(!$city){
-            $error['city_id']       = ['The selected City is not valid'];
+        if (!$city) {
+            $error['city_id'] = ['The selected City is not valid'];
         }
-        if(!$hometown){
-            $error['hometown']      = ['The selected Hometown is not valid'];
+        if (!$hometown) {
+            $error['hometown'] = ['The selected Hometown is not valid'];
         }
-        if(!$religion){
-            $error['religion_id']   = ['The selected Religion is not valid'];
+        if (!$religion) {
+            $error['religion_id'] = ['The selected Religion is not valid'];
         }
 
-
-        if(count($error)>0){
-            return $this->redirectUpdateCrud($id,$error);
+        if (count($error) > 0) {
+            return $this->redirectUpdateCrud($id, $error);
         }
 
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-                            $this->crud->getStrippedSaveRequest());
+            $this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
 
         // show a success message
