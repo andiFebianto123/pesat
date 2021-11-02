@@ -43,7 +43,6 @@ class UsersRequest extends FormRequest
                                     )->ignore($this->id,'id')
                                     ],
             'password'          =>  'required|min:6|confirmed',
-            'password_confirmation'=>'min:6|required',
             'user_role_id'      =>  'required|regex:/^[0-9]+$/',
             'website_url'       =>  'max:255',
             'facebook_url'      =>  'max:255',

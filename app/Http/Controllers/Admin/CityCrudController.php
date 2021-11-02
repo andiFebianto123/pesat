@@ -6,6 +6,7 @@ use App\Http\Requests\CityRequest;
 use App\Models\ChildMaster;
 use App\Models\City;
 use App\Models\Province;
+use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -23,6 +24,7 @@ class CityCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation { destroy as traitDestroy; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+    use RedirectCrud;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -157,4 +159,72 @@ class CityCrudController extends CrudController
             ]
         ]);
     }
+
+    public function store()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+        $error = [];
+        $cekprovince    = Province::where('province_id',$request->province_id);
+        $province       = $cekprovince->exists();
+
+        if(!$province){
+            $error['province_id']   = ['The selected Province is not valid'];
+        }
+
+        if(count($error)>0){
+            return $this->redirectStoreCrud($error);
+        }
+        // insert item in the db
+        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.insert_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
+    }
+
+    public function update()
+    {
+        $this->crud->hasAccessOrFail('update');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+        // update the row in the db
+        $error  =   [];
+
+        $id = $request->id;
+
+        $cekprovince    = Province::where('province_id',$request->province_id);
+        $province       = $cekprovince->exists();
+
+
+        if(!$province){
+            $error['province_id']   = ['The selected Province is not valid'];
+        }
+
+
+        if(count($error)>0){
+            return $this->redirectUpdateCrud($id,$error);
+        }
+
+        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
+                            $this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.update_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
+    }
+
 }

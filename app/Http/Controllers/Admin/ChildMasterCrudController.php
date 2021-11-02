@@ -441,7 +441,7 @@ class ChildMasterCrudController extends CrudController
             'name' => 'province_id', // the column that contains the ID of that connected entity
             'entity' => 'province', // the method that defines the relationship in your Model
             'attribute' => "province_name", // foreign key attribute that is shown to user
-            'data_source' => url("api/provice"), // url to controller search function (with /{id} should return model)
+            'data_source' => url("admin/api/province-select"), // url to controller search function (with /{id} should return model)
             'placeholder' => "Select a Province", // placeholder for the select
             'minimum_input_length' => 2, // minimum characters to type before querying results
             'wrapperAttributes' => [
@@ -454,7 +454,7 @@ class ChildMasterCrudController extends CrudController
             'name' => 'city_id', // the column that contains the ID of that connected entity
             'entity' => 'city2', // the method that defines the relationship in your Model
             'attribute' => "city_name", // foreign key attribute that is shown to user
-            'data_source' => url("api/city"), // url to controller search function (with /{id} should return model)
+            'data_source' => url("admin/api/city-select"), // url to controller search function (with /{id} should return model)
             'placeholder' => "Select a City", // placeholder for the select
             'minimum_input_length' => 2, // minimum characters to type before querying results
             'wrapperAttributes' => [

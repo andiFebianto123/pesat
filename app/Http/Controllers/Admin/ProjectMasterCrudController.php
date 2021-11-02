@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use App\Http\Requests\ProjectMasterUpdateRequest as UpdateRequest;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
@@ -124,7 +123,7 @@ class ProjectMasterCrudController extends CrudController
      */
     function setupUpdateOperation()
     {
-        CRUD::setValidation(UpdateRequest::class);
+        CRUD::setValidation(ProjectMasterRequest::class);
 
         $title = [
             'name' => 'title',
