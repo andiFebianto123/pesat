@@ -36,7 +36,7 @@ class UsersRequest extends FormRequest
             'address'           =>  'max:255',
             'no_hp'             =>  'required|max:255',
             'church_of_member'  =>  'max:255',
-            'email'             =>  [ 'required','max:255',Rule::unique('users','email')->where(function($query){
+            'email'             =>  [ 'required','email','max:255',Rule::unique('users','email')->where(function($query){
 
                                         return $query;
                                         }

@@ -6,7 +6,7 @@ use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UsersUpdateRequest extends FormRequest
+class SponsorUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,24 +27,21 @@ class UsersUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'              =>  'required',
+            'name'              =>  'required|max:255',
+            'email'             =>  [ 'required','email','max:255',Rule::unique('sponsor_master','email')->where(function($query){
+                                        return $query;
+                                        }
+                                        )->ignore($this->sponsor_id,'sponsor_id')
+                                    ],
             'first_name'        =>  'max:255',
             'last_name'         =>  'max:255',
             'full_name'         =>  'required',
-            'hometown'          =>  'max:255|',
-            'date_of_birth'     =>  'nullable|date|date_format:Y-m-d',
-            'address'           =>  'max:255',
-            'no_hp'             =>  'required',
-            'church_of_member'  =>  'max:255',
-
-            'email'             =>  [ 'required','email','max:255',Rule::unique('users','email')->where(function($query){
-
-                                        return $query;
-                                        }
-                                    )->ignore($this->id,'id')
-                                    ],
             'password'          =>  'nullable|min:6|confirmed',
-            'user_role_id'      =>  'required|regex:/^[0-9]+$/',
+            'hometown'          =>  'max:255',
+            'data_of_birth'     =>  'nullable|date|date_format:Y-m-d',
+            'address'           =>  'max:255',
+            'no_hp'             =>  'required|max:255',
+            'church_of_member'  =>  'max:255',
             'website_url'       =>  'max:255',
             'facebook_url'      =>  'max:255',
             'instagram_url'     =>  'max:255',
@@ -56,7 +53,6 @@ class UsersUpdateRequest extends FormRequest
             'twitter_url'       =>  'max:255',
             'youtube_url'       =>  'max:255',
             'biograpical'       =>  'max:255',
-
         ];
     }
 

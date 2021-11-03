@@ -553,6 +553,28 @@ class UsersCrudController extends CrudController
 
         ]);
     }
+    public function store()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+
+        // insert item in the db
+        $hashpass = bcrypt($request->input('password'));
+        $this->crud->getRequest()->request->set('password', $hashpass);
+
+        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.insert_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
+    }
     function update()
     {
         $this->crud->hasAccessOrFail('update');
