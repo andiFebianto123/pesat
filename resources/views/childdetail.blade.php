@@ -3,6 +3,7 @@
 
     </head>
     <body>
-        <p>test</p>
+        
+    {{$childs->full_name}}
     </body>
 </html>

@@ -17,5 +17,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'App\Http\Controllers\Home@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
-//Route::get('/childdetail/{id}', 'App\Http\Controllers\Home@childdetail');
+Route::get('/childdetail/{id}', 'App\Http\Controllers\Home@childdetail');
 //Route::get('/test', 'App\Http\Controllers\Home@index');

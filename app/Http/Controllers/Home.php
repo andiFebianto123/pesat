@@ -51,13 +51,15 @@ class Home extends Controller
 
         return view('Home',$data);
     }
-    // public function childdetail($id){
+    public function childdetail($id){
 
-    //     //$id = $request->input('childid');
-    //     dd($id);
-    //     return view('childdetail');
+        $data['childs'] = ChildMaster::where('child_id',$id)
+                          ->first();
+      //  dd($data);
 
-    // }
+        return view('childdetail',$data);
+
+    }
 
 
 }

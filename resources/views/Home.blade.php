@@ -4,16 +4,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PESAT</title>
-    <link rel="stylesheet" href={{ asset('assets/css/bootstrap.min.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.min.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/css/styleku.css') }}>
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
-    
-    <style>
-    body { background: #f8f8f8 !important; }
-    header{
-        background:#FFFFFF;
-    }
-   
-    </style>
 </head>
 <body>
     <header >
@@ -85,7 +78,7 @@
     @foreach ($childs as $key => $child)
     
     <div class="col-4">
-    <a href="#" style="text-decoration:none;color: inherit;">
+    <a href="{{url('childdetail/'.$child->child_id)}}" style="text-decoration:none;color: inherit;">
     <input type="hidden" name="childid" value="{{$child->child_id}}">
         <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
         @if($child->photo_profile == '')
@@ -111,7 +104,7 @@
             {!! $childs->links() !!}
         </div>
     <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
-   
+
     <footer class="bg-dark text-center text-white">
         <div class="container p-4">
            <h2> CONTACT US</h2>
@@ -135,8 +128,8 @@
         </li>
       </ul>
     </section>
-            Copyright © 2017 PESAT. All rights reserved. | Syarat & Ketentuan
-</footer>
-      
+            Copyright © 2017 PESAT. All rights reserved. | Syarat & Ketentuan   
+        </footer>
+
 </body>
 </html>
