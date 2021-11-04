@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/', 'App\Http\Controllers\Home@index');
+Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
-Route::get('/childdetail/{id}', 'App\Http\Controllers\Home@childdetail');
-//Route::get('/test', 'App\Http\Controllers\Home@index');
+Route::get('/childdetail/{id}', 'App\Http\Controllers\HomeController@childdetail');
+Route::get('/transaction', 'App\Http\Controllers\TransactionController@index');
+Route::get('/login', 'App\Http\Controllers\LoginController@index');
+Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');

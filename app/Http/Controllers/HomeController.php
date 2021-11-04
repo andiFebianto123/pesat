@@ -6,7 +6,7 @@ use App\Models\ChildMaster;
 use App\Models\Province;
 use Illuminate\Http\Request;
 
-class Home extends Controller
+class HomeController extends Controller
 {
     public function index(Request $request){
         
@@ -52,9 +52,24 @@ class Home extends Controller
         return view('Home',$data);
     }
     public function childdetail($id){
+        
+        $childdata      = ChildMaster::where('child_id',$id)
+                            ->join('city as c1','c1.city_id','child_master.hometown')
+                            ->join('city as c2','c2.city_id','child_master.city_id')
+                            ->join('province as p','p.province_id','child_master.province_id')
+                            ->addSelect('c1.city_name as hometown')
+                            ->addSelect('c2.city_name as city')
+                            ->addSelect('p.province_name')
+                            ->addSelect('child_master.full_name')
+                            ->addSelect('child_master.photo_profile')
+                            ->addSelect('child_master.fc')
+                            ->addSelect('child_master.date_of_birth')
+                            ->addSelect('child_master.class')
+                            ->addSelect('child_master.gender')
+                            ->first();
 
-        $data['childs'] = ChildMaster::where('child_id',$id)
-                          ->first();
+        $data['childs'] = $childdata;//ChildMaster::where('child_id',$id)
+                          //->first();
       //  dd($data);
 
         return view('childdetail',$data);

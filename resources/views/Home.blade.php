@@ -1,27 +1,11 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PESAT</title>
-    <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.min.css') }}>
-    <link rel="stylesheet" href={{ asset('assets/css/styleku.css') }}>
-    <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
-</head>
-<body>
-    <header >
-        <div class='row'>
-            <div class="col-10">
-            </div>
-            <div class="col-2">
-            <button type="button" class="btn btn-primary" style="margin-top:10px">Masuk</button>
-            </div>
-        </div>
-</br>
-    </header>
+
+@include('header')
+
 <div class="container">
     <div class="col-12" >
-       <h2>Sponsor Anak</h2>
+    <div class="bs-callout bs-callout-primary">
+        <h2>Sponsor Anak</h2>
+    </div>
        </br>
        <p>
        Kami melayani ribuan anak desa dan membimbing serta memperlengkapi mereka menjadi pemimpin masa depan bangsa. Untuk itu setiap anak 
@@ -103,33 +87,4 @@
     <div class="d-flex justify-content-center">
             {!! $childs->links() !!}
         </div>
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
-
-    <footer class="bg-dark text-center text-white">
-        <div class="container p-4">
-           <h2> CONTACT US</h2>
-       </div>
-       <div class="col-auto">
-       Silakan mengirimkan e-mail, telepon, atau join facebook kami:
-          </div>
-    <section class="mb-4">
-      <ul class="nav justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link link-light" aria-current="page" href="#"><i class="fa fa-envelope"></i> pesatjkt@gmail.com</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link link-light" href="#"><i class="fa fa-facebook-square"></i> PESAT MINISTRY</a></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link link-light" href="#"><i class="fa fa-instagram"></i> pesat_ministry</a></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link link-light" href="#" tabindex="-1" aria-disabled="true"><i class="fa fa-phone"></i> 0821 1462 2245</a>
-        </li>
-      </ul>
-    </section>
-            Copyright © 2017 PESAT. All rights reserved. | Syarat & Ketentuan   
-        </footer>
-
-</body>
-</html>
+    @include('footer')
