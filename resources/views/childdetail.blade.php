@@ -4,9 +4,19 @@
     <br>
 <div class="bs-callout bs-callout-primary"><h2>{{$childs->full_name}}</h2></div>
 </br>
+    @if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
+    @if ($message = Session::get('success'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
+    
 <div class="row">
 <div class="col-4">
-
 
         <div class="card" style="width: 23rem; margin-bottom:30px;">
         @if($childs->photo_profile == '')

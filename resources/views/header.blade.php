@@ -14,11 +14,27 @@
         <div class='row'>
             <div class="col-10">
             </div>
+            @if( Session::get('key')==null )
             <div class="col-2">
-                <a href="{{url('login/')}}" style="text-decoration:none;color: inherit;">    
-                    <button type="button" class="btn btn-primary" style="margin-top:10px">Masuk</button>
+            
+                <a href="{{route('sponsor.login')}}" style="text-decoration:none;color: inherit;">                    
+                    <button type="button" class="btn btn-primary" style="margin-top:10px">Masuk</button>                
                 </a>
             </div>
+                @else
+                <div class="col-2">
+                <a href="{{route('sponsor.logout')}}" style="text-decoration:none;color: inherit;"   onclick="event.preventDefault();
+                                 document.getElementById('logout-form').submit();">
+                <button type="button" class="btn btn-primary" style="margin-top:10px">Akun Saya</button>
+                </a>
+                <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                </div>
+
+                @endif
+            
         </div>
+ 
     </br>
     </header>

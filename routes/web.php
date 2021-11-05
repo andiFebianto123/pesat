@@ -19,5 +19,17 @@ Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/childdetail/{id}', 'App\Http\Controllers\HomeController@childdetail');
 Route::get('/transaction', 'App\Http\Controllers\TransactionController@index');
-Route::get('/login', 'App\Http\Controllers\LoginController@index');
+//Route::get('/login', 'App\Http\Controllers\LoginController@index');
 Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');
+Route::prefix('sponsor')
+    ->as('sponsor.')
+    ->group(function() {
+        Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
+
+    	Route::namespace('App\Http\Controllers\Auth\Login')
+    		->group(function() {
+    			Route::get('login', 'SponsorLoginController@showLoginForm')->name('login');
+				Route::post('login', 'SponsorLoginController@login')->name('login');
+				Route::post('logout', 'SponsorLoginController@logout')->name('logout');
+    		});
+	});

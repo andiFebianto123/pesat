@@ -6,7 +6,7 @@
 <div class="accordion" style = "margin-bottom:30px">
   <div class="accordion-item">
       <div class="accordion-body">
-        <form action="{{ route('validate') }}" method="post">
+        <form action="{{ route('sponsor.login') }}" method="post">
         {{ csrf_field() }}
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Email address</label>

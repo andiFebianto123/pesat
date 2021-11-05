@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'sponsor' => [
+            'redirectTo' => 'sponsor.home',
+            'driver' => 'session',
+            'provider' => 'sponsor',
+        ],
     ],
 
     /*
@@ -69,6 +75,10 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+        'sponsor' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Sponsor::class,
+        ],
     ],
 
     /*
