@@ -64,6 +64,7 @@ class HomeController extends Controller
                             ->addSelect('c1.city_name as hometown')
                             ->addSelect('c2.city_name as city')
                             ->addSelect('p.province_name')
+                            ->addSelect('child_master.child_id')
                             ->addSelect('child_master.full_name')
                             ->addSelect('child_master.photo_profile')
                             ->addSelect('child_master.fc')

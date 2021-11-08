@@ -37,17 +37,15 @@ class SponsorLoginController extends DefaultLoginController
             'email' => 'required|email',
             'password' => 'required',
         ]);
-        $x=$request->email;
-        
-       // session()->has('key','default value');
-       
+        $session=$request->email;
+               
         if(auth()->guard('sponsor')->attempt([
             'email' => $request->email,
             'password' => $request->password,
         ])) {
             $user = auth()->user();
 
-            $data['session']=session(['key' => $x]);
+            $data['session']=session(['key' => $session]);
 
             return redirect()->intended(url('sponsor/home',$data));
         } else {

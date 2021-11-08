@@ -1,5 +1,6 @@
 @include('header')
-
+<form id="form-child-detail" action="{{url('order')}}" method="post">
+{{ csrf_field() }}
 <div class="container">
     <br>
 <div class="bs-callout bs-callout-primary"><h2>{{$childs->full_name}}</h2></div>
@@ -27,11 +28,12 @@
         </div>
 </div>
 <div class="col-5">
+    <input type="hidden" name="childid" value="{{$childs->child_id}}" />
     <h3>{{$childs->full_name}}</h3>
     <h3>Rp. 150.000,-/ Bulan</h3>
     </br>
     <h5>Monthly Subscription</h5>
-        <select class="form-select" aria-label="Default select example">
+        <select class="form-select" aria-label="Default select example" name="monthly_subs">
                 <option selected>Choose an option</option>
                 <option value="1">1 Bulan</option>
                 <option value="3">3 Bulan</option>
@@ -39,9 +41,7 @@
                 <option value="12">12 Bulan</option>
         </select>
     </br>
-    <a href="{{url('transaction/')}}" style="text-decoration:none;color: inherit;">
         <button type="submit" class="btn btn-success">Donation</button>
-    </a>
     </br>
     </br>
     <p>Tetapkan untuk berkomitmen mensponsori anak minimal 1 tahun</p>
@@ -79,4 +79,5 @@
 </div>
 </div>
 
+</form>
 @include('footer')
