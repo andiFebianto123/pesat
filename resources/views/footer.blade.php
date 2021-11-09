@@ -1,5 +1,3 @@
-<script src="{{ asset('assets/js/bootstrap.min.js') }}">
-    </script>
 
     <footer class="bg-dark text-center text-white">
             <div class="container p-4">
@@ -26,6 +24,13 @@
         </section>
             Copyright © 2017 PESAT. All rights reserved. | Syarat & Ketentuan   
     </footer>
+    <script src="{{asset('assets/js/bootstrap.bundle.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap.js')}}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script> 
+    <script src="{{asset('assets/js/popper.min.js')}}"></script>
+    <script src="{{asset('assets/js/cdnbootstrap.min.js')}}"></script>
+    <script src="{{asset('assets/js/custom/custom.js')}}"></script>
 
 </body>
 </html>

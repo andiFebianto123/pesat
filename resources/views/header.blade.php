@@ -8,6 +8,8 @@
     <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.css') }}>
     <link rel="stylesheet" href={{ asset('assets/css/styleku.css') }}>
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
+    <script src="{{asset('assets/js/custom/jquery.min.js')}}"></script>
+   
 </head>
 <body>
     <header >
@@ -23,13 +25,23 @@
             </div>
                 @else
                 <div class="col-2">
-                <a href="{{route('sponsor.logout')}}" style="text-decoration:none;color: inherit;"   onclick="event.preventDefault();
+                <!-- <a href="{{route('sponsor.logout')}}" style="text-decoration:none;color: inherit;"   onclick="event.preventDefault();
                                  document.getElementById('logout-form').submit();">
                 <button type="button" class="btn btn-primary" style="margin-top:10px">Akun Saya</button>
-                </a>
-                <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
+                </a> -->
+                <div class="dropdown">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    Akun Saya
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="{{route('sponsor.logout')}}" onclick="event.preventDefault();
+                                 document.getElementById('logout-form').submit();">Logout</a></li>
+                    </ul>
+                </div>
+                    <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
                     @csrf
-                </form>
+                    </form>
                 </div>
 
                 @endif

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChildMaster;
+use App\Models\OrderDt;
 use App\Models\Province;
 //use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
@@ -17,7 +18,12 @@ class HomeController extends Controller
         $provinceid = $request->input('provinceid');
         $class = $request->input('class');
         $gender = $request->input('gender');
-        $childsdatas = ChildMaster::where('deleted_at',null);
+        $childsdatas = ChildMaster::where('deleted_at',null)
+                                    ->whereNotIn('child_id', function($query){
+                                        $query->select('child_id')
+                                        ->from(with(new OrderDt())->getTable())
+                                        ->where('deleted_at', null);
+                                    });
       
         if($provinceid==null && $class==null &&  $gender == null ){
 

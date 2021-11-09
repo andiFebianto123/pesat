@@ -33,15 +33,15 @@
     <h3>Rp. 150.000,-/ Bulan</h3>
     </br>
     <h5>Monthly Subscription</h5>
-        <select class="form-select" aria-label="Default select example" name="monthly_subs">
-                <option selected>Choose an option</option>
+        <select id= "select-monthly" class="form-select" ria-label="Default select example" name="monthly_subs">
+                <option selected>-</option>
                 <option value="1">1 Bulan</option>
                 <option value="3">3 Bulan</option>
                 <option value="6">6 Bulan</option>
                 <option value="12">12 Bulan</option>
         </select>
     </br>
-        <button type="submit" class="btn btn-success">Donation</button>
+        <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
     </br>
     </br>
     <p>Tetapkan untuk berkomitmen mensponsori anak minimal 1 tahun</p>
@@ -80,4 +80,5 @@
 </div>
 
 </form>
+
 @include('footer')
