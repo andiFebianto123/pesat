@@ -15,7 +15,7 @@ class CreateOrderHdsTable extends Migration
     {
         Schema::create('order_hd', function (Blueprint $table) {
             $table->increments('order_id');
-            $table->integer('parent_order_id')->nullable('');
+            $table->integer('parent_order_id')->nullable();
             $table->string('order_no',16);
             $table->integer('sponsor_id')->unsigned();
             $table->decimal('total_price',10,2);

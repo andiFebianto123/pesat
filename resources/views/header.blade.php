@@ -6,7 +6,7 @@
     <title>PESAT</title>
     <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.min.css') }}>
     <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.css') }}>
-    <link rel="stylesheet" href={{ asset('assets/css/styleku.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/css/custom/styleku.css') }}>
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
     <script src="{{asset('assets/js/custom/jquery.min.js')}}"></script>
    
@@ -33,15 +33,24 @@
                     <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     Akun Saya
                     </a>
-
+                
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item" href="{{route('sponsor.logout')}}" onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">Logout</a></li>
+
+                        <li>
+                            <a class="dropdown-item" href="#">Akun Saya</a>
+                        </li>
+                        <li>
+                            <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
+                            @csrf
+                            </form>    
+                            <a class="dropdown-item" href="{{route('sponsor.logout')}}" onclick="event.preventDefault();
+                                 document.getElementById('logout-form').submit();">Logout</a>
+                        </li>
+
                     </ul>
+
                 </div>
-                    <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
-                    @csrf
-                    </form>
+                    
                 </div>
 
                 @endif

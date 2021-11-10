@@ -10,14 +10,13 @@ use App\Services\Midtrans\CreateSnapTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
 class OrderController extends Controller
 {
     //
     public function index(Request $request){
-
-       
         $user   = auth()->user();
         $email  = session('key');
       
@@ -72,7 +71,11 @@ class OrderController extends Controller
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
             $order->save();
-
+      
+           return  Redirect::route('ordercheckout',array('snap_token' => $snapToken,'code' => $code));
+    }
+}
+    public function orderdonation($snapToken, $code){
             $data['order'] = OrderHd::where('order_no',$code)->first();
             $data['snapToken'] = $snapToken;
 
@@ -80,6 +83,51 @@ class OrderController extends Controller
 
         }
 
+    
+public function cekstatus(){
+
+    $datas = OrderHd::where('payment_status',1)->get();
+    
+    foreach($datas as $data){
+        $orderno= $data->order_no;
+   
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/".$orderno."/status",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_POSTFIELDS =>"\n\n",
+        CURLOPT_HTTPHEADER => array(
+        "Accept: application/json",
+        "Content-Type: application/json",
+        "Authorization: Basic U0ItTWlkLXNlcnZlci1oU0ZrQnBzRi02cHBKRkRmOTNxdFZLRGc6"
+      ),
+    ));
+    
+    $response       = curl_exec($curl);
+    $decoderespon   = json_decode($response,true);
+    curl_close($curl);
+
+
+    
+    if($decoderespon['status_code']=='200' && $decoderespon['transaction_status']=='settlement'){
+        OrderHd::where('order_no', $orderno)
+        ->update(['payment_status' => 2]);
+    }
+    if($decoderespon['status_code']=='407'){
+        OrderHd::where('order_no', $orderno)
+        ->update(['payment_status' => 3]);
+    }
+
 
     }
+
+}
+
 }
