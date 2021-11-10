@@ -9,7 +9,9 @@
     <link rel="stylesheet" href={{ asset('assets/css/custom/styleku.css') }}>
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
     <script src="{{asset('assets/js/custom/jquery.min.js')}}"></script>
-   
+    <style type="text/css">
+
+</style>
 </head>
 <body>
     <header >

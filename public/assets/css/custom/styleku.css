@@ -1,11 +1,18 @@
-body{
-    background: #f8f8f8;
+html{
+    position: relative;
+    min-height: 100%;
 }
+ body{
+    background: #f8f8f8;
+    margin-bottom: 300px;
+
+}
+
 header{
     background:#FFFFFF;
 }
 footer {
-position: bottom;
+position: absolute;
 bottom: 0;
 width: 100%;
 }
