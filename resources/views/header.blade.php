@@ -26,10 +26,11 @@
                 @else
                 <div class="col-2">
                 <!-- <a href="{{route('sponsor.logout')}}" style="text-decoration:none;color: inherit;"   onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">
+                                 document.getElementById('logout-form').submit();"> -->
+                <a href="{{url('my-account')}}">
                 <button type="button" class="btn btn-primary" style="margin-top:10px">Akun Saya</button>
-                </a> -->
-                <div class="dropdown">
+                </a>
+                <!-- <div class="dropdown">
                     <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     Akun Saya
                     </a>
@@ -37,7 +38,7 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 
                         <li>
-                            <a class="dropdown-item" href="#">Akun Saya</a>
+                            <a class="dropdown-item" href="{{url('my-account')}}">Akun Saya</a>
                         </li>
                         <li>
                             <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
@@ -49,7 +50,7 @@
 
                     </ul>
 
-                </div>
+                </div> -->
                     
                 </div>
 

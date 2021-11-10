@@ -22,6 +22,8 @@ Route::post('/order', 'App\Http\Controllers\OrderController@index');
 Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
+Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
+Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
 //Route::get('/login', 'App\Http\Controllers\LoginController@index');
 Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');
 Route::prefix('sponsor')
