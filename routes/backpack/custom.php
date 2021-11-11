@@ -35,6 +35,11 @@ Route::group([
         Route::get('detail/{id}/document', [DlpCrudController::class, 'document']);
     });
 
+    Route::prefix('detail-sponsor/{header_id}')->group(function () {
+        Route::crud('detail', 'DataDetailOrderCrudController');
+        Route::get('detail/{id}/document', [DataDetailOrderCrudController::class, 'document']);
+    });
+
     Route::prefix('api')->group(function () {
         Route::get('province-select', 'ProvinceCustomController@index');
         Route::get('city-select', 'ProvinceCustomController@getCity');
@@ -45,4 +50,6 @@ Route::group([
     Route::crud('user-attribute', 'UserAttributeCrudController');
     Route::crud('data-sponsor', 'DataSponsorCrudController');
     Route::crud('sponsor', 'SponsorCrudController');
+    Route::crud('data-order', 'DataOrderCrudController');
+    Route::crud('data-detail-order', 'DataDetailOrderCrudController');
 }); // this should be the absolute last line of this file
