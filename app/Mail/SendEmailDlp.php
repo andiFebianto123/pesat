@@ -34,6 +34,8 @@ class SendEmailDlp extends Mailable
         return $this->markdown('Email.SendDlp')
                 ->subject('Pesat - Data Laporan Perkembangan')
                 ->attach(public_path('storage/'.$this->mailData['filedlp']))
-                ->with('MailData',$this->mailData);
+               // ->with('MailData',$this->mailData);
+               ->with(['data'=>$this->mailData]);
+                
     }
 }

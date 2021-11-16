@@ -25,6 +25,7 @@ Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvo
 Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
 Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
 Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
+Route::get('job-send-email','App\Http\Controllers\ReminderOrder@index');
 //Route::get('/login', 'App\Http\Controllers\LoginController@index');
 Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');
 Route::prefix('sponsor')

@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use PDF;
 use App\Models\OrderDt;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentReminder extends Command
 {
@@ -45,12 +47,38 @@ class PaymentReminder extends Command
         $dateafter2weeks= $now->copy()->addDay(14);
         $orders = DB::table('order_hd')
             ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+            ->Join('sponsor_master as sm','order_hd.sponsor_id','=','sm.sponsor_id')
+            ->join('child_master as cm','cm.child_id','=','odt.child_id')
             ->where('odt.has_child',0)
             ->where('odt.start_order_date','<=',$dateafter2weeks)
             ->where('odt.has_remind',0)
             ->where('payment_status',1)
             ->where('order_hd.deleted_at',null)
             ->where('odt.deleted_at',null)
+            ->addSelect('order_hd.order_id')
+            ->addSelect('odt.order_dt_id')
+            ->addSelect('order_hd.parent_order_id')
+            ->addSelect('order_hd.order_no')
+            ->addSelect('order_hd.total_price')
+            ->addSelect('order_hd.payment_status')
+            ->addSelect('odt.parent_order_dt_id')
+            ->addSelect('odt.price')
+            ->addSelect('odt.monthly_subscription')
+            ->addSelect('odt.start_order_date')
+            ->addSelect('odt.end_order_date')
+            ->addSelect('sm.sponsor_id')
+            ->addSelect('sm.full_name as sponsor_name')
+            ->addSelect('sm.email')
+            ->addSelect('sm.address as sponsor_address')
+            ->addSelect('sm.no_hp')
+            ->addSelect('cm.child_id')
+            ->addSelect('cm.full_name as child_name')
+            ->addSelect('cm.registration_number')
+            ->addSelect('cm.gender')
+            ->addSelect('cm.date_of_birth')
+            ->addSelect('cm.class')
+            ->addSelect('cm.school')
+            ->addSelect('cm.school_year')
             ->get();
 
             foreach($orders as $key =>$order){
@@ -60,6 +88,21 @@ class PaymentReminder extends Command
                 OrderDt::where('order_id', $order->order_id)
                         ->where('child_id', $order->child_id)
                         ->update(['has_remind' => 1]);
+
+                $data["email"] = $order->email;
+                $data["title"] = "Peringatan";
+                $data["body"] = "-";
+                $data["order_no"] = $order->order_no;
+                $data["sponsor_name"]= $order->sponsor_name;
+                $data["total_price"]= $order->total_price;
+                  
+                $pdf = PDF::loadView('Email.PaymentReminder', $data);
+                  
+                Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data, $pdf) {
+                      $message->to($data["email"], $data["email"])
+                                    ->subject($data["title"])
+                                    ->attachData($pdf->output(), $data['order_no']."_".$data['sponsor_name'].".pdf");
+                        });
     
 
     }  
@@ -68,12 +111,38 @@ class PaymentReminder extends Command
         $dateafter3days= $now->copy()->addDay(4);
         $orders1month = DB::table('order_hd')
         ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+        ->Join('sponsor_master as sm','order_hd.sponsor_id','=','sm.sponsor_id')
+        ->join('child_master as cm','cm.child_id','=','odt.child_id')
         ->where('odt.has_child',0)
         ->where('odt.start_order_date','<=',$dateafter3days)
         ->where('odt.has_remind',0)
         ->where('payment_status',1)
         ->where('order_hd.deleted_at',null)
         ->where('odt.deleted_at',null)
+        ->addSelect('order_hd.order_id')
+        ->addSelect('odt.order_dt_id')
+        ->addSelect('order_hd.parent_order_id')
+        ->addSelect('order_hd.order_no')
+        ->addSelect('order_hd.total_price')
+        ->addSelect('order_hd.payment_status')
+        ->addSelect('odt.parent_order_dt_id')
+        ->addSelect('odt.price')
+        ->addSelect('odt.monthly_subscription')
+        ->addSelect('odt.start_order_date')
+        ->addSelect('odt.end_order_date')
+        ->addSelect('sm.sponsor_id')
+        ->addSelect('sm.full_name as sponsor_name')
+        ->addSelect('sm.email')
+        ->addSelect('sm.address as sponsor_address')
+        ->addSelect('sm.no_hp')
+        ->addSelect('cm.child_id')
+        ->addSelect('cm.full_name as child_name')
+        ->addSelect('cm.registration_number')
+        ->addSelect('cm.gender')
+        ->addSelect('cm.date_of_birth')
+        ->addSelect('cm.class')
+        ->addSelect('cm.school')
+        ->addSelect('cm.school_year')
         ->get();
 
     foreach($orders1month as $key =>$order){
@@ -83,7 +152,22 @@ class PaymentReminder extends Command
                         OrderDt::where('order_id', $order->order_id)
                                 ->where('child_id', $order->child_id)
                                 ->update(['has_remind' => 1]);
-            
+                                
+                                
+                        $data["email"] = $order->email;
+                        $data["title"] = "Peringatan";
+                        $data["body"] = "-";
+                        $data["order_no"]= $order->order_no;
+                        $data["sponsor_name"]= $order->sponsor_name;
+                        $data["total_price"]= $order->total_price;
+                                  
+                        $pdf = PDF::loadView('Email.PaymentReminder', $data);
+                                  
+                        Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data, $pdf) {
+                                    $message->to($data["email"], $data["email"])
+                                                    ->subject($data["title"])
+                                                    ->attachData($pdf->output(), $data['order_no']."_".$data['sponsor_name'].".pdf");
+                                    });
         
             }  
 
