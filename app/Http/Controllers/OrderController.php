@@ -43,6 +43,7 @@ class OrderController extends Controller
                     'sponsor_id'      =>$idsponsor,
                     'total_price'     =>$totalprice,
                     'payment_status'  =>1,
+                    'created_at'      =>Carbon::now(),
                 ]
             );
             // save table order_dt

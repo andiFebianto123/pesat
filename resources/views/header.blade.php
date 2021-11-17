@@ -18,7 +18,13 @@
 <body>
     <header >
         <div class='row'>
-            <div class="col-10">
+            <div class="col-1">
+                <a href="{{url('sponsor/home')}}"  style="text-decoration:none;color: inherit;">
+                    <i class="fa fa-home fa-3x" style="margin-top:10px;margin-left:10px"></i>
+                </a>
+            </div>
+            <div class="col-9">
+
             </div>
             @if( Session::get('key')==null )
             <div class="col-2">

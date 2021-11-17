@@ -47,7 +47,7 @@ class SponsorLoginController extends DefaultLoginController
 
             $data['session']=session(['key' => $session]);
 
-            return redirect()->intended(url('sponsor/home',$data));
+            return redirect()->intended(url('my-account',$data));
         } else {
             return redirect()->back()->withError('Credentials doesn\'t match.');
         }

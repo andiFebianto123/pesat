@@ -15,15 +15,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+//Route::get('/', 'App\Http\Controllers\ListChildController@index');
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
-Route::get('/childdetail/{id}', 'App\Http\Controllers\HomeController@childdetail');
+Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childdetail');
 Route::post('/order', 'App\Http\Controllers\OrderController@index');
 Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 // Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
 Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
+Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
+Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');
 Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
+Route::get('project-detail/{id}','App\Http\Controllers\ListProyekController@projectdetail');
 Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
 Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
 Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');

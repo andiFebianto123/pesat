@@ -14,11 +14,11 @@
     @foreach($orders as $key => $order)
     <tr>
       <th scope="row">#{{$order->order_no}}</th>
-      <td></td>
+      <td>{{date('d-m-Y', strtotime($order->created_at))}}</td>
 
       <td>
         @if($order->payment_status==1)
-        {{"pending"}}
+        {{"menunggu pembayaran"}}
         @elseif($order->payment_status=2)
         {{"suskes"}}
         @else
