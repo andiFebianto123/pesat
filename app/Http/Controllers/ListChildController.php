@@ -79,10 +79,8 @@ class ListChildController extends Controller
                             ->addSelect('child_master.gender')
                             ->first();
 
-        $data['childs'] = $childdata;//ChildMaster::where('child_id',$id)
-                          //->first();
-      //  dd($data);
-
+        $data['childs'] = $childdata;
+        
         return view('childdetail',$data);
 
     }

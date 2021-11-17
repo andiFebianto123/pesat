@@ -28,11 +28,10 @@ Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
 Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');
 Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
 Route::get('project-detail/{id}','App\Http\Controllers\ListProyekController@projectdetail');
+Route::post('/project-donation', 'App\Http\Controllers\ProjectDonationController@index');
 Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
 Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
 Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
-// Route::get('job-send-email','App\Http\Controllers\ReminderOrder@index');
-//Route::get('/login', 'App\Http\Controllers\LoginController@index');
 Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');
 Route::prefix('sponsor')
     ->as('sponsor.')

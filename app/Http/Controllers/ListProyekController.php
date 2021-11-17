@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProjectMaster;
+use App\Models\ProjectMasterDetail;
 use Illuminate\Http\Request;
 
 class ListProyekController extends Controller
@@ -15,6 +16,13 @@ class ListProyekController extends Controller
     }
 
     public function projectdetail($id){
-        return view('projectdetail');
+
+        $project = ProjectMaster::where('project_id',$id)->first();
+
+        $imgDetail = ProjectMasterDetail::where('project_id',$id)->get();
+        $data['imgDetails'] = $imgDetail;
+        $data['projects'] = $project;
+        
+        return view('projectdetail',$data);
     }
 }
