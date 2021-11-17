@@ -23,7 +23,7 @@
                     <a href="{{url('project-donation')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
                     <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Project Donation</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+                    <a href="{{url('edit-account')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
                     <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Edit Account</span>
                     </a>
                     <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">

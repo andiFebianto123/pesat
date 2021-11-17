@@ -32,5 +32,14 @@
     <script src="{{asset('assets/js/cdnbootstrap.min.js')}}"></script>
     <script src="{{asset('assets/js/custom/custom.js')}}"></script>
 
+
+    <script type="text/javascript">
+        $(function() {
+            $('#datepicker').datepicker({format: 'yyyy-mm-dd'});
+        });
+    </script>
+
+
 </body>
+
 </html>

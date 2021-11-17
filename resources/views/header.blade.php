@@ -6,12 +6,14 @@
     <title>PESAT</title>
     <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.min.css') }}>
     <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap-datepicker.min.css') }}>
     <link rel="stylesheet" href={{ asset('assets/css/custom/styleku.css') }}>
     <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.min.css') }}>
     <script src="{{asset('assets/js/custom/jquery.min.js')}}"></script>
-    <style type="text/css">
+    <script src="{{asset('assets/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap-datepicker.min.js')}}"></script>
 
-</style>
 </head>
 <body>
     <header >
@@ -32,28 +34,7 @@
                 <a href="{{url('my-account')}}">
                 <button type="button" class="btn btn-primary" style="margin-top:10px">Akun Saya</button>
                 </a>
-                <!-- <div class="dropdown">
-                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                    Akun Saya
-                    </a>
-                
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-
-                        <li>
-                            <a class="dropdown-item" href="{{url('my-account')}}">Akun Saya</a>
-                        </li>
-                        <li>
-                            <form id="logout-form" action="{{ route('sponsor.logout') }}" method="POST" style="display: none;">
-                            @csrf
-                            </form>    
-                            <a class="dropdown-item" href="{{route('sponsor.logout')}}" onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">Logout</a>
-                        </li>
-
-                    </ul>
-
-                </div> -->
-                    
+    
                 </div>
 
                 @endif

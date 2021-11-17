@@ -11,12 +11,24 @@
     </tr>
   </thead>
   <tbody>
+    @foreach($orders as $key => $order)
     <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
+      <th scope="row">#{{$order->order_no}}</th>
+      <td></td>
+
+      <td>
+        @if($order->payment_status==1)
+        {{"pending"}}
+        @elseif($order->payment_status=2)
+        {{"suskes"}}
+        @else
+        {{"kadaluarsa"}}
+      @endif
+      </td>
+      <td>{{$order->total_price}}</td>
+      <td></td>
     </tr>
+    @endforeach
   </tbody>
 </table>
 @endsection
