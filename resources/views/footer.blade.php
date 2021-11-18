@@ -12,10 +12,10 @@
                     <a class="nav-link link-light" aria-current="page" href="#"><i class="fa fa-envelope"></i> pesatjkt@gmail.com</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link link-light" href="#"><i class="fa fa-facebook-square"></i> PESAT MINISTRY</a></a>
+                    <a class="nav-link link-light" href="https://www.facebook.com/sponsorachildtoday"><i class="fa fa-facebook-square"></i> PESAT MINISTRY</a></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link link-light" href="#"><i class="fa fa-instagram"></i> pesat_ministry</a></a>
+                    <a class="nav-link link-light" href="https://www.instagram.com/pesat_ministry/"><i class="fa fa-instagram"></i> pesat_ministry</a></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link link-light" href="#" tabindex="-1" aria-disabled="true"><i class="fa fa-phone"></i> 0821 1462 2245</a>
