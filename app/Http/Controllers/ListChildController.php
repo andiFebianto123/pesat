@@ -18,12 +18,12 @@ class ListChildController extends Controller
         $provinceid = $request->input('provinceid');
         $class = $request->input('class');
         $gender = $request->input('gender');
-        $childsdatas = ChildMaster::where('deleted_at',null)
-                                    ->whereNotIn('child_id', function($query){
-                                        $query->select('child_id')
-                                        ->from(with(new OrderDt())->getTable())
-                                        ->where('deleted_at', null);
-                                    });
+        $childsdatas = ChildMaster::where('deleted_at',null);
+                                //    ->whereNotIn('child_id', function($query){
+                                //        $query->select('child_id')
+                                //        ->from(with(new OrderDt())->getTable())
+                                //        ->where('deleted_at', null);
+      //                              });
       
         if($provinceid==null && $class==null &&  $gender == null ){
 
@@ -72,6 +72,8 @@ class ListChildController extends Controller
                             ->addSelect('p.province_name')
                             ->addSelect('child_master.child_id')
                             ->addSelect('child_master.full_name')
+                            ->addSelect('child_master.price')
+                            ->addSelect('child_master.is_sponsored')
                             ->addSelect('child_master.photo_profile')
                             ->addSelect('child_master.fc')
                             ->addSelect('child_master.date_of_birth')

@@ -10,6 +10,12 @@
             <strong>{{$message}}</strong>
         </div>
     @endif
+    
+    @if ($message = Session::get('errorsponsor'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
     @if ($message = Session::get('success'))
         <div class="alert alert-danger" role="alert">
             <strong>{{$message}}</strong>
@@ -30,7 +36,8 @@
 <div class="col-5">
     <input type="hidden" name="childid" value="{{$childs->child_id}}" />
     <h3>{{$childs->full_name}}</h3>
-    <h3>Rp. 150.000,-/ Bulan</h3>
+    <h3>Rp. {{number_format($childs->price, 2, ',', '.')}},-/ Bulan</h3>
+    <input type="hidden" name="price" value="{{$childs->price}}" />
     </br>
     <h5>Monthly Subscription</h5>
         <select id= "select-monthly" class="form-select" ria-label="Default select example" name="monthly_subs">
@@ -41,7 +48,11 @@
                 <option value="12">12 Bulan</option>
         </select>
     </br>
+    @if($childs->is_sponsored== true)
+        <button id="bt-isSponsored" type="submit" class="btn btn-success" disabled='true'>Sudah Tersponsori</button>
+    @else
         <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
+    @endif
     </br>
     </br>
     <p>Tetapkan untuk berkomitmen mensponsori anak minimal 1 tahun</p>

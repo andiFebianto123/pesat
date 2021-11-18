@@ -20,9 +20,12 @@ class OrderController extends Controller
     public function index(Request $request){
         $user   = auth()->user();
         $email  = session('key');
-      
-        $totalprice=$request->monthly_subs * 150000;
-                   
+
+        $price  = $request->price;
+        $totalprice=$request->monthly_subs * $price;
+        $id = $request->childid;
+        $childmaster= ChildMaster::where('child_id',$id)->first();
+    if($childmaster->is_sponsored == false){               
         do {
             $code = random_int(100000, 999999);
         } while (OrderHd::where("order_no", "=", $code)->first());
@@ -76,9 +79,19 @@ class OrderController extends Controller
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
             $order->save();
-      
+            
+            //update is_sponsored
+
+            $isSponsored = ChildMaster::where('child_id',$request->childid)->first();
+            
+            $isSponsored->is_sponsored= 1;
+            $isSponsored->save();
+
            return  Redirect::route('ordercheckout',array('snap_token' => $snapToken,'code' => $code));
     }
+}else{
+    return redirect()->back()->with(['errorsponsor' => 'Anak yang anda pilih sudah mempunyai sponsor !!']);
+}
 }
     public function orderdonation($snapToken, $code){
             $data['order'] = OrderHd::where('order_no',$code)->first();

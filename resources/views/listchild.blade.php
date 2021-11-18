@@ -70,8 +70,15 @@
                             <img class="card-img-top" src="{{asset('storage/'.$child->photo_profile)}}" alt="Card image cap">
                             @endif
                             <div class="card-body">
-                                <h5 class="card-title">{{$child->full_name}}</h5>
+
+                                    <h5 class="card-title">{{$child->full_name}}</h5>
+                                    
+                                    @if($child->is_sponsored == true)
+                                    <p style="color:red">Tersponsori</p>
+                                    @endif
+                                    
                             </div>
+                        
                         </div>
                 </a>
             </div>

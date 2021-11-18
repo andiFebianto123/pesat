@@ -168,6 +168,11 @@ class ChildMasterCrudController extends CrudController
             'label' => 'FC',
             'type' => 'text',
         ];
+        $price = [
+            'name' => 'price',
+            'label' => 'Nominal',
+            'type' => 'text',
+        ];
         $sponsor = [
             'name' => 'sponsor_name',
             'label' => 'Sponsor',
@@ -318,9 +323,9 @@ class ChildMasterCrudController extends CrudController
             'prefix' => '/storage/',
         ];
 
-        $this->crud->addFields([$createdby, $name, $childdiscription,
-            $noRegistration, $nickname, $gender, $hometown,
-            $dateofbirth, $religion, $FC, $sponsor, $province,
+        $this->crud->addFields([$createdby, $name, $childdiscription,$noRegistration, 
+            $nickname, $gender, $hometown,$dateofbirth, 
+            $religion, $FC,$price, $sponsor, $province,
             $city, $districts, $father, $mother,
             $profession, $economy, $class, $school,
             $schoolyear, $signinfc, $leavefc, $reasontoleave,
@@ -423,6 +428,11 @@ class ChildMasterCrudController extends CrudController
             'label' => 'FC',
             'type' => 'text',
         ];
+        $price = [
+            'name' => 'price',
+            'label' => 'Nominal',
+            'type' => 'text',
+        ];
         $sponsor = [
             'name' => 'sponsor_name',
             'label' => 'Sponsor',
@@ -573,9 +583,9 @@ class ChildMasterCrudController extends CrudController
             'prefix' => '/storage/',
         ];
 
-        $this->crud->addFields([$createdby, $name, $childdiscription,
-            $noRegistration, $nickname, $gender, $hometown,
-            $dateofbirth, $religion, $FC, $sponsor, $province,
+        $this->crud->addFields([$createdby, $name, $childdiscription,$noRegistration, 
+            $nickname, $gender, $hometown,$dateofbirth, 
+            $religion, $FC,$price, $sponsor, $province,
             $city, $districts, $father, $mother,
             $profession, $economy, $class, $school,
             $schoolyear, $signinfc, $leavefc, $reasontoleave,
@@ -633,6 +643,15 @@ class ChildMasterCrudController extends CrudController
             [
                 'name' => 'fc',
                 'label' => 'FC',
+            ],
+            [
+                'name' => 'price',
+                'label' => 'Nominal',
+                'prefix'=>'Rp. '
+            ],
+            [
+                'name' => 'price',
+                'label' => 'Nominal',
             ],
             [
                 'name' => 'sponsor_name',
