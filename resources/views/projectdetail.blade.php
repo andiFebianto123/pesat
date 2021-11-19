@@ -1,11 +1,16 @@
 @include('header')
-<form id="form-project-detail" action="{{url('project-donation')}}" method="post">
+<form id="form-project-detail" action="{{url('project-order')}}" method="post">
 {{ csrf_field() }}
 </br></br>
+
 <div class="container">
+    @if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
     <div class="row">
         <div class="col-6">
-
             <div class="row">
                 @foreach ($imgDetails as $key => $imgDetail)
                 <div class="col-4" style="margin-bottom: 10px;">
@@ -44,6 +49,7 @@
 
         <div class="col-6">
             <h2>{{$projects->title}}</h2>
+            <input type="hidden" name = "projectid" value="{{$projects->project_id}}"> 
             <table class="table">
                 <thead class="table-light">
                     <tr>
@@ -55,9 +61,9 @@
                 </thead>
                 <tbody>
                         <tr>
-                            <td>Rp. 12.000.000</td>
-                            <td>Rp. 7000.000</td>
-                            <td>4</td>
+                            <td>Rp. {{number_format($projects->amount, 2, ',', '.')}}</td>
+                            <td>Rp. {{number_format($projects->last_amount, 2, ',', '.')}}</td>
+                            <td>{{$interval}}</td>
                         </tr>
                 </tbody>
             </table>

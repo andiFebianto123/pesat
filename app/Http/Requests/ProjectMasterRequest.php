@@ -34,7 +34,8 @@ class ProjectMasterRequest extends FormRequest
                                 })->ignore($this->project_id,'project_id')
                                 ],
             'discription'    => 'required',
-            'featured_image' => 'required'
+            'featured_image' => 'required',
+            'amount'         => 'required|max:12|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/'
         ];
     }
 

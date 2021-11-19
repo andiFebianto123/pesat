@@ -90,6 +90,39 @@ class ProjectMasterCrudController extends CrudController
                 'required' => true,
             ],
         ];
+        $startdate = [ // date_picker
+            'name' => 'start_date',
+            'type' => 'date_picker',
+            'label' => 'Tanggal Mulai',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+        $enddate = [ // date_picker
+            'name' => 'end_date',
+            'type' => 'date_picker',
+            'label' => 'Tanggal Selesai',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+        $amount = [
+            'name' => 'amount',
+            'label' => 'Nominal',
+            'type' => 'text',
+        ];
         $photo = [
             'label' => "Gambar Unggulan",
             'name' => "featured_image",
@@ -106,7 +139,7 @@ class ProjectMasterCrudController extends CrudController
             'default' => $userid,
         ];
 
-        $this->crud->addFields([$title, $discription, $photo, $createdby]);
+        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -139,6 +172,39 @@ class ProjectMasterCrudController extends CrudController
                 'required' => true,
             ],
         ];
+        $startdate = [ // date_picker
+            'name' => 'start_date',
+            'type' => 'date_picker',
+            'label' => 'Tanggal Mulai',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+        $enddate = [ // date_picker
+            'name' => 'end_date',
+            'type' => 'date_picker',
+            'label' => 'Tanggal Selesai',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+            'date_picker_options' => [
+                'todayBtn' => 'linked',
+                'format' => 'dd-mm-yyyy',
+                'language' => 'en',
+            ],
+        ];
+        $amount = [
+            'name' => 'amount',
+            'label' => 'Nominal',
+            'type' => 'text',
+        ];
         $photo = [
             'label' => "Gambar Unggulan",
             'name' => "featured_image",
@@ -154,7 +220,7 @@ class ProjectMasterCrudController extends CrudController
             'label' => 'id',
         ];
 
-        $this->crud->addFields([$title, $discription, $photo, $createdby]);
+        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby]);
     }
 
     function setupShowOperation()

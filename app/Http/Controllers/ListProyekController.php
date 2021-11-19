@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProjectMaster;
 use App\Models\ProjectMasterDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ListProyekController extends Controller
@@ -20,8 +21,16 @@ class ListProyekController extends Controller
         $project = ProjectMaster::where('project_id',$id)->first();
 
         $imgDetail = ProjectMasterDetail::where('project_id',$id)->get();
+
+        $now = Carbon::now();
+        $enddate   = Carbon::parse($project->end_date);
+        $interval  = $enddate->diffInDays($now);
+
+
+
         $data['imgDetails'] = $imgDetail;
-        $data['projects'] = $project;
+        $data['projects']   = $project;
+        $data['interval']   = $interval;
         
         return view('projectdetail',$data);
     }
