@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Sponsor;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderHd;
+use App\Models\OrderProject;
 use App\Models\Sponsor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -34,7 +35,13 @@ class MyAccountController extends Controller
 
     public function projectDonation()
     {
-        return view('sponsor.projectdonation');
+        $getemail   = Session::get('key');
+        $getuser    = Sponsor::where('email',$getemail)->first();
+
+        $getprojectorder    = OrderProject::where('sponsor_id',$getuser->sponsor_id)
+                                ->get();
+        $data['projectorders']   = $getprojectorder;
+        return view('sponsor.projectdonation',$data);
     }
     public function editaccount()
     {

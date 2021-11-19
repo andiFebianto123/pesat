@@ -48,6 +48,16 @@ class ChildMasterCrudController extends CrudController
     {
 
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
+        $this->crud->addFilter([
+            'name'  => 'is_sponsored',
+            'type'  => 'dropdown',
+            'label' => 'Status'
+          ], [
+            1 => 'Tersponsori',
+            0 => 'Belum Tersponsori',
+          ], function($value) { // if the filter is active
+             $this->crud->addClause('where', 'is_sponsored', $value);
+          });
 
         //     $this->crud->removeButton('delete');
         $this->crud->addColumns([

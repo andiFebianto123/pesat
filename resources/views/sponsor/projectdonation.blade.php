@@ -11,12 +11,24 @@
     </tr>
   </thead>
   <tbody>
+  @foreach($projectorders as $key => $projectorder)
     <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
+      <th scope="row">#{{$projectorder->order_project_no}}</th>
+      <td>{{date('d-m-Y', strtotime($projectorder->created_at))}}</td>
+
+      <td>
+        @if($projectorder->payment_status==1)
+        {{"menunggu pembayaran"}}
+        @elseif($projectorder->payment_status==2)
+        {{"suskes"}}
+        @else
+        {{"kadaluarsa"}}
+      @endif
+      </td>
+      <td>{{$projectorder->price}}</td>
+      <td></td>
     </tr>
+    @endforeach
   </tbody>
 </table>
 @endsection
