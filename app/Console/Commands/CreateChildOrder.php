@@ -141,13 +141,13 @@ class CreateChildOrder extends Command
 
 
         $now=Carbon::now();
-        $dateafteronemont= $now->copy()->addDay(7);
+        $dateafteroneweek= $now->copy()->addDay(7);
         $orders1month = DB::table('order_hd')
         ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
         ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
         ->join('child_master as cm','cm.child_id','=','odt.child_id')
         ->where('odt.has_child',0)
-        ->where('odt.end_order_date','<=',$dateafteronemont)
+        ->where('odt.end_order_date','<=',$dateafteroneweek)
         ->where('payment_status',2)
         ->where('order_hd.deleted_at',null)
         ->where('odt.deleted_at',null)

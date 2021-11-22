@@ -7,8 +7,10 @@
 // Routes you generate using Backpack\Generators will be placed here.
 
 use App\Http\Controllers\Admin\DlpCrudController;
-use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProvinceCustomController;
+use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
+use App\Http\Controllers\Admin\ReportController;
 
 Route::group([
     'prefix'     => config('backpack.base.route_prefix', 'admin'),
@@ -18,6 +20,9 @@ Route::group([
     ),
     'namespace'  => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
+
+    Route::get('dashboard', [DashboardController::class,'index']);
+    Route::get('report', [ReportController::class,'index']);
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');
