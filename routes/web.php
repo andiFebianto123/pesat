@@ -29,6 +29,8 @@ Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@
 Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
 Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
 Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
+Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');
+Route::post('/create-account','App\Http\Controllers\Sponsor\MyAccountController@createaccount');
 Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childdetail');
 Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
 Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');

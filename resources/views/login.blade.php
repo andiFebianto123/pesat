@@ -31,7 +31,7 @@
         <label>Lupa password ?</label>
         </a>
         </br></br>
-        <label>Belum Memiliki Akun ?</label> <a href=""><label>Daftar disini</label></a>
+        <label>Belum Memiliki Akun ?</label> <a href="{{url('register')}}"><label>Daftar disini</label></a>
     </div>
   </div>
 </div>

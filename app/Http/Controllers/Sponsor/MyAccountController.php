@@ -134,4 +134,30 @@ class MyAccountController extends Controller
         }
         return $newpass;
     }
+
+    public function register(){
+        return view('sponsor.register');
+    }
+
+    public function createaccount(Request $request){
+
+        $request->validate([
+            'password' => 'nullable|confirmed|min:6'
+        ]);
+        
+        $insertsponsor = new Sponsor();
+        $insertsponsor->name             = $request->name;
+        $insertsponsor->full_name        = $request->fullname;
+        $insertsponsor->hometown         = $request->hometown;
+        $insertsponsor->date_of_birth    = $request->dateofbirth;
+        $insertsponsor->address          = $request->address;
+        $insertsponsor->email            = $request->email;
+        $insertsponsor->password         = bcrypt($request->password);
+        $insertsponsor->no_hp            = $request->nohp;
+        $insertsponsor->church_member_of = $request->memberofchurch;
+        $insertsponsor->save();
+
+        return   redirect()->back()->with(['success' => 'Akun berhasil dibuat , silahkan login !!']);       
+    }
+
 }
