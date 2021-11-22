@@ -3,6 +3,11 @@
     <div class="bs-callout bs-callout-primary">
         <h2>Akun Saya</h2>
     </div>
+    @if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
 <div class="accordion" style = "margin-bottom:30px">
   <div class="accordion-item">
       <div class="accordion-body">
@@ -22,9 +27,11 @@
             </div>
                 <button type="submit" class="btn btn btn-primary">Masuk</button>
         </form>
+        <a href="{{url('forgot-password')}}">
         <label>Lupa password ?</label>
+        </a>
         </br></br>
-        <label>Belum Memiliki Akun ? Daftar disini</label>
+        <label>Belum Memiliki Akun ?</label> <a href=""><label>Daftar disini</label></a>
     </div>
   </div>
 </div>

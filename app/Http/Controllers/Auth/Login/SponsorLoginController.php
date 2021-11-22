@@ -49,7 +49,7 @@ class SponsorLoginController extends DefaultLoginController
 
             return redirect()->intended(url('my-account',$data));
         } else {
-            return redirect()->back()->withError('Credentials doesn\'t match.');
+            return redirect()->back()->with(['error' => 'Email atau password yang anda masukan salah !!!']);
         }
     }
     

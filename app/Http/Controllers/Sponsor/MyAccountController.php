@@ -7,6 +7,7 @@ use App\Models\OrderHd;
 use App\Models\OrderProject;
 use App\Models\Sponsor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -88,5 +89,49 @@ class MyAccountController extends Controller
 
         return   redirect()->back()->with(['success' => 'Data Berhasil Di Update !!']);
 
+    }
+
+    public function forgotpassword(){
+        return view('sponsor.forgotpassword');
+    }
+    public function resetpassword(Request $request){
+     $getUser =  Sponsor::where("email", "=", $request->email)->first();
+        if($getUser){
+            $length=8;
+            $newpass='';
+            $generatepass =$this->generatepassword($length,$newpass);
+            
+
+            $data["email"] = $request->email;
+            $data["title"] = "Reset Password";
+            $data["body"] = "This is Demo";
+            $data["generatepass"]=$generatepass;
+
+ 
+            Mail::send('Email.ResetPassword', $data, function($message)use($data) {
+                $message->to($data["email"], $data["email"])
+                                ->subject($data["title"]);
+                });            
+
+            
+            $getUser->password= bcrypt($generatepass);
+            $getUser->save();
+            
+            return   redirect()->back()->with(['success' => 'Password berhasil direset, silahkan cek email anda !!']);            
+
+        }else{
+            return   redirect()->back()->with(['error' => 'Email yang anda masukan tidak terdaftar !!']);            
+        }
+
+    }
+
+    function generatepassword($length,$newpass) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $newpass = '';
+        for ($i = 0; $i < $length; $i++) {
+            $newpass .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $newpass;
     }
 }
