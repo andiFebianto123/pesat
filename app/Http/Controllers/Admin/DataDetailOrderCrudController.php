@@ -10,6 +10,7 @@ use App\Models\OrderDt;
 use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\VarDumper\Cloner\Data;
 
@@ -118,11 +119,18 @@ class DataDetailOrderCrudController extends CrudController
             'allows_multiple' => false,
 
         ];
+        $startOrderdate=[
+            'name'  => 'start_order_date',
+            'type'  => 'hidden'
+        ];
 
-        $price = [
+        $endOrderdate=[
+            'name'  => 'end_order_date',
+            'type'  => 'hidden'
+        ];
+        $price=[
             'name'  => 'price',
-            'label' => 'Price',
-            'type'  =>  'hidden',
+            'type'  => 'hidden'
         ];
         $order = [
             'name' => 'order_id',
@@ -131,7 +139,7 @@ class DataDetailOrderCrudController extends CrudController
             'label' => "id",
         ];
         $this->crud->addFields([
-            $child,$subs,$price,$order
+            $child,$subs,$order,$startOrderdate,$endOrderdate,$price
     ]);
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -158,8 +166,15 @@ class DataDetailOrderCrudController extends CrudController
         $request = $this->crud->validateRequest();
 
         // insert item in the db
+        $startOrderdate = Carbon::now();
         $subs = $request->input('monthly_subscription');
-        $TotalPrice = $subs * 150000;
+        $child = ChildMaster::where('child_id',$request->child_id)->first();
+        $getPrice= $child->price;
+        $TotalPrice = $subs * $getPrice;
+       // dd($TotalPrice);
+        $this->crud->getRequest()->request->set('start_order_date',$startOrderdate);
+        
+        $this->crud->getRequest()->request->set('end_order_date',$startOrderdate->copy()->addMonthsNoOverflow($subs));
         $this->crud->getRequest()->request->set('price', $TotalPrice);
        
         $error = [];
@@ -191,6 +206,9 @@ class DataDetailOrderCrudController extends CrudController
 
         DataOrder::where('order_id', $request->order_id)
             ->update(['total_price' => $TotalPrice]);
+        
+        ChildMaster::where('child_id', $request->child_id)
+            ->update(['is_sponsored' => 1]);
         
         // show a success message
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
