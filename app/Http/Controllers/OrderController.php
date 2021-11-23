@@ -26,9 +26,9 @@ class OrderController extends Controller
         $id = $request->childid;
         $childmaster= ChildMaster::where('child_id',$id)->first();
     if($childmaster->is_sponsored == false){               
-        do {
-            $code = random_int(100000, 999999);
-        } while (OrderHd::where("order_no", "=", $code)->first());
+        // do {
+        //     $code = random_int(100000, 999999);
+        // } while (OrderHd::where("order_no", "=", $code)->first());
 
 
         if(session('key')==null){
@@ -42,7 +42,7 @@ class OrderController extends Controller
             $OrderId = DB::table('order_hd')->insertGetId(
                 [
                     'parent_order_id' => null,
-                    'order_no'        =>$code,
+//                    'order_no'        =>$code,
                     'sponsor_id'      =>$idsponsor,
                     'total_price'     =>$totalprice,
                     'payment_status'  =>1,
@@ -75,7 +75,7 @@ class OrderController extends Controller
             ->get();
             
             $order = OrderHd::where('order_id',$OrderId)->first();                        
-            $midtrans = new CreateSnapTokenService($Snaptokenorder,$code);
+            $midtrans = new CreateSnapTokenService($Snaptokenorder,$OrderId);
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
             $order->save();
@@ -87,14 +87,14 @@ class OrderController extends Controller
             $isSponsored->is_sponsored= 1;
             $isSponsored->save();
 
-           return  Redirect::route('ordercheckout',array('snap_token' => $snapToken,'code' => $code));
+           return  Redirect::route('ordercheckout',array('snap_token' => $snapToken,'code' => $OrderId));
     }
 }else{
     return redirect()->back()->with(['errorsponsor' => 'Anak yang anda pilih sudah mempunyai sponsor !!']);
 }
 }
     public function orderdonation($snapToken, $code){
-            $data['order'] = OrderHd::where('order_no',$code)->first();
+            $data['order'] = OrderHd::where('order_id',$code)->first();
             $data['snapToken'] = $snapToken;
 
             return view('showpayment',$data);

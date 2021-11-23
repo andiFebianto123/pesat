@@ -49,11 +49,12 @@ class DataOrderCrudController extends CrudController
     protected function setupListOperation()
     {
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'sponsoredchild', 'beginning');
+        $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'Cek_Status', 'last');
         
         $this->crud->addColumns([
             [
-                'name' => 'order_no',
-                'label' => 'No Order',
+                'name' => 'order_id',
+                'label' => 'Order ID',
             ],
 
             [
@@ -63,11 +64,19 @@ class DataOrderCrudController extends CrudController
                 'attribute' => 'full_name',
               
             ],
+
             [
                 'name' => 'total_price',
                 'label'=> 'Total',
                 'prefix'=> 'Rp. ',
 
+            ],
+            [
+                'name' => 'payment_status',
+                'label' => 'Status Pembayaran',
+                'type' => 'radio',
+                'options' => [1 => 'Menungggu Pembayaran', 2 => 'Sukses',3 =>'Batal'],
+              
             ],
         ]);
         /**

@@ -26,14 +26,14 @@ class ProjectOrderController extends Controller
             $sponsor= Sponsor::where('email',$email)->get()->first();
             $idsponsor= $sponsor->sponsor_id;
 
-            do {
-                $code = random_int(100000, 999999);
-            } while (OrderProject::where("order_project_id", "=", $code)->first());
+            // do {
+            //     $code = random_int(100000, 999999);
+            // } while (OrderProject::where("order_project_id", "=", $code)->first());
     
             // save table order_project
              $OrderId = DB::table('order_project')->insertGetId(
                  [
-                     'order_project_no'=> $code,
+    //                 'order_project_no'=> $code,
                      'sponsor_id'      => $idsponsor,
                      'project_id'      =>$request->projectid,
                      'price'           => $request->total,
@@ -48,16 +48,16 @@ class ProjectOrderController extends Controller
              ->get();
             
              $order = OrderProject::where('order_project_id',$OrderId)->first();                        
-             $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$code);
+             $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$OrderId);
              $snapToken = $midtrans->getSnapToken();
              $order->snap_token = $snapToken;
              $order->save();
             
-            return  Redirect::route('orderprojectcheckout',array('snap_token' => $snapToken,'code' => $code));
+            return  Redirect::route('orderprojectcheckout',array('snap_token' => $snapToken,'code' => $OrderId));
          }
      }
      public function orderproject($snapToken, $code){
-            $data['order'] = OrderProject::where('order_project_no',$code)->first();
+            $data['order'] = OrderProject::where('order_project_id',$code)->first();
             $data['snapToken'] = $snapToken;
 
             return view('projectshowpayment',$data);

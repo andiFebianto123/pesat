@@ -70,7 +70,7 @@
             </br>
             <div class="row">
                 <div class='col-8'>
-                    <input type="text" name="total" class="form-control">
+                    <input type="text" name="total" class="form-control" required>
                 </div>
                 <div class='col-4'>
                 <button type="submit" class="btn btn-primary" style="margin-left:80px">Donation</button>
