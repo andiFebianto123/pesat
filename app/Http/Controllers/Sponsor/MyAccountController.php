@@ -145,6 +145,12 @@ class MyAccountController extends Controller
             'password' => 'nullable|confirmed|min:6'
         ]);
         
+        $cekEmail = Sponsor::where('email',$request->email)->first();
+
+       
+        if($cekEmail){
+        return   redirect()->back()->with(['error' => 'Email sudah terdaftar , silahkan gunakan email lain !!']);       
+        }else{
         $insertsponsor = new Sponsor();
         $insertsponsor->name             = $request->name;
         $insertsponsor->full_name        = $request->fullname;
@@ -158,6 +164,7 @@ class MyAccountController extends Controller
         $insertsponsor->save();
 
         return   redirect()->back()->with(['success' => 'Akun berhasil dibuat , silahkan login !!']);       
+        }
     }
 
 }

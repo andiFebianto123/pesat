@@ -8,6 +8,11 @@
             <strong>{{$message}}</strong>
         </div>
     @endif
+    @if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
     <label><strong>Nama Panggilan</strong></label>
     <input type="text" name="name" placeholder="Nama Panggilan" class="form-control" required/>
     </br>
