@@ -58,4 +58,5 @@ Route::group([
     Route::crud('sponsor', 'SponsorCrudController');
     Route::crud('data-order', 'DataOrderCrudController');
     Route::crud('data-detail-order', 'DataDetailOrderCrudController');
+    Route::crud('data-order-project', 'DataOrderProjectCrudController');
 }); // this should be the absolute last line of this file

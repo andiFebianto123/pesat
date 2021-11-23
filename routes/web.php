@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 //Route::get('/', 'App\Http\Controllers\ListChildController@index');
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
+Route::get('/cek-status/{dlp_id}', 'App\Http\Controllers\CekStatusController@index');
 Route::post('/order', 'App\Http\Controllers\OrderController@index');
 Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');

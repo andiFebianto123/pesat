@@ -3,7 +3,8 @@
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('child-master') }}'><i class='nav-icon la la-user'></i> Data Anak</a></li>
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('project-master') }}'><i class='nav-icon la la-industry'></i> Data Proyek</a></li>
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor') }}'><i class='nav-icon la la-book'></i>Data Sponsor</a></li>
-<li class='nav-item'><a class='nav-link' href='{{ backpack_url('data-order') }}'><i class='nav-icon la la-child'></i> Data order</a></li>
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('data-order') }}'><i class='nav-icon la la-child'></i> Data Order Anak</a></li>
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('data-order-project') }}'><i class='nav-icon la la-building'></i> Data Order Proyek</a></li>
 <!-- <li class='nav-item'><a class='nav-link' href="{{ backpack_url('report') }}"><i class='nav-icon la la-book'></i> Report</a></li> -->
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('users') }}'><i class='nav-icon la la-user-plus'></i> Users</a></li>
 <li class="nav-item nav-dropdown">
@@ -20,3 +21,4 @@
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('dlp') }}'><i class='nav-icon la la-question'></i> Dlp</a></li> -->
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-attribute') }}'><i class='nav-icon la la-question'></i> User attributes</a></li> -->
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('data-detail-order') }}'><i class='nav-icon la la-question'></i> Data detail orders</a></li> -->
+
