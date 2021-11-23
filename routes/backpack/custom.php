@@ -23,6 +23,7 @@ Route::group([
 
     Route::get('dashboard', [DashboardController::class,'index']);
     Route::get('report', [ReportController::class,'index']);
+    Route::post('filter-report', [ReportController::class,'filterreport']);
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');

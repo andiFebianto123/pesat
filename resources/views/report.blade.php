@@ -2,11 +2,12 @@
 @section('content')
 <h1>Report</h1>
 </br>
+<form id="form_report" method="post" action="javascript:void(0)">
 <div class="row">
     <div class="col-1"> 
         <label><strong>Start date</strong></label>
         <div id= "startdate" class="input-group date">
-            <input type="text" class="form-control">
+            <input id ="start_date" type="text" name ="start" class="form-control" required>
             <div class="input-group-addon">
                 <span class="glyphicon glyphicon-th"></span>
             </div>
@@ -15,7 +16,7 @@
     <div class="col-1">
     <label><strong>End date</strong></label>
     <div id= "enddate" class="input-group date">
-            <input type="text" class="form-control">
+            <input id="end_date" type="text" name="end" class="form-control" required>
             <div class="input-group-addon">
                 <span class="glyphicon glyphicon-th"></span>
             </div>
@@ -34,7 +35,7 @@
         <table class="table table-bordered">
         <tr>
             <td colspan="2">
-                Rp.5.700.000
+             <p id="totalamount">   Rp.5.700.000 </p>
             </br>
                 Total Uang Bulan Ini
             </td>
@@ -72,7 +73,7 @@
         </tr>
         <tr>
             <td>
-            4 sponsor baru
+            <p id="sponsor">4</p> sponsor baru
             <br>
             sponsor mendaftar bulan ini
             </td>
@@ -98,7 +99,7 @@
         </table>
         </div>
 	</div>
-
+</form>
 @endsection
 @push('after_styles')
 <link rel="stylesheet" href="{{ asset('packages/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css') }}">
@@ -129,5 +130,49 @@
             console.log($('#datestart').bootstrapDP('getDate'))
         }
         )
+
+
+$(document).ready(function(){
+$('#btsubmit').click(function(e){
+   e.preventDefault();
+   /*Ajax Request Header setup*/
+   if($('#start_date').val()=='' || $('#end_date').val()==''){
+    
+    alert('form start date / end date tidak boleh kosong');
+   
+    }else{
+    
+   
+   $.ajaxSetup({
+      headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+  });
+ 
+   
+   /* Submit form data using ajax*/
+   $.ajax({
+      url: "{{ backpack_url('filter-report')}}",
+      method: 'post',
+      data: $('#form_report').serialize(),
+      success: function(response){
+         //------------------------
+            $('#res_message').show();
+            $('#res_message').html(response.msg);
+            $('#msg_div').removeClass('d-none');
+            console.log(response.name);
+            $('#totalamount').replaceWith("<p id='totalamount'>"+response.totalamount+"</p>");
+            $('#sponsor').replaceWith("<p id='sponsor'>"+response.newsponsor+"</p>");
+            document.getElementById("form_report").reset(); 
+            setTimeout(function(){
+            $('#res_message').hide();
+            $('#msg_div').hide();
+            },10000);
+         //--------------------------
+      }});
+    }
+    });
+   
+});
 </script>
 @endpush
