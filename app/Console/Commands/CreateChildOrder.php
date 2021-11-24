@@ -86,14 +86,14 @@ class CreateChildOrder extends Command
         
         foreach($orders as $key =>$order){
 
-            do {
-                $code = random_int(100000, 999999);
-            } while (OrderHd::where("order_no", "=", $code)->first());
+            //do {
+            //    $code = random_int(100000, 999999);
+           // } while (OrderHd::where("order_no", "=", $code)->first());
     
     
                     $lastorderId = DB::table('order_hd')->insertGetId(
                         [ 'parent_order_id' => $order->order_id,
-                          'order_no'        => $code,//$order->order_no,
+             //             'order_no'        => $code,//$order->order_no,
                           'sponsor_id'      => $order->sponsor_id,
                           'total_price'     => $order->total_price,
                           'payment_status'  => 1,
@@ -179,13 +179,13 @@ class CreateChildOrder extends Command
 
         foreach($orders1month as $key =>$order){
 
-            do {
-                $code = random_int(100000, 999999);
-            } while (OrderHd::where("order_no", "=", $code)->first());
+           // do {
+           //     $code = random_int(100000, 999999);
+          //  } while (OrderHd::where("order_no", "=", $code)->first());
     
             $lastorderId = DB::table('order_hd')->insertGetId(
                 [ 'parent_order_id' => $order->order_id,
-                  'order_no'        => $code,//$order->order_no,
+            //      'order_no'        => $code,//$order->order_no,
                   'sponsor_id'      => $order->sponsor_id,
                   'total_price'     => $order->total_price,
                   'payment_status'  => 1,

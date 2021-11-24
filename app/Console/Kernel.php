@@ -32,7 +32,8 @@ class Kernel extends ConsoleKernel
        $schedule->command('create:reminder')
                 ->daily();
               
-                
+       $schedule->command('check:status')
+                ->everyMinute();
     }
 
     /**
