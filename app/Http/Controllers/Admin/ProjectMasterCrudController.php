@@ -90,6 +90,25 @@ class ProjectMasterCrudController extends CrudController
                 'required' => true,
             ],
         ];
+        $label1 = [
+            'name' => 'separator',
+            'type' => 'custom_html',
+            'value' => '',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+                'color' => 'red',
+            ],
+        ];
+
+        $label2 = [
+            'name' => 'lbl2',
+            'type' => 'custom_html',
+            'value' => '<p style="color:red">*Proyek tanpa tanggal selesai maka tampil akan tampil selamanya</p>',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+
+            ],
+        ];
         $startdate = [ // date_picker
             'name' => 'start_date',
             'type' => 'date_picker',
@@ -104,6 +123,7 @@ class ProjectMasterCrudController extends CrudController
                 'language' => 'en',
             ],
         ];
+
         $enddate = [ // date_picker
             'name' => 'end_date',
             'type' => 'date_picker',
@@ -139,7 +159,7 @@ class ProjectMasterCrudController extends CrudController
             'default' => $userid,
         ];
 
-        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby]);
+        $this->crud->addFields([$title, $discription,$label1,$label2,$startdate,$enddate,$amount, $photo, $createdby]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
