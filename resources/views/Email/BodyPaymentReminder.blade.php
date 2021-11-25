@@ -21,9 +21,17 @@ Mohon untuk segera melakukan pembayaran sebelum tanggal berakhirnya masa sponsor
 
 Abaikan email ini jika Anda sudah melakukan pembayaran.
 
+Ini adalah pengingat terakhir untuk pembayaran donasi anak di pesat. harap melakukan pembayaran maksimal 2 hari semanjak email ini diterima.
+jika lebih dari tenggang waktu pembayaran diatas maka pembayaran tidak dapat dilakukan.
+
 Terima Kasih
 	</pre>
+
 	<footer>
-	</footer> 
+		<pre style="font-size:8px;position:fixed;bottom:0;">
+		Website pesat hanya menggunakan transaksi atas nama Yayasan Pesat. Nama / No Rekening selain itu bukan milik kami dan kesalahan atas transaksi yang 
+		saudara/saudari lakukan bukan merupakan tanggung jawab kami. Jika ada pertanyaan yang kurang jelas dapat menghubungi Admin Website Pesat pada halaman Kontak			
+		</pre>
+	</footer>
 </body>
 </html>

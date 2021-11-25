@@ -30,7 +30,7 @@ class SendEmailDlp extends Mailable
      */
     public function build()
     {
-       
+     //  dd($this->mailData);
         return $this->markdown('Email.SendDlp')
                 ->subject('Pesat - Data Laporan Perkembangan')
                 ->attach(public_path('storage/'.$this->mailData['filedlp']))

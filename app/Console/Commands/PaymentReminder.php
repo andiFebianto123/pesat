@@ -178,12 +178,12 @@ class PaymentReminder extends Command
                         $data["price"]= $order->price;
                         $data["date_now"]  =$formatdatenow;
                                   
-                        $pdf = PDF::loadView('Email.PaymentReminder', $data);
+//                        $pdf = PDF::loadView('Email.PaymentReminder', $data);
                                   
-                        Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data, $pdf) {
+                        Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data) {
                                     $message->to($data["email"], $data["email"])
-                                                    ->subject($data["title"])
-                                                    ->attachData($pdf->output(), $data['order_id']."_".$data['sponsor_name'].".pdf");
+                                                    ->subject($data["title"]);
+                                      //              ->attachData($pdf->output(), $data['order_id']."_".$data['sponsor_name'].".pdf");
                                     });
         
             }  

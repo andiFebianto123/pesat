@@ -229,12 +229,12 @@ class CreateChildOrder extends Command
             $data["total_price"] = $order->total_price;
             $data["date_now"]   = $formatdatenow;
  
-            $pdf = PDF::loadView('Email.NewOrder', $data);
+ //           $pdf = PDF::loadView('Email.NewOrder', $data);
  
-            Mail::send('Email.BodyNewOrder', $data, function($message)use($data, $pdf) {
+            Mail::send('Email.BodyNewOrder', $data, function($message)use($data) {
            $message->to($data["email"], $data["email"])
-                   ->subject($data["title"])
-                   ->attachData($pdf->output(),  $data["order_id"]."_".$data["sponsor_name"].".pdf");
+                   ->subject($data["title"]);
+               //    ->attachData($pdf->output(),  $data["order_id"]."_".$data["sponsor_name"].".pdf");
        });
  
 
