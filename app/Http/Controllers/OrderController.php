@@ -28,13 +28,9 @@ class OrderController extends Controller
         $id = $request->childid;
         $childmaster= ChildMaster::where('child_id',$id)->first();
     if($childmaster->is_sponsored == false){               
-        // do {
-        //     $code = random_int(100000, 999999);
-        // } while (OrderHd::where("order_no", "=", $code)->first());
-
 
         if(session('key')==null){
-            return redirect()->back()->with(['error' => 'Anda Harus Login Dulu !!']);
+            return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         }else{
 
             $sponsor= Sponsor::where('email',$email)->get()->first();
@@ -44,7 +40,6 @@ class OrderController extends Controller
             $OrderId = DB::table('order_hd')->insertGetId(
                 [
                     'parent_order_id' => null,
-//                    'order_no'        =>$code,
                     'sponsor_id'      =>$idsponsor,
                     'total_price'     =>$totalprice,
                     'payment_status'  =>1,

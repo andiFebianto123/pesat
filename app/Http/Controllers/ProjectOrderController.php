@@ -19,21 +19,16 @@ class ProjectOrderController extends Controller
 
         if(session('key')==null){
         
-            return redirect()->back()->with(['error' => 'Anda Harus Login Dulu !!']);
+            return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         
         }else{
 
             $sponsor= Sponsor::where('email',$email)->get()->first();
             $idsponsor= $sponsor->sponsor_id;
-
-            // do {
-            //     $code = random_int(100000, 999999);
-            // } while (OrderProject::where("order_project_id", "=", $code)->first());
-    
+  
             // save table order_project
              $OrderId = DB::table('order_project')->insertGetId(
                  [
-    //                 'order_project_no'=> $code,
                      'sponsor_id'      => $idsponsor,
                      'project_id'      =>$request->projectid,
                      'price'           => $request->total,

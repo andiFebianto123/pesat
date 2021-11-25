@@ -30,14 +30,16 @@ class MidtransController extends Controller
 
                OrderProject::where('order_project_id', $idproyek)
                             ->update(['status_midtrans' => $transaction,
-                                      'payment_status'  => 2
+                                      'payment_status'  => 2,
+                                      'payment_type'    => $type
                                     ]);
             }else{
 
                 OrderHd::where('order_id',$idanak)
                         ->update([
                                     'status_midtrans'   => $transaction,
-                                    'payment_status'    => 2 
+                                    'payment_status'    => 2,
+                                    'payment_type'    => $type 
                                 ]);
             }
             echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
@@ -60,14 +62,16 @@ class MidtransController extends Controller
 
                OrderProject::where('order_project_id', $idproyek)
                             ->update(['status_midtrans' => $transaction,
-                                      'payment_status'  => 2
+                                      'payment_status'  => 2,
+                                      'payment_type'    => $type
                                     ]);
             }else{
 
                 OrderHd::where('order_id',$idanak)
                         ->update([
                                     'status_midtrans'   => $transaction,
-                                    'payment_status'    => 2 
+                                    'payment_status'    => 2,
+                                    'payment_type'      => $type
                                 ]);
             }
 
@@ -81,13 +85,14 @@ class MidtransController extends Controller
 
                 OrderProject::where('order_project_id', $idproyek)
                              ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 1
+                                       'payment_status'  => 1,
+                                       'payment_type'    => $type
                                      ]);
              }else{
                 OrderHd::where('order_id',$idanak)
                         ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 1
-
+                                  'payment_status'  => 1,
+                                  'payment_type'    => $type
                                 ]);
              }
             // TODO set payment status in merchant's database to 'Pending'
@@ -102,12 +107,14 @@ class MidtransController extends Controller
 
                 OrderProject::where('order_project_id', $idproyek)
                              ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3
+                                       'payment_status'  => 3,
+                                       'payment_type'    => $type
                                      ]);
              }else{
                 OrderHd::where('order_id',$idanak)
                         ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3
+                                  'payment_status'  => 3,
+                                  'payment_type'    => $type
 
                                 ]);
              }
@@ -123,13 +130,14 @@ class MidtransController extends Controller
 
                 OrderProject::where('order_project_id', $idproyek)
                              ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3
+                                       'payment_status'  => 3,
+                                       'payment_type'    => $type
                                      ]);
              }else{
                 OrderHd::where('order_id',$idanak)
                         ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3
-
+                                  'payment_status'  => 3,
+                                  'payment_type'    => $type
                                 ]);
              }
             // TODO set payment status in merchant's database to 'expire'
@@ -144,13 +152,14 @@ class MidtransController extends Controller
 
                 OrderProject::where('order_project_id', $idproyek)
                              ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3
+                                       'payment_status'  => 3,
+                                       'payment_type'    => $type
                                      ]);
              }else{
                 OrderHd::where('order_id',$idanak)
                         ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3
-
+                                  'payment_status'  => 3,
+                                  'payment_type'    => $type
                                 ]);
              }
             // TODO set payment status in merchant's database to 'Denied'
