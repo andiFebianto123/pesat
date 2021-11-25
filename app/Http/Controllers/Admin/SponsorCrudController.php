@@ -50,7 +50,7 @@ class SponsorCrudController extends CrudController
         $this->crud->addColumns([
             [
                 'name' => 'full_name',
-                'label' => 'Name',
+                'label' => 'Nama',
             ],
 
             [
@@ -83,7 +83,7 @@ class SponsorCrudController extends CrudController
         $username = [
             'name' => 'name',
             'type' => 'text',
-            'label' => "username",
+            'label' => "Nama Pengguna",
         ];
         $email = [
             'name' => 'email',
@@ -93,7 +93,7 @@ class SponsorCrudController extends CrudController
         $firstname = [
             'name' => 'first_name',
             'type' => 'text',
-            'label' => "First Name",
+            'label' => "Nama Depan",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -101,7 +101,7 @@ class SponsorCrudController extends CrudController
         $lastname = [
             'name' => 'last_name',
             'type' => 'text',
-            'label' => "Last Name",
+            'label' => "Nama Belakang",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -109,7 +109,7 @@ class SponsorCrudController extends CrudController
         $fullname = [
             'name' => 'full_name',
             'type' => 'text',
-            'label' => "Full Name",
+            'label' => "Nama Lengkap",
         ];
 
         $passwordvalue = [
@@ -120,7 +120,7 @@ class SponsorCrudController extends CrudController
         $passwordconfirm = [
             'name' => 'password_confirmation',
             'type' => 'password',
-            'label' => 'Password Confirmation',
+            'label' => 'Konfirmasi Password',
         ];
         $hometown = [
             'name' => 'hometown',
@@ -262,7 +262,7 @@ class SponsorCrudController extends CrudController
         $username = [
             'name' => 'name',
             'type' => 'text',
-            'label' => "username",
+            'label' => "Nama Pengguna",
             'attributes' => [
                 'required' => true,
             ],
@@ -278,7 +278,7 @@ class SponsorCrudController extends CrudController
         $firstname = [
             'name' => 'first_name',
             'type' => 'text',
-            'label' => "First Name",
+            'label' => "Nama Depan",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -286,7 +286,7 @@ class SponsorCrudController extends CrudController
         $lastname = [
             'name' => 'last_name',
             'type' => 'text',
-            'label' => "Last Name",
+            'label' => "Nama Belakang",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -294,7 +294,7 @@ class SponsorCrudController extends CrudController
         $fullname = [
             'name' => 'full_name',
             'type' => 'text',
-            'label' => "Full Name",
+            'label' => "Nama Lengkap",
             'attributes' => [
                 'required' => true,
             ],
@@ -307,7 +307,7 @@ class SponsorCrudController extends CrudController
         $passwordconfirm = [
             'name' => 'password_confirmation',
             'type' => 'password',
-            'label' => 'Password Confirmation',
+            'label' => 'Konfirmasi Password',
         ];
 
         $hometown = [

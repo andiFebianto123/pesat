@@ -50,7 +50,7 @@ class DataSponsorCrudController extends CrudController
         $this->crud->addColumns([
             [
                 'name'=>'full_name',
-                'label'=>'Name'
+                'label'=>'Nama'
             ],
                 
             [
@@ -94,7 +94,7 @@ class DataSponsorCrudController extends CrudController
         $firstname              = [
                 'name' => 'first_name',
                 'type' => 'text',
-                'label' => "First Name",
+                'label' => "Nama Depan",
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6'
                       ]
@@ -102,7 +102,7 @@ class DataSponsorCrudController extends CrudController
         $lastname              = [
                 'name' => 'last_name',
                 'type' => 'text',
-                'label' => "Last Name",
+                'label' => "Nama Belakang",
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6'
                       ]
@@ -110,7 +110,7 @@ class DataSponsorCrudController extends CrudController
         $fullname              = [
                 'name' => 'full_name',
                 'type' => 'text',
-                'label' => "Full Name",
+                'label' => "Nama Lengkap",
                 ];
         $role                   = [
             'name'        => 'user_role_id',
@@ -175,7 +175,7 @@ class DataSponsorCrudController extends CrudController
                 'label' => "Jemaat Dari Gereja",
 
                 ];
-        $label                  = [   
+        $label              = [   
                     'name'  => 'separator',
                     'type'  => 'custom_html',
                     'value' => '<h4>Contact Info</h4>'

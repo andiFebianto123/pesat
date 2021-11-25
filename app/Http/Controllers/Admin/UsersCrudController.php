@@ -88,7 +88,7 @@ class UsersCrudController extends CrudController
         $username = [
             'name' => 'name',
             'type' => 'text',
-            'label' => "username",
+            'label' => "Nama Pengguna",
         ];
         $email = [
             'name' => 'email',
@@ -98,7 +98,7 @@ class UsersCrudController extends CrudController
         $firstname = [
             'name' => 'first_name',
             'type' => 'text',
-            'label' => "First Name",
+            'label' => "Nama Depan",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -106,7 +106,7 @@ class UsersCrudController extends CrudController
         $lastname = [
             'name' => 'last_name',
             'type' => 'text',
-            'label' => "Last Name",
+            'label' => "Nama Belakang",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -114,7 +114,7 @@ class UsersCrudController extends CrudController
         $fullname = [
             'name' => 'full_name',
             'type' => 'text',
-            'label' => "Full Name",
+            'label' => "Nama Lengkap",
         ];
         $role = [
             'name' => 'user_role_id',
@@ -131,7 +131,7 @@ class UsersCrudController extends CrudController
         $passwordconfirm = [
             'name' => 'password_confirmation',
             'type' => 'password',
-            'label' => 'Password Confirmation',
+            'label' => 'Konfirmasi Password',
         ];
 
         $hometown = [
@@ -387,7 +387,7 @@ class UsersCrudController extends CrudController
         $username = [
             'name' => 'name',
             'type' => 'text',
-            'label' => "username",
+            'label' => "Nama Pengguna",
         ];
         $email = [
             'name' => 'email',
@@ -397,7 +397,7 @@ class UsersCrudController extends CrudController
         $firstname = [
             'name' => 'first_name',
             'type' => 'text',
-            'label' => "First Name",
+            'label' => "Nama Depan",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -405,7 +405,7 @@ class UsersCrudController extends CrudController
         $lastname = [
             'name' => 'last_name',
             'type' => 'text',
-            'label' => "Last Name",
+            'label' => "Nama Belakang",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -413,7 +413,7 @@ class UsersCrudController extends CrudController
         $fullname = [
             'name' => 'full_name',
             'type' => 'text',
-            'label' => "Full Name",
+            'label' => "Nama Lengkap",
         ];
         $role = [
             'name' => 'user_role_id',
@@ -430,7 +430,7 @@ class UsersCrudController extends CrudController
         $passwordconfirm = [
             'name' => 'password_confirmation',
             'type' => 'password',
-            'label' => 'Password Confirmation',
+            'label' => 'Konfirmas Password',
         ];
 
         $hometown = [

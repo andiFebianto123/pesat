@@ -120,7 +120,8 @@ class DataOrderProjectCrudController extends CrudController
 
         $price=[
             'name'  => 'price',
-            'type'  => 'text'
+            'type'  => 'text',
+            'label' => 'Total Donasi'
         ];
 
 
