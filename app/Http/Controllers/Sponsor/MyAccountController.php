@@ -171,4 +171,24 @@ class MyAccountController extends Controller
         }
     }
 
+    public function childdetaildonation($id){
+        
+        $orders = OrderHd::where('order_hd.order_id',$id)
+                    ->join('order_dt as odt','odt.order_id','=','order_hd.order_id')
+                    ->join('child_master as cm','cm.child_id','=','odt.child_id')
+                    ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
+                    ->select('order_hd.order_id','order_hd.total_price','order_hd.payment_status','order_hd.snap_token','order_hd.status_midtrans','order_hd.created_at','order_hd.payment_type',
+                            'odt.order_dt_id','odt.price as price_dt','odt.monthly_subscription','cm.full_name as child_name','cm.price as child_price',
+                            'sm.sponsor_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.no_hp','sm.email'
+                            )
+                    ->get();
+        $orderhd = OrderHd::where('order_id',$id)->first();
+        dd($orders->child_id);
+        $data['orders'] = $orders;
+        $data['orderhd']= $orderhd;
+
+
+        return view('sponsor.childdetaildonation',$data);
+    }
+
 }

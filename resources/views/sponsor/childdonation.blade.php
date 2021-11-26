@@ -22,11 +22,20 @@
         @elseif($order->payment_status=2)
         {{"suskes"}}
         @else
-        {{"kadaluarsa"}}
+        {{"Batal"}}
       @endif
       </td>
       <td>{{$order->total_price}}</td>
-      <td></td>
+      <td>
+      <a href="{{url('child-donation-detail/'.$order->order_id)}}">
+        <button class="btn btn-outline-info" type="submit">Detail</button>
+      </a>
+      @if($order->payment_status==1)
+      <a href="{{url('order/'.$order->snap_token.'/'.$order->order_id)}}">
+        <button class="btn btn-outline-info" type="submit">Pay</button>
+      </a>
+      @endif
+      </td>
     </tr>
     @endforeach
   </tbody>

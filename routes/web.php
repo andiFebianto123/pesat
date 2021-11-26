@@ -21,6 +21,7 @@ Route::group(['middleware'=>['usersession']],function(){
 	Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
 	Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
 	Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
+	Route::get('/child-donation-detail/{id}','App\Http\Controllers\Sponsor\MyAccountController@childdetaildonation');
 });
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
