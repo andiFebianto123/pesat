@@ -25,7 +25,7 @@
 <div class="row">
     <div class="col-1">
     <pre>Nama 		: {{$sponsor_name}}                      Tanggal: {{$date_now}}</pre>
-    <pre>Telepon	: {{$no_hp}}					        	        No Order : {{$order_no}}</pre>
+    <pre>Telepon	: {{$no_hp}}					        	        Order ID : {{$order_id}}</pre>
     <pre>Alamat		: {{$sponsor_address}}</pre>
         </br>
         </br>

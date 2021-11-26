@@ -16,6 +16,10 @@ class SendDlp extends Controller
     //
     public function sendEmail($id){
 
+        $getchild = Dlp::where('dlp_id',$id)
+                    ->join('child_master as cm','cm.child_id','=','dlp.child_id')
+                    ->first();
+    if($getchild->is_sponsored == 1){
 
        $getEmail= DB::table('order_hd')
             ->Join('order_dt as odt','order_hd.order_id','=','odt.order_id')
@@ -45,5 +49,12 @@ class SendDlp extends Controller
       \Alert::add('success', 'Email was successfully sent')->flash();
 
       return back()->withMessage(['message' => 'email was successfully sent']);
+
+    }else{
+        \Alert::add('error', 'The child dont have a sponsor')->flash();
+
+        return back()->withMessage(['message' => 'The child dont have a sponsor']);
+
+    }
     }
 }

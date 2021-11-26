@@ -117,24 +117,28 @@ class CreateChildOrder extends Command
                     
                     $insertorderdt->save();
                     
+                    $datenow = Carbon::now();
+                    $formatdatenow = date('Y-m-d', strtotime($datenow));
+
                     $data["email"] = $order->email;
-                    $data["title"] = "Reminder Invoice & New Order";
+                    $data["title"] = "Reminder for Your Subscription";
                     $data["body"] = "This is Demo";
                     $data["sponsor_name"] = $order->sponsor_name;
-                    $data["order_no"] = $order->order_no;
+                    $data["order_id"] = $order->order_id;
                     $data["sponsor_address"] = $order->sponsor_address;
                     $data["no_hp"] = $order->no_hp;
                     $data["child_name"]=$order->child_name;
                     $data["monthly_subscription"]=$order->monthly_subscription;
                     $data["price"]  = $order->price;
-                    $data["date_now"]   = Carbon::now();
+                    $data["total_price"]  = $order->total_price;
+                    $data["date_now"]   = $formatdatenow;
          
                     $pdf = PDF::loadView('Email.NewOrder', $data);
          
                     Mail::send('Email.BodyNewOrder', $data, function($message)use($data, $pdf) {
                    $message->to($data["email"], $data["email"])
                            ->subject($data["title"])
-                           ->attachData($pdf->output(), $data["order_no"]."_".$data["sponsor_name"].".pdf");
+                           ->attachData($pdf->output(), $data["order_id"]."_".$data["sponsor_name"].".pdf");
                });
         
                 }
@@ -209,9 +213,11 @@ class CreateChildOrder extends Command
             
             $insertorderdt->save();
 
+            $datenow = Carbon::now();
+            $formatdatenow = date('Y-m-d', strtotime($datenow));
 
             $data["email"]       = $order->email;
-            $data["title"]       = "Reminder Invoice & New Order";
+            $data["title"]       = "Reminder for Your Subscription";
             $data["body"]        = "This is Demo";
             $data["sponsor_name"]= $order->sponsor_name;
             $data["sponsor_address"]= $order->sponsor_address;
@@ -220,14 +226,15 @@ class CreateChildOrder extends Command
             $data["child_name"]=$order->child_name;
             $data["monthly_subscription"] = $order->monthly_subscription;
             $data["price"] = $order->price;
-            $data["date_now"]   = Carbon::now();
+            $data["total_price"] = $order->total_price;
+            $data["date_now"]   = $formatdatenow;
  
             $pdf = PDF::loadView('Email.NewOrder', $data);
  
             Mail::send('Email.BodyNewOrder', $data, function($message)use($data, $pdf) {
            $message->to($data["email"], $data["email"])
                    ->subject($data["title"])
-                   ->attachData($pdf->output(),  $data["order_no"]."_".$data["sponsor_name"].".pdf");
+                   ->attachData($pdf->output(),  $data["order_id"]."_".$data["sponsor_name"].".pdf");
        });
  
 

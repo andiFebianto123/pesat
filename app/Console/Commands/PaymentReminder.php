@@ -89,20 +89,27 @@ class PaymentReminder extends Command
                 OrderDt::where('order_id', $order->order_id)
                         ->where('child_id', $order->child_id)
                         ->update(['has_remind' => 1]);
-
+                $datenow = Carbon::now();
+                $formatdatenow = date('Y-m-d', strtotime($datenow));
                 $data["email"] = $order->email;
                 $data["title"] = "Peringatan";
                 $data["body"] = "-";
-                $data["order_no"] = $order->order_no;
+                $data["order_id"] = $order->order_id;
+                $data["child_name"]= $order->child_name;
                 $data["sponsor_name"]= $order->sponsor_name;
                 $data["total_price"]= $order->total_price;
+                $data["price"]= $order->price;
+                $data["monthly_subscription"]= $order->monthly_subscription;
+                $data["sponsor_address"]= $order->sponsor_address;
+                $data["no_hp"]      = $order->no_hp;
+                $data["date_now"]  =$formatdatenow;
                   
                 $pdf = PDF::loadView('Email.PaymentReminder', $data);
                   
                 Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data, $pdf) {
                       $message->to($data["email"], $data["email"])
                                     ->subject($data["title"])
-                                    ->attachData($pdf->output(), $data['order_no']."_".$data['sponsor_name'].".pdf");
+                                    ->attachData($pdf->output(), $data['order_id']."_".$data['sponsor_name'].".pdf");
                         });
     
 
@@ -154,21 +161,29 @@ class PaymentReminder extends Command
                         OrderDt::where('order_id', $order->order_id)
                                 ->where('child_id', $order->child_id)
                                 ->update(['has_remind' => 1]);
-                                
+
+                        $datenow = Carbon::now();
+                        $formatdatenow = date('Y-m-d', strtotime($datenow));
                                 
                         $data["email"] = $order->email;
                         $data["title"] = "Peringatan";
                         $data["body"] = "-";
-                        $data["order_no"]= $order->order_no;
+                        $data["order_id"]= $order->order_id;
+                        $data["no_hp"]  =$order->no_hp;
+                        $data["child_name"]= $order->child_name;
                         $data["sponsor_name"]= $order->sponsor_name;
+                        $data["monthly_subscription"]= $order->monthly_subscription;
+                        $data["sponsor_address"]= $order->sponsor_address;
                         $data["total_price"]= $order->total_price;
+                        $data["price"]= $order->price;
+                        $data["date_now"]  =$formatdatenow;
                                   
                         $pdf = PDF::loadView('Email.PaymentReminder', $data);
                                   
                         Mail::send('Email.BodyPaymentReminder', $data, function($message)use($data, $pdf) {
                                     $message->to($data["email"], $data["email"])
                                                     ->subject($data["title"])
-                                                    ->attachData($pdf->output(), $data['order_no']."_".$data['sponsor_name'].".pdf");
+                                                    ->attachData($pdf->output(), $data['order_id']."_".$data['sponsor_name'].".pdf");
                                     });
         
             }  
