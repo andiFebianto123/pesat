@@ -4,7 +4,7 @@
 @extends('sidebar')
 @section('content')
     <p>
-        Halo superadmin (bukan superadmin? <strong>Keluar</strong>)
+        Halo, {{$user->full_name}}
     </p>
     </br>
     <p>

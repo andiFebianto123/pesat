@@ -13,7 +13,7 @@
   <tbody>
   @foreach($projectorders as $key => $projectorder)
     <tr>
-      <th scope="row">#{{$projectorder->order_project_no}}</th>
+      <th scope="row">#{{$projectorder->order_project_id}}</th>
       <td>{{date('d-m-Y', strtotime($projectorder->created_at))}}</td>
 
       <td>

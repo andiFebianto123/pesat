@@ -17,7 +17,11 @@ class MyAccountController extends Controller
     //
     public function index()
     {
-        return view('sponsor.dashboard');
+        $getemail = Session::get('key');
+        $getuser = Sponsor::where('email', $getemail)->first();
+           
+        $data["user"] =  $getuser;
+        return view('sponsor.dashboard',$data);
     }
 
     public function childDonation()
