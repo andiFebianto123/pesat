@@ -11,7 +11,7 @@
                         <table class="table table-hover table-condensed">
                             <tr>
                                 <td>ID</td>
-                                <td><b>#{{$order->order_no}}</b></td>
+                                <td><b>#{{$order->order_project_id}}</b></td>
                             </tr>
                             <tr>
                                 <td>Total Harga</td>

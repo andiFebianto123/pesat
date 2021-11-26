@@ -183,12 +183,23 @@ class MyAccountController extends Controller
                             )
                     ->get();
         $orderhd = OrderHd::where('order_id',$id)->first();
-        dd($orders->child_id);
+       
         $data['orders'] = $orders;
         $data['orderhd']= $orderhd;
 
 
         return view('sponsor.childdetaildonation',$data);
+    }
+
+    public function projectdetaildonation($id){
+        
+        $orderproject = OrderProject::where('order_project_id',$id)
+                        ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
+                        ->join('project_master as pm','pm.project_id','=','order_project.project_id')
+                        ->first();
+
+        $data['orders'] = $orderproject;
+        return view('sponsor.projectdetaildonation',$data); 
     }
 
 }
