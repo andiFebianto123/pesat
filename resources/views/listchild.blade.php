@@ -13,7 +13,7 @@
                 formulir di bawah ini:
             </p>
         </div>
-        <form id="form-filter" action="{{url('/')}}" method="GET" >
+        <form id="form-filter" action="{{url('/list-child')}}" method="GET" >
    
         {!! csrf_field() !!}
         <div class="card card-body">
