@@ -37,12 +37,12 @@
             </div>
 
             <div class="col-4">
-                <a href="#" style="text-decoration:none;color: inherit;">
+                <a href="{{url('donate-goods')}}" style="text-decoration:none;color: inherit;">
                         <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
 
                             <img class="card-img-top" src="{{asset('storage/image/blank.png')}}" alt="Card image cap">
                             <div class="card-body">
-                                <h5 class="card-title">Barang</h5>
+                                <h5 class="card-title">Sponsor Barang</h5>
                             </div>
                         </div>
                 </a>

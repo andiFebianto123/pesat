@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 
 //Route::get('/', 'App\Http\Controllers\ListChildController@index');
+Route::group(['middleware'=>['usersession']],function(){
+	Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
+	Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
+	Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
+	Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
+});
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
@@ -23,12 +29,9 @@ Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@c
 Route::post('/order', 'App\Http\Controllers\OrderController@index');
 Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
+Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
 // Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
-Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
-Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
-Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
 Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
-Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
 Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
 Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
 Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');

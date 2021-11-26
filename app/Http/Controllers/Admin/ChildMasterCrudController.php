@@ -52,7 +52,8 @@ class ChildMasterCrudController extends CrudController
             'name'  => 'is_sponsored',
             'type'  => 'dropdown',
             'label' => 'Status'
-          ], [
+          ], 
+          [
             1 => 'Tersponsori',
             0 => 'Belum Tersponsori',
           ], function($value) { // if the filter is active
