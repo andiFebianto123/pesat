@@ -22,10 +22,10 @@ class CreateSnapTokenForProjectService extends Midtrans
  
     public function getSnapToken()
     {
-
+        
         $params = [
             'transaction_details' => [
-                'order_id' => $this->code,
+                'order_id' => $this->code."-proyek",
                 'gross_amount' => $this->order[0]->price,
             ],
             'item_details' => [
