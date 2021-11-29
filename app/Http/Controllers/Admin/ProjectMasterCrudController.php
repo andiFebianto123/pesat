@@ -220,10 +220,12 @@ class ProjectMasterCrudController extends CrudController
                 'language' => 'en',
             ],
         ];
+
         $amount = [
             'name' => 'amount',
             'label' => 'Nominal',
-            'type' => 'text',
+            'type' => 'number',
+            'prefix'        => 'Rp',
         ];
         $photo = [
             'label' => "Gambar Unggulan",

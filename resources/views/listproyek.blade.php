@@ -12,8 +12,8 @@
                 Terima kasih untuk ikut ambil bagian dalam pelayanan ini
             </p>
         </div>
-        <form id="form-filter" action="{{url('/')}}" method="GET" >
-   
+        <form id="form-filter" action="{{url('/list-proyek')}}" method="GET" >
+        
         {!! csrf_field() !!}
         <div class="card card-body">
             <label>Cari Proyek :</label>
@@ -58,7 +58,7 @@
     
         </div>
     <div class="d-flex justify-content-center">
-   
+    {!! $projects->links() !!}
     </div>
 
 </div>

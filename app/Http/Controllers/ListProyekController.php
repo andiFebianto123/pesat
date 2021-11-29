@@ -10,10 +10,24 @@ use Illuminate\Http\Request;
 class ListProyekController extends Controller
 {
     //
-    public function index(){
-        $project = ProjectMaster::all();
+    public function index(Request $request){
+
+        $text = $request->search;
+
+        if($text == null){
+
+            $project = ProjectMaster::where('is_closed',0)
+                                    ->paginate(9);
+            
+    
+        }else{
+            $project= ProjectMaster::where('title','like','%'.$text.'%')
+                                    ->where('is_closed',0)
+                                    ->paginate(9);
+        }
         $data['projects'] = $project;
         return view('listproyek',$data);
+
     }
 
     public function projectdetail($id){

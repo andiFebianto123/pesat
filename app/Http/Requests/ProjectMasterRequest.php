@@ -37,7 +37,7 @@ class ProjectMasterRequest extends FormRequest
             'featured_image' => 'required',
             'start_date'     => 'required|date|date_format:Y-m-d',
             'end_date'       => 'nullable|date|date_format:Y-m-d',
-            'amount'         => 'required|max:12|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/'
+            'amount'         => 'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1})?$/'
         ];
     }
 
