@@ -16,12 +16,12 @@ class AddColumnPaymentTypeOrderTable extends Migration
         //
         Schema::table('order_hd', function (Blueprint $table) {
             //
-            $table->string('payment_type')->nullable()->after('status_midtrans');
+            $table->string('payment_type')->nullable()->after('payment_status');
 
         });
         Schema::table('order_project', function (Blueprint $table) {
             //
-            $table->string('payment_type')->nullable()->after('status_midtrans');
+            $table->string('payment_type')->nullable()->after('payment_status');
 
         });
     }

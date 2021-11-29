@@ -84,7 +84,7 @@
 </nav>
 </br>
 <a class="logo">
-<img class ="logo__img" src="{{asset('storage/image/logopesat.png')}}" alt="Logo">
+<img class ="logo__img" src="{{asset('images/logopesat.png')}}" alt="Logo">
 </a>
 </header>
 </br></br>

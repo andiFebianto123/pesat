@@ -27,7 +27,7 @@
 
         <div class="card" style="width: 23rem; margin-bottom:30px;">
         @if($childs->photo_profile == '')
-        <img class="card-img-top" src="{{asset('storage/image/blank.png')}}" alt="Card image cap">
+        <img class="card-img-top" src="{{asset('images/blank.png')}}" alt="Card image cap">
         @else
             <img class="card-img-top" src="{{asset('storage/'.$childs->photo_profile)}}" alt="Card image cap">
         @endif

@@ -65,7 +65,7 @@
                     <input type="hidden" name="childid" value="{{$child->child_id}}">
                         <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
                             @if($child->photo_profile == '')
-                            <img class="card-img-top" src="{{asset('storage/image/blank.png')}}" alt="Card image cap">
+                            <img class="card-img-top" src="{{asset('images/blank.png')}}" alt="Card image cap">
                             @else
                             <img class="card-img-top" src="{{asset('storage/'.$child->photo_profile)}}" alt="Card image cap">
                             @endif

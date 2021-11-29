@@ -57,7 +57,10 @@ class ListChildController extends Controller
         return view('listchild',$data);
     }
     public function childdetail($id){
-        
+        $getChild= ChildMaster::where('child_id',$id)->first();
+        if(empty($getChild)){
+            return redirect()->back()->with(['error' => 'Data Anak Yang Dimaksud Tidak Ditemukan.']);
+        }else{
         $childdata      = ChildMaster::where('child_id',$id)
                             ->join('city as c1','c1.city_id','child_master.hometown')
                             ->join('city as c2','c2.city_id','child_master.city_id')
@@ -79,6 +82,7 @@ class ListChildController extends Controller
         $data['childs'] = $childdata;
         
         return view('childdetail',$data);
+        }
 
     }
 
