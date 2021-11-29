@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterRequest;
+use App\Models\OrderProject;
+use App\Models\ProjectMasterDetail;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -273,5 +275,24 @@ class ProjectMasterCrudController extends CrudController
               ],
 
         ]);
+    }
+    function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+
+        $cekProject = OrderProject::where('project_id', $id);
+        $project = $cekProject->exists();
+
+        $cekImg = ProjectMasterDetail::where('project_id',$id);
+        $img    = $cekImg->exists();
+
+
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if ($project == true || $img == true) {
+            return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
+        } else {
+            return $this->crud->delete($id);
+
+        }
     }
 }

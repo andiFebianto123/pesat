@@ -888,14 +888,8 @@ class ChildMasterCrudController extends CrudController
 
     function destroy($id)
     {
-      //  dd($id);
         $this->crud->hasAccessOrFail('delete');
 
-        // $cekcity = City::where('province_id', $id);
-        // $city = $cekcity->exists();
-
-        // $cekchild = ChildMaster::where('province_id', $id);
-        // $child = $cekchild->exists();
         $checkchild = ChildMaster::where('child_id',$id)
                                     ->where('is_sponsored',1);
         $child= $checkchild->exists();

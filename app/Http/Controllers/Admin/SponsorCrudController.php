@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\SponsorRequest;
 use App\Http\Requests\SponsorUpdateRequest as UpdateRequest;
+use App\Models\OrderDt;
+use App\Models\OrderHd;
+use App\Models\OrderProject;
 use App\Models\Sponsor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -22,6 +25,7 @@ class SponsorCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -43,9 +47,8 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
-        $this->crud->removeButton('show');
         $this->crud->removeButton('update');
-        $this->crud->addButtonFromModelFunction('line', 'edit', 'EditSponsor', 'beginning');
+        $this->crud->addButtonFromModelFunction('line', 'edit', 'EditSponsor', 'middle');
 
         $this->crud->addColumns([
             [
@@ -226,9 +229,10 @@ class SponsorCrudController extends CrudController
             'label' => "Photo Profile",
             'name' => "photo_profile",
             'type' => 'image',
+            'upload'=>true,           
             'crop' => true, // set to true to allow cropping, false to disable
-            'disks' => 'image',
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+            'prefix' => '/storage/',
         ];
 
         $this->crud->addFields([$username, $email, $firstname, $lastname,
@@ -431,6 +435,127 @@ class SponsorCrudController extends CrudController
         ]);
     }
 
+    function setupShowOperation()
+    {
+        $this->crud->set('show.setFromDb', false);
+
+        $this->crud->addColumns([
+            [
+                'name' => 'name',
+                'label' => 'Nama',
+            ],
+            [
+                'name' => 'first_name',
+                'label' => 'Nama Depan',
+                'type' => 'text',
+            ],
+
+            [
+                'name'  => 'last_name',
+                'label' => 'Nama Belakang',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'full_name',
+                'label' => 'Nama Lengkap',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'hometown',
+                'label' => 'Tempat Lahir',
+                'type'  =>'text',
+            ],
+            [
+                'name'  => 'date_of_birth',
+                'label' => 'Tanggal Lahir',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'address',
+                'label' => 'Alamat',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'no_hp',
+                'label' => 'No Hp',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'church_member_of',
+                'label' => 'Member Dari Gereja',
+                'type'  =>'text'
+            ],
+            [
+                'name'  => 'email',
+                'label' => 'Email',
+                'type'  => 'text'
+            ],
+
+            [
+                'name'  => 'website_url',
+                'label' => 'Website',
+                'type'  =>  'text'
+            ],
+            [
+                'name'  => 'facebook_url',
+                'label' => 'Facebook',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'instagram_url',
+                'label' => 'Instagram',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'linkedin_url',
+                'label' => 'LinkedIn',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'my_space_url',
+                'label' => 'My Space',
+                'type'  =>  'text'
+            ],
+            [
+                'name'  => 'pinterest_url',
+                'label' => 'Pinterest',
+                'type'  =>  'text'
+            ],
+            [
+                'name'  => 'sound_cloud_url',
+                'label' => 'Sound Cloud',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'tumblr_url',
+                'label' => 'Tumblr',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'youtube_url',
+                'label' => 'Youtube',
+                'type'  => 'text'
+            ],
+            [
+                'name'  => 'biograpical',
+                'label' => 'Biograpical',
+            ],
+            [
+                'name' => 'photo_profile',
+                'label' => 'Foto Profile',
+                'type' => 'image',
+                'prefix' => 'storage/',
+                'height' => '150px',
+                'function' => function ($entry) {
+                    return url($entry->photo_profile);
+                },
+            ],
+
+        ]);
+
+    }
+
+
     function store()
     {
         $this->crud->hasAccessOrFail('create');
@@ -483,5 +608,26 @@ class SponsorCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
         //   return redirect($this->crud->route);
+    }
+
+    function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+
+        $cekChild = OrderHd::where('sponsor_id', $id);
+        $child = $cekChild->exists();
+
+        $cekProject = OrderProject::where('sponsor_id',$id);
+        $project = $cekProject->exists();
+        // $cekchild = ChildMaster::where('province_id', $id);
+        // $child = $cekchild->exists();
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if ($child == true || $project == true) {
+            return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
+        } else {
+            return $this->crud->delete($id);
+
+        }
     }
 }
