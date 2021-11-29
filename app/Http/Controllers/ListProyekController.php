@@ -34,6 +34,11 @@ class ListProyekController extends Controller
 
         $project = ProjectMaster::where('project_id',$id)->first();
 
+        if(empty($project)){
+            return redirect()->back()->with(['error' => 'Data Proyek Yang Dimaksud Tidak Ditemukan.']);
+        }else{
+
+        
         $imgDetail = ProjectMasterDetail::where('project_id',$id)->get();
 
         $now = Carbon::now();
@@ -47,5 +52,6 @@ class ListProyekController extends Controller
         $data['interval']   = $interval;
         
         return view('projectdetail',$data);
+    }
     }
 }

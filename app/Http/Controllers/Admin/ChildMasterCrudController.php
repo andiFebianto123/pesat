@@ -24,6 +24,7 @@ class ChildMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
     use RedirectCrud;
 
     /**
@@ -138,7 +139,10 @@ class ChildMasterCrudController extends CrudController
         $gender = [
             'name' => 'gender',
             'label' => 'Jenis Kelamin',
-            'type' => 'text',
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'default'     => 'one',
+            'options'=>['laki-laki'=>'Laki-Laki','perempuan'=>'Perempuan'],
         ];
 
         $hometown = [
@@ -398,8 +402,11 @@ class ChildMasterCrudController extends CrudController
         $gender = [
             'name' => 'gender',
             'label' => 'Jenis Kelamin',
-            'type' => 'text',
-        ];
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'default'     => 'one',
+            'options'=>['laki-laki'=>'Laki-Laki','perempuan'=>'Perempuan'],
+                ];
 
         $hometown = [
             'name' => 'hometown',
@@ -878,5 +885,29 @@ class ChildMasterCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
+
+    function destroy($id)
+    {
+      //  dd($id);
+        $this->crud->hasAccessOrFail('delete');
+
+        // $cekcity = City::where('province_id', $id);
+        // $city = $cekcity->exists();
+
+        // $cekchild = ChildMaster::where('province_id', $id);
+        // $child = $cekchild->exists();
+        $checkchild = ChildMaster::where('child_id',$id)
+                                    ->where('is_sponsored',1);
+        $child= $checkchild->exists();
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        if ($child == true) {
+            return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
+        } else {
+            return $this->crud->delete($id);
+
+        }
+    }
+
 
 }

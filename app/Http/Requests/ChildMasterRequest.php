@@ -41,7 +41,7 @@ class ChildMasterRequest extends FormRequest
             'date_of_birth'         =>  'required|date|date_format:Y-m-d',
             'religion_id'           =>  'regex:/^[0-9]+$/',
             'fc'                    =>  'max:255',
-            'price'                 =>  'required|max:12|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
+            'price'                 =>  'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
             'sponsor_name'          =>  'max:255',
             'city_id'               =>  'required|regex:/^[0-9]+$/',
             'districts'             =>  'required|max:255',
