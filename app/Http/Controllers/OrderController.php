@@ -21,20 +21,18 @@ class OrderController extends Controller
     //
     public function index(Request $request){
         $user   = auth()->user();
-        $email  = session('key');
-
         $price  = $request->price;
         $totalprice=$request->monthly_subs * $price;
         $id = $request->childid;
         $childmaster= ChildMaster::where('child_id',$id)->first();
     if($childmaster->is_sponsored == false){               
 
-        if(session('key')==null){
+        if($user==null){
             return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         }else{
 
-            $sponsor= Sponsor::where('email',$email)->get()->first();
-            $idsponsor= $sponsor->sponsor_id;
+            //$sponsor= Sponsor::where('email',$email)->get()->first();
+            $idsponsor= $user->sponsor_id;//$sponsor->sponsor_id;
             
             // save table order_hd
             $OrderId = DB::table('order_hd')->insertGetId(

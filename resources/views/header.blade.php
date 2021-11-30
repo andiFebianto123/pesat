@@ -67,7 +67,7 @@
      
     </div>
     <!-- <form> -->
-    @if( Session::get('key')==null )
+    @if( auth()->user() == null )
     <a href="{{route('sponsor.login')}}" style="text-decoration:none;color: inherit;">
         <button class="btn btn-outline-primary" type="submit">Login</button>
     </a>&nbsp

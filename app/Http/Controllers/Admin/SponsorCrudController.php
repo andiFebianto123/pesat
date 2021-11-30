@@ -619,9 +619,7 @@ class SponsorCrudController extends CrudController
 
         $cekProject = OrderProject::where('sponsor_id',$id);
         $project = $cekProject->exists();
-        // $cekchild = ChildMaster::where('province_id', $id);
-        // $child = $cekchild->exists();
-        // get entry ID from Request (makes sure its the last ID for nested resources)
+
         $id = $this->crud->getCurrentEntryId() ?? $id;
         if ($child == true || $project == true) {
             return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);

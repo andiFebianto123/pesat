@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 //Route::get('/', 'App\Http\Controllers\ListChildController@index');
-Route::group(['middleware'=>['usersession']],function(){
+Route::group(['middleware'=>['auth']],function(){
 	Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
 	Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
 	Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');

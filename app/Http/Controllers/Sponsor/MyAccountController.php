@@ -17,21 +17,22 @@ class MyAccountController extends Controller
     //
     public function index()
     {
-        $getemail = Session::get('key');
-        $getuser = Sponsor::where('email', $getemail)->first();
-           
+        $user = auth()->user();
+        //$getemail= $user->email;
+        $getUserId = $user->sponsor_id;
+        $getuser = Sponsor::where('sponsor_id', $getUserId)->first();
         $data["user"] =  $getuser;
         return view('sponsor.dashboard',$data);
     }
 
     public function childDonation()
     {
-
-        $getemail = Session::get('key');
-        $getuser = Sponsor::where('email', $getemail)
-            ->first();
-
-        $getOrder = OrderHd::where('sponsor_id', $getuser->sponsor_id)
+        $user = auth()->user();
+        // $getemail= $user->email;
+        $getUserId = $user->sponsor_id;
+        // $getuser = Sponsor::where('email', $getemail)
+        //    ->first();
+        $getOrder = OrderHd::where('sponsor_id', $getUserId)
             ->get();
         $data['orders'] = $getOrder;
 
@@ -40,18 +41,20 @@ class MyAccountController extends Controller
 
     public function projectDonation()
     {
-        $getemail   = Session::get('key');
-        $getuser    = Sponsor::where('email',$getemail)->first();
-
-        $getprojectorder    = OrderProject::where('sponsor_id',$getuser->sponsor_id)
+//        $getuser    = Sponsor::where('email',$getemail)->first();
+        $user = auth()->user();
+        $getUserId = $user->sponsor_id;
+        $getprojectorder    = OrderProject::where('sponsor_id',$getUserId)
                                 ->get();
         $data['projectorders']   = $getprojectorder;
         return view('sponsor.projectdonation',$data);
     }
     public function editaccount()
     {
-        $getemail = Session::get('key');
-        $getuser = Sponsor::where('email', $getemail)
+        $user = auth()->user();
+        $getUserId = $user->sponsor_id;
+        
+        $getuser = Sponsor::where('sponsor_id', $getUserId)
             ->first();
 
         $data['profile'] = $getuser;

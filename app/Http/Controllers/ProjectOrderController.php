@@ -15,22 +15,24 @@ class ProjectOrderController extends Controller
 {
     //
     public function index(Request $request){
-        $email  = session('key');
-
-        if(session('key')==null){
+        $user = auth()->user();
+        
+      //  $getUserId = $user->sponsor_id;
+        if($user==null){
         
             return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         
         }else{
 
-            $sponsor= Sponsor::where('email',$email)->get()->first();
-            $idsponsor= $sponsor->sponsor_id;
+
+            //$sponsor= Sponsor::where('email',$email)->get()->first();
+            $idsponsor= $user->sponsor_id;//$sponsor->sponsor_id;
   
             // save table order_project
              $OrderId = DB::table('order_project')->insertGetId(
                  [
                      'sponsor_id'      => $idsponsor,
-                     'project_id'      =>$request->projectid,
+                     'project_id'      => $request->projectid,
                      'price'           => $request->total,
                      'payment_status'  => 1,
                      'created_at'      => Carbon::now(),
