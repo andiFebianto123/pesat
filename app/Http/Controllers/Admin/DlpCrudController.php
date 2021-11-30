@@ -83,6 +83,12 @@ class DlpCrudController extends CrudController
                 ],
 
             ],
+            [   // Enum
+                'name'  => 'deliv_status',
+                'label' => 'Status',
+                'type' => 'radio',
+                'options' => [1 => 'Belum Dikirim', 2 => 'Sukses',3=> 'Gagal'],
+            ],
         ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:

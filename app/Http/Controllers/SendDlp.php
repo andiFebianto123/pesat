@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailDemo;
 use App\Mail\SendEmailDlp;
 use App\Models\Dlp;
+use Exception;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -46,13 +47,30 @@ class SendDlp extends Controller
             'child_name'      => $childname,
             'sponsor_name'      => $sponsorname
         ];
+        
 
-        Mail::to($emailData['email'])->send(new SendEmailDlp($emailData));
+        try {
+            // Validate the value...
+            Mail::to($emailData['email'])->send(new SendEmailDlp($emailData));
+            
+            Dlp::where('dlp_id', $id)
+            ->update(['deliv_status' => 2]);
 
+            \Alert::add('success', 'Email was successfully sent')->flash();
+            return back()->withMessage(['message' => 'email was successfully sent']);
+        } catch (Exception $e) {
+            report($e);
+            
+            Dlp::where('dlp_id', $id)
+            ->update(['deliv_status' => 3]);
 
-      \Alert::add('success', 'Email was successfully sent')->flash();
+            \Alert::add('error', 'Email was failed to sent')->flash();
 
-      return back()->withMessage(['message' => 'email was successfully sent']);
+            return back()->withMessage(['message' => 'email was successfully sent']);//false;
+        
+        }
+
+    
 
     }else{
         \Alert::add('error', 'The child dont have a sponsor')->flash();
