@@ -13,8 +13,18 @@
             <strong>{{$message}}</strong>
         </div>
     @endif
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <label><strong>Nama Panggilan</strong></label>
-    <input type="text" name="name" placeholder="Nama Panggilan" class="form-control" required/>
+    <input type="text" name="name" placeholder="Nama Panggilan" class="form-control"/>
     </br>
     <label><strong>Nama Lengkap</strong></label>
     <input type="text" name="fullname" placeholder="Nama Lengkap" class="form-control" required/>

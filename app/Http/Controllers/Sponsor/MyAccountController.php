@@ -30,8 +30,7 @@ class MyAccountController extends Controller
         $user = auth()->user();
         // $getemail= $user->email;
         $getUserId = $user->sponsor_id;
-        // $getuser = Sponsor::where('email', $getemail)
-        //    ->first();
+
         $getOrder = OrderHd::where('sponsor_id', $getUserId)
             ->get();
         $data['orders'] = $getOrder;
@@ -63,11 +62,18 @@ class MyAccountController extends Controller
     }
     public function updateaccount(Request $request){
 
+         $request->validate([
 
-        $request->validate([
-            'password' => 'nullable|confirmed|min:6'
-        ]);
-
+             'fullname'    => 'required|max:255',
+             'hometown'    => 'max:255',
+             'dateofbirth' => 'required|date|date_format:Y-m-d',
+             'address'     => 'max:255',
+             'email'       => 'required|email|max:255',
+             'password'    => 'nullable|confirmed|min:6',
+             'nohp'        => 'required|max:255',
+             'churchmember'=> 'max:255'
+         ]);
+       
         $id             = $request->sponsorid;
         $fullname       = $request->fullname;
         $hometown       = $request->hometown;
@@ -77,8 +83,8 @@ class MyAccountController extends Controller
         $nohp           = $request->nohp;
         $churchmember   = $request->churchmember;
         $address        = $request->address;
-       
-
+        
+        
         $sponsor = Sponsor::where('sponsor_id',$id)->first();
 
         $sponsor->full_name          = $fullname;
@@ -150,14 +156,14 @@ class MyAccountController extends Controller
 
         $request->validate([
             'name'          => 'required|max:255',
-            'full_name'     => 'required|max:255',
+            'fullname'      => 'required|max:255',
             'hometown'      => 'required|max:255',
-            'date_of_birth' => 'required|date|date_format:Y-m-d',
+            'dateofbirth' => 'required|date|date_format:Y-m-d',
             'address'       => 'required|max:255',
             'email'         => 'required|email|max:255',
             'password'      => 'required|confirmed|min:6',
-            'no_hp'         => 'required|max:255',
-            'church_member_of' => 'max:255'
+            'nohp'         => 'required|max:255',
+            'memberofchurch' => 'max:255'
         ]);
         
 

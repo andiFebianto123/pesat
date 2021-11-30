@@ -23,17 +23,20 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
 	Route::get('/child-donation-detail/{id}','App\Http\Controllers\Sponsor\MyAccountController@childdetaildonation');
 	Route::get('/project-donation-detail/{id}','App\Http\Controllers\Sponsor\MyAccountController@projectdetaildonation');
+	Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
+	Route::post('/order', 'App\Http\Controllers\OrderController@index');
+	Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
+	Route::post('/project-order', 'App\Http\Controllers\ProjectOrderController@index');
+	Route::get('/project-order/{snap_token}/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
+	
 });
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
 Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
-Route::post('/order', 'App\Http\Controllers\OrderController@index');
-Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
 // Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
-Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
 Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
 Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
 Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');
@@ -42,8 +45,6 @@ Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childd
 Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
 Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');
 Route::get('project-detail/{id}','App\Http\Controllers\ListProyekController@projectdetail');
-Route::post('/project-order', 'App\Http\Controllers\ProjectOrderController@index');
-Route::get('/project-order/{snap_token}/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
 Route::post('/validate', 'App\Http\Controllers\LoginController@validatelogin')->name('validate');
 Route::prefix('sponsor')
     ->as('sponsor.')
