@@ -31,7 +31,7 @@ Route::group(['middleware'=>['auth']],function(){
 	
 });
 Route::get('/', 'App\Http\Controllers\HomeController@index');
-Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
+//Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
 Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');

@@ -75,7 +75,7 @@ class Dlp extends Model
                 </a>';
       }
       public function Send_Email(){
-        return '<a class="btn btn-sm btn-link" href="'.url('send-mail/'.$this->dlp_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Kirim Email</a>';
+        return '<a class="btn btn-sm btn-link" href="'.backpack_url('send-mail/'.$this->dlp_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="fa fa-search"></i> Kirim Email</a>';
        
       }
 }

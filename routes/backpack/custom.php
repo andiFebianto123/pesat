@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProvinceCustomController;
 use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SendDlp;
 
 Route::group([
     'prefix'     => config('backpack.base.route_prefix', 'admin'),
@@ -24,6 +25,7 @@ Route::group([
     Route::get('dashboard', [DashboardController::class,'index']);
     Route::get('report', [ReportController::class,'index']);
     Route::post('filter-report', [ReportController::class,'filterreport']);
+    Route::get('/send-mail/{dlp_id}', [SendDlp::class,'sendEmail']);
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');
