@@ -149,9 +149,18 @@ class MyAccountController extends Controller
     public function createaccount(Request $request){
 
         $request->validate([
-            'password' => 'nullable|confirmed|min:6'
+            'name'          => 'required|max:255',
+            'full_name'     => 'required|max:255',
+            'hometown'      => 'required|max:255',
+            'date_of_birth' => 'required|date|date_format:Y-m-d',
+            'address'       => 'required|max:255',
+            'email'         => 'required|email|max:255',
+            'password'      => 'required|confirmed|min:6',
+            'no_hp'         => 'required|max:255',
+            'church_member_of' => 'max:255'
         ]);
         
+
         $cekEmail = Sponsor::where('email',$request->email)->first();
 
        

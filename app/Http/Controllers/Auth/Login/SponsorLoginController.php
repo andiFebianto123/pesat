@@ -33,16 +33,21 @@ class SponsorLoginController extends DefaultLoginController
 
     public function login(Request $request)
     {
-        $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required',
+        // $this->validate($request, [
+        //     'email' => 'required|email',
+        //     'password' => 'required',
+        // ]);
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required|max:255',
         ]);
         $session=$request->email;
-               
+        $remember_me = $request->has('remember') ? true : false; 
+
         if(auth()->guard('sponsor')->attempt([
             'email' => $request->email,
             'password' => $request->password,
-        ])) {
+        ],$remember_me)) {
             $user = auth()->user();
 
             $data['session']=session(['key' => $session]);
