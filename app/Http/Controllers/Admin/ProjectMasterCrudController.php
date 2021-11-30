@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProjectMasterRequest;
+use App\Models\OrderHd;
 use App\Models\OrderProject;
+use App\Models\ProjectMaster;
 use App\Models\ProjectMasterDetail;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Carbon\Carbon;
 
 /**
  * Class ProjectMasterCrudController
@@ -21,7 +24,8 @@ class ProjectMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
-
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -138,12 +142,19 @@ class ProjectMasterCrudController extends CrudController
                 'todayBtn' => 'linked',
                 'format' => 'dd-mm-yyyy',
                 'language' => 'en',
+                'clearBtn'  =>true
             ],
         ];
         $amount = [
             'name' => 'amount',
             'label' => 'Nominal',
             'type' => 'text',
+        ];
+        $lastamount = [
+            'name' => 'last_amount',
+            'label' => '',
+            'type' => 'hidden',
+            'default'=>0,
         ];
         $photo = [
             'label' => "Gambar Unggulan",
@@ -160,8 +171,12 @@ class ProjectMasterCrudController extends CrudController
             'label' => 'id',
             'default' => $userid,
         ];
-
-        $this->crud->addFields([$title, $discription,$label1,$label2,$startdate,$enddate,$amount, $photo, $createdby]);
+        $isclosed = [
+            'name' => 'is_closed',
+            'type' => 'hidden',
+            'default'=>0
+        ];
+        $this->crud->addFields([$title, $discription,$label1,$label2,$startdate,$enddate,$amount,$lastamount, $photo, $createdby,$isclosed]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -244,8 +259,92 @@ class ProjectMasterCrudController extends CrudController
             'label' => 'id',
         ];
 
-        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby]);
+        $isClosed = [
+            'name' => 'is_closed',
+            'type' => 'hidden',
+        ];
+
+        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby,$isClosed]);
     }
+
+    public function store()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+
+        // insert item in the db
+        //$startdate = $request->start_date;
+        $enddate   = $request->end_date;
+        $now = Carbon::now();
+        $lastamount = $request->last_amount;
+        $amount     = $request->amount;
+        
+     
+        if($enddate==null){
+                $this->crud->getRequest()->request->set('is_closed', 1);
+        }else{
+            
+            if($now >= $enddate || $lastamount >= $amount){
+                $this->crud->getRequest()->request->set('is_closed', 1);                
+            }else{
+                $this->crud->getRequest()->request->set('is_closed', 0);
+            }
+        }
+
+        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.insert_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
+    }
+
+    public function update()
+    {
+        $this->crud->hasAccessOrFail('update');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+
+        $getProject = ProjectMaster::where('project_id',$request->project_id)
+                            ->first();
+                            
+        $enddate   = $request->end_date;    
+        $now = Carbon::now();
+        $amount     = $request->amount;
+        $lastAmount = $getProject->last_amount;
+
+        if($enddate==null){
+            $this->crud->getRequest()->request->set('is_closed', 1);
+        }else{
+        
+        if($now >= $enddate || $lastAmount >= $amount){
+            $this->crud->getRequest()->request->set('is_closed', 1);                
+        }else{
+            $this->crud->getRequest()->request->set('is_closed', 0);
+        }
+    }
+        // update the row in the db
+        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
+                            $this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.update_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
+    }
+
 
     function setupShowOperation()
     {

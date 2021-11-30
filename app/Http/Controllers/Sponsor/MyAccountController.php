@@ -148,7 +148,8 @@ class MyAccountController extends Controller
         return $newpass;
     }
 
-    public function register(){
+    public function register(Request $request){
+
         return view('sponsor.register');
     }
 
