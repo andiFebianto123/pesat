@@ -39,6 +39,12 @@ class DataOrder extends Model
     {
        return $this->belongsTo(Sponsor::class,'sponsor_id','sponsor_id');
     }
+
+    public function childname()
+    {
+       return $this->belongsTo(ChildMaster::class,'child_id','child_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

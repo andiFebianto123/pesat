@@ -28,6 +28,8 @@ class DataOrderCrudController extends CrudController
  //   use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      * 
@@ -50,7 +52,7 @@ class DataOrderCrudController extends CrudController
     {
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'sponsoredchild', 'beginning');
         $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'Cek_Status', 'last');
-        
+                
         $this->crud->addColumns([
             [
                 'name' => 'order_id',
@@ -96,27 +98,33 @@ class DataOrderCrudController extends CrudController
     {
         CRUD::setValidation(DataOrderRequest::class);
 
-        $orderno=[
+        $this->crud->addFields([
+            [
+                'name' => 'sponsor_id',
+                'label' => "Nama Sponsor",
+                'type' => 'select2_from_array',
+                'allows_null' => false,
+                'options' => $this->sponsor(),
+    
+            ],
+            [   // repeatable
+                'name'  => 'testimonials',
+                'label' => 'Testimonials',
+                'type'  => 'repeatable',
+                'fields' => [
+            [
             'name'  => 'order_no',
             'type'  => 'hidden'
-        ];
-        $sponsor = [
-            'name' => 'sponsor_id',
-            'label' => "Nama Sponsor",
-            'type' => 'select2_from_array',
-            'allows_null' => false,
-            'options' => $this->sponsor(),
+            ],
 
-        ];
-
-        $child = [
+            [
             'name' => 'child_id',
             'label' => "Nama Anak",
             'type' => 'select2_from_array',
             'allows_null' => false,
             'options' => $this->child(),
-        ];
-        $subs =[
+            ],
+            [
             'name'            => 'monthly_subscription',
             'label'           => "Durasi Subscribe",
             'type'            => 'select_from_array',
@@ -124,31 +132,36 @@ class DataOrderCrudController extends CrudController
             'allows_null'     => false,
             'allows_multiple' => false,
 
-        ];
-        $startOrderdate=[
+            ],
+            [
             'name'  => 'start_order_date',
             'type'  => 'hidden'
-        ];
+            ],
 
-        $endOrderdate=[
+            [
             'name'  => 'end_order_date',
             'type'  => 'hidden'
-        ];
-        $price=[
+            ],
+            [
             'name'  => 'price',
             'type'  => 'hidden'
-        ];
+            ],
 
-        $totalprice=[
+            [
             'name'  => 'total_price',
             'type'  => 'hidden'
-        ];
-
-        $this->crud->addFields([
-            $orderno,$sponsor,$child,$subs,
-            $startOrderdate,$endOrderdate,$price,$totalprice
+            ],
+        
+        ],
+            
+                // optional
+                'new_item_label'  => 'Add Data', // customize the text of the button
+               // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
+                'min_rows' => 1, // minimum rows allowed, when reached the "delete" buttons will be hidden
+                //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
+            
+            ]
     ]);
-
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
@@ -164,8 +177,7 @@ class DataOrderCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-       // $this->setupCreateOperation();
-  
+
     $status =[
         'name'            => 'payment_status',
         'label'           => "Status Pembayaran",
@@ -176,10 +188,82 @@ class DataOrderCrudController extends CrudController
 
     ];
 
+    $sponsor = [
+        'name'    => 'sponsor_id',
+        'type'    => 'select',
+        'label'   => 'Nama Sponsor',
+        'entity'  => 'sponsorname',
+        'attribute'=>'full_name'
+    ];
+
+    $dataorder =[   // repeatable
+        'name'  => 'dataorder',
+        'label' => 'Testimonials',
+        'type'  => 'repeatable',
+        'fields' => [
+            
+            [
+                'name'    => 'order_dt_id',
+                'type'    => 'hidden',
+            ],
+
+            [
+                'name'    => 'child_id',
+                'type'    => 'select',
+                'label'   => 'Nama Anak',
+                'entity'  =>  'childname',
+                'attribute'=> 'full_name'
+            ],
+            [
+                'name'    => 'monthly_subscription',
+                'label'   => 'Durasi Subscribe',
+                'type'    => 'select_from_array',
+                'options' => [1 => '1 Bulan', 3 => '3 Bulan', 6 => '6 Bulan',12=>'12 Bulan'],
+            ],
+
+        ],
+        'new_item_label'  => 'Add Group', // customize the text of the button
+       // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
+        //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
+        //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
+    
+    ];
+
 
     $this->crud->addFields([
-        $status
+        $sponsor,$status,$dataorder
     ]);
+    }
+
+    public function edit($id)
+    {
+        $getStatus = OrderHd::where('order_id',$id)->first();
+        $getStatusPayment = $getStatus->payment_status;
+        if($getStatusPayment==2){
+            
+            \Alert::error(trans('Tidak bisa ubah data, karena sudah ada pembayaran'))->flash();
+            return redirect()->back();
+        }
+        $this->crud->hasAccessOrFail('update');
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        
+        // get the info for that entry
+        $getOrderDt = OrderDt::where('order_id',$id)->get();
+        $orderDt =json_encode($getOrderDt);
+        $fields =$this->crud->getUpdateFields();
+        $fields['dataorder']['value']=$orderDt;
+
+        $this->crud->setOperationSetting('fields', $fields);
+        $this->data['entry'] = $this->crud->getEntry($id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->crud->getSaveAction();
+        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit').' '.$this->crud->entity_name;
+
+        $this->data['id'] = $id;
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view($this->crud->getEditView(), $this->data);
     }
 
     public function store()
@@ -189,36 +273,38 @@ class DataOrderCrudController extends CrudController
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
 
+        $getDatas = $request->testimonials;
+        $datas = json_decode($getDatas);
 
-        do {
-            $code = random_int(100000, 999999);
-        } while (OrderHd::where("order_no", "=", $code)->first());
 
-        $child = ChildMaster::where('child_id',$request->child_id)->first();
+        $sponsorid = $request->sponsor_id;
+
+        $id = DB::table('order_hd')->insertGetId([
+            'sponsor_id' => $sponsorid,
+            'payment_status' => 1,
+            'total_price'   => 0
+
+        ]);
+        
+        foreach($datas as $key => $data){
+        $child = ChildMaster::where('child_id',$data->child_id)->first();
         $getPrice = $child->price;
-        $subs = ($request->monthly_subscription);
+        $subs = ($data->monthly_subscription);
         $totalPrice = $subs * $getPrice;
-
-        $this->crud->getRequest()->request->set('order_no',$code);
         $this->crud->getRequest()->request->set('total_price',$totalPrice);
 
-        // insert item in the db
-        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
-        $this->data['entry'] = $this->crud->entry = $item;
         
         $startOrderdate = Carbon::now();
         $orders = new OrderDt();
-        $orders->order_id           = $item->order_id;
-        $orders->child_id           = $request->child_id;
+        $orders->order_id           = $id;
+        $orders->child_id           = $data->child_id;
         $orders->price              = $getPrice;
-        $orders->monthly_subscription= $request->monthly_subscription;
+        $orders->monthly_subscription= $data->monthly_subscription;
         $orders->start_order_date   = $startOrderdate;
-        $orders->end_order_date     = $startOrderdate->copy()->addMonthsNoOverflow($request->monthly_subscription);
+        $orders->end_order_date     = $startOrderdate->copy()->addMonthsNoOverflow($data->monthly_subscription);
         $orders->save();
 
-
-//        dd($item->order_id);
-        $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id',$item->order_id)
+        $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id',$id)
         ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
         ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
         ->join('child_master as cm','cm.child_id','=','odt.child_id')
@@ -232,14 +318,8 @@ class DataOrderCrudController extends CrudController
             )
         ->get();
         
-       
-        $order = OrderHd::where('order_id',$item->order_id)->first();                        
-        $midtrans = new CreateSnapTokenService($Snaptokenorder,$code);
-        $snapToken = $midtrans->getSnapToken();
-        $order->snap_token = $snapToken;
-        $order->save();
-        
-        ChildMaster::where('child_id', $request->child_id)
+            
+        ChildMaster::where('child_id', $data->child_id)
         ->update(['is_sponsored' => 1]);
     
 
@@ -248,8 +328,60 @@ class DataOrderCrudController extends CrudController
 
         // save the redirect choice for next time
         $this->crud->setSaveAction();
+        }
+        $getTotalPrice = OrderDt::groupBy('order_id')
+                    ->where('order_id',$id)
+                    ->selectRaw('sum(price) as sum_price')
+                    ->pluck('sum_price')
+                    ->first();
+        $order = OrderHd::where('order_id',$id)->first();                        
+        $midtrans = new CreateSnapTokenService($Snaptokenorder,$id);
+        $snapToken = $midtrans->getSnapToken();
+        $order->snap_token = $snapToken;
+        $order->total_price=$getTotalPrice;
+        $order->save();
 
-        return $this->crud->performSaveAction($item->getKey());
+        return redirect()->back();
+    }
+
+    public function update()
+    {
+        $this->crud->hasAccessOrFail('update');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+        // update the row in the db
+        $getDataOrder = $request->dataorder;
+        $orderDecodes  = json_decode($getDataOrder);
+
+        foreach($orderDecodes as $key => $orderDecode){
+
+            OrderDt::where('order_dt_id', $orderDecode->order_dt_id)
+                ->update(['child_id' => $orderDecode->child_id,
+                          'monthly_subscription' =>  $orderDecode->monthly_subscription,
+                ]);
+
+        }
+        $getTotalPrice = OrderDt::groupBy('order_id')
+        ->where('order_id',$request->order_id)
+        ->selectRaw('sum(price) as sum_price')
+        ->pluck('sum_price')
+        ->first();
+
+        $orderHd = OrderHd::where('order_id',$request->order_id)->first();
+        $orderHd->sponsor_id = $request->sponsor_id;
+        $orderHd->payment_status = $request->payment_status;
+        $orderHd->total_price=$getTotalPrice;
+        $orderHd->save();
+        
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.update_success'))->flash();
+
+        // save the redirect choice for next time
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($orderHd->getKey());
     }
 
     function destroy($id)
