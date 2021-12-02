@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoryStatusPayment;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
+use Illuminate\Support\Facades\DB;
 
 class MidtransController extends Controller
 {
@@ -18,7 +20,34 @@ class MidtransController extends Controller
         $type = $notif->payment_type;
         $order_id = $notif->order_id;
         $fraud = $notif->fraud_status;
+        $transactiontime = $notif->transaction_time;
+        $transactionid  = $notif->transaction_id;
+        $transactionmessage = $notif->status_message;
+        $statuscode         = $notif->status_code;
+        $paymenttype        = $notif->payment_type;
+        $paymentamount      = $notif->payment_amounts;
+        $merchantid         = $notif->merchant_id;
+        $grossamount        = $notif->gross_amount;
 
+        $array_temp = array();
+        $array_temp_notif["order_id"] = $order_id;
+        $array_temp_notif["transaction_status"] = $transaction;
+        $array_temp_notif["transaction_time"] = $transactiontime;
+        $array_temp_notif["transaction_id"] = $transactionid;
+        $array_temp_notif["status_message"] = $transactionmessage;
+        $array_temp_notif["status_code"] = $statuscode;
+        $array_temp_notif["payment_type"] = $paymenttype;
+        $array_temp_notif["payment_amounts"] = $paymentamount;
+        $array_temp_notif["merchant_id"] = $merchantid;
+        $array_temp_notif["gross_amount"] = $grossamount;
+
+        array_push($array_temp, $array_temp_notif);
+
+        $arraynotif = json_encode($array_temp);
+
+        DB::table('history_status_payment')->insert([
+            'detail_history' => $arraynotif,
+        ]);
         if ($transaction == 'capture') {
             // For credit card transaction, we need to check whether transaction is challenge by FDS or not
             if ($type == 'credit_card') {
@@ -165,7 +194,10 @@ class MidtransController extends Controller
             // TODO set payment status in merchant's database to 'Denied'
             echo "(cancel) Payment using " . $type . " for transaction order_id: " . $order_id . " is canceled.";
         }
+
+
         return response()->json('');
+
     }
 
 }
