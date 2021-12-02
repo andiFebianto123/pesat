@@ -111,7 +111,7 @@ class DataOrderCrudController extends CrudController
             ],
             [   // repeatable
                 'name'  => 'testimonials',
-                'label' => 'Testimonials',
+                'label' => 'List Order',
                 'type'  => 'repeatable',
                 'fields' => [
             [
@@ -213,18 +213,21 @@ class DataOrderCrudController extends CrudController
                 'name'    => 'child_id',
                 'type'    => 'select',
                 'label'   => 'Nama Anak',
-                'entity'  =>  'childname',
-                'attribute'=> 'full_name'
+                'entity'  =>  'childnamewithcondition',
+                'attribute'=> 'full_name',
+                'allows_null'=> false
             ],
             [
                 'name'    => 'monthly_subscription',
                 'label'   => 'Durasi Subscribe',
                 'type'    => 'select_from_array',
                 'options' => [1 => '1 Bulan', 3 => '3 Bulan', 6 => '6 Bulan',12=>'12 Bulan'],
+                'allows_null'     => false,
+                'allows_multiple' => false,
             ],
 
         ],
-        'new_item_label'  => 'Add Group', // customize the text of the button
+        'new_item_label'  => 'Add Data', // customize the text of the button
        // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
         //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
         //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
@@ -251,11 +254,12 @@ class DataOrderCrudController extends CrudController
         $id = $this->crud->getCurrentEntryId() ?? $id;
         
         // get the info for that entry
-        $getOrderDt = OrderDt::where('order_id',$id)->get();
+        $getOrderDt = OrderDt::where('order_id',$id)
+                                ->where('deleted_at',null)
+                                ->get();
         $orderDt =json_encode($getOrderDt);
         $fields =$this->crud->getUpdateFields();
         $fields['dataorder']['value']=$orderDt;
-
         $this->crud->setOperationSetting('fields', $fields);
         $this->data['entry'] = $this->crud->getEntry($id);
         $this->data['crud'] = $this->crud;
@@ -355,16 +359,74 @@ class DataOrderCrudController extends CrudController
         $request = $this->crud->validateRequest();
         // update the row in the db
         $getDataOrder = $request->dataorder;
+      //  dd($getDataOrder);
         $orderDecodes  = json_decode($getDataOrder);
+        $x=array_column($orderDecodes, 'order_dt_id');
+        $getData = OrderDt::where('order_id',$request->order_id)
+                            //    where('order_dt_id')
+                                ->get();
+        $arraygetData = $getData->toArray();
+    
+        $getIdData = array_column($arraygetData,'order_dt_id');
+        $getIddeletedDatas = array_diff($getIdData, $x);
+      // dd($x,$getIdData);
+//        dd($getIddeletedData);
 
+        OrderDt::whereIn('order_dt_id', $getIddeletedDatas)->update([
+            'deleted_at' => Carbon::now()
+          ]);
+        // /OrderDt::destroy($getIddeletedDatas);
+        // foreach($getIddeletedDatas as $key => $getIddeletedData){
+        //     dd($getIddeletedData);
+        //     OrderDt::where('order_dt_id', $getIddeletedData)
+        //             ->update(['child_id' => $orderDecode->child_id,
+        //                   'monthly_subscription' =>  $orderDecode->monthly_subscription,
+        //         ]);
+
+        // }
+//        DB::table(..)->select(..)->whereNotIn('book_price', [100,200])->get();
+     //   dd($orderDecodes['order_dt_id']);
         foreach($orderDecodes as $key => $orderDecode){
+           // dd($orderDecode->order_dt_id);
+            if($orderDecode->order_dt_id == '' || $orderDecode->order_dt_id == null){
+                
+                
+                $child = ChildMaster::where('child_id',$orderDecode->child_id)->first();
+                $startOrderdate = Carbon::now();
+                $getPrice = $child->price;
+                $subs = $orderDecode->monthly_subscription;
+                $totalPrice = $getPrice * $subs;
 
+                $endOrderDate     = $startOrderdate->copy()->addMonthsNoOverflow($orderDecode->monthly_subscription);
+
+                $orderdt = new OrderDt();
+                $orderdt->order_id = $request->order_id;
+                $orderdt->child_id = $orderDecode->child_id;
+                $orderdt->monthly_subscription = $orderDecode->monthly_subscription;
+                $orderdt->price    = $totalPrice;
+                $orderdt->start_order_date = $startOrderdate;
+                $orderdt->end_order_date   = $endOrderDate;
+                $orderdt->save();
+            }
+            $deletedOrders = OrderDt::where('order_id',$request->order_id)->get();
+
+
+            
             OrderDt::where('order_dt_id', $orderDecode->order_dt_id)
                     ->update(['child_id' => $orderDecode->child_id,
                           'monthly_subscription' =>  $orderDecode->monthly_subscription,
                 ]);
 
         }
+
+
+        // $array1 = $order//array(1, 2, 3, 4, 5);
+        // $array2 = array(2, 4, 5);
+
+        // $array3 = array_diff($array1, $array2);
+
+        // dd($array3);
+
         $getTotalPrice = OrderDt::groupBy('order_id')
         ->where('order_id',$request->order_id)
         ->selectRaw('sum(price) as sum_price')

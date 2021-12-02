@@ -22,7 +22,7 @@ class DataOrder extends Model
     protected $guarded = ['order_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------
@@ -45,6 +45,12 @@ class DataOrder extends Model
        return $this->belongsTo(ChildMaster::class,'child_id','child_id');
     }
 
+    public function childnamewithcondition(){
+   
+        return $this->childname()->where('is_sponsored','=', 0);    
+    }
+
+   
     /*
     |--------------------------------------------------------------------------
     | SCOPES

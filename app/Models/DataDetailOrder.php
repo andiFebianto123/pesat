@@ -22,7 +22,7 @@ class DataDetailOrder extends Model
     protected $guarded = ['order_dt_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-    // protected $dates = [];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

@@ -10,7 +10,9 @@ use App\Services\Midtrans\CreateSnapTokenForProjectService;
 use App\Services\Midtrans\CreateSnapTokenService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class DataOrderProjectCrudController
@@ -101,34 +103,34 @@ class DataOrderProjectCrudController extends CrudController
         CRUD::setValidation(DataOrderProjectRequest::class);
 
 
-        $sponsor = [
-            'name' => 'sponsor_id',
-            'label' => "Nama Sponsor",
-            'type' => 'select2_from_array',
-            'allows_null' => false,
-            'options' => $this->sponsor(),
-
-        ];
-
-        $project = [
-            'name' => 'project_id',
-            'label' => "Nama Proyek",
-            'type' => 'select2_from_array',
-            'allows_null' => false,
-            'options' => $this->project(),
-        ];
-
-        $price=[
-            'name'  => 'price',
-            'type'  => 'text',
-            'label' => 'Total Donasi'
-        ];
-
-
-
         $this->crud->addFields([
-            $sponsor,$project,
-            $price
+            [   // repeatable
+                'name'  => 'dataorder',
+                'label' => 'List Order',
+                'type'  => 'repeatable',
+                'fields' => [
+                    [
+                            'name' => 'sponsor_id',
+                            'label' => "Nama Sponsor",
+                            'type' => 'select2_from_array',
+                            'allows_null' => false,
+                            'options' => $this->sponsor(),
+                
+                    ],
+                    [
+                            'name' => 'project_id',
+                            'label' => "Nama Proyek",
+                            'type' => 'select2_from_array',
+                            'allows_null' => false,
+                            'options' => $this->project(),
+                    ],
+                    [
+                            'name'  => 'price',
+                            'type'  => 'text',
+                            'label' => 'Total Donasi'
+                    ],
+                ]
+            ]
     ]);
  
 
@@ -154,14 +156,30 @@ class DataOrderProjectCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        // execute the FormRequest authorization and validation, if one is required
+
+        $products = json_decode($this->crud->getRequest()->input('dataorder'));
+
+        $this->validateRepeatableFields($products);
+
+
         $request = $this->crud->validateRequest();
 
+        $getDatas = $request->dataorder;
+        $datas    = json_decode($getDatas);
+        
         // insert item in the db
-        $item = $this->crud->create($this->crud->getStrippedSaveRequest());
-        $this->data['entry'] = $this->crud->entry = $item;
+        foreach($datas as $key => $data){
+        //$item = $this->crud->create($this->crud->getStrippedSaveRequest());
+        //$this->data['entry'] = $this->crud->entry = $item;
+        $id = DB::table('order_project')->insertGetId([
+            'sponsor_id' => $data->sponsor_id,
+            'project_id' => $data->project_id,
+            'price'   => $data->price,
+            'payment_status' => 1,
+            'created_at'    => Carbon::now(),
 
-        $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$item->order_project_id)
+        ]);
+        $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$id)
         ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
         ->join('project_master as pm','pm.project_id','=','order_project.project_id')
         ->select(
@@ -173,8 +191,8 @@ class DataOrderProjectCrudController extends CrudController
             )
         ->get();
 
-        $order = OrderProject::where('order_project_id',$item->order_project_id)->first();                        
-        $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$item->order_project_id);
+        $order = OrderProject::where('order_project_id',$id)->first();                        
+        $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$id);
         $snapToken = $midtrans->getSnapToken();
         $order->snap_token = $snapToken;
         $order->save();
@@ -184,8 +202,9 @@ class DataOrderProjectCrudController extends CrudController
 
         // save the redirect choice for next time
         $this->crud->setSaveAction();
-
-        return $this->crud->performSaveAction($item->getKey());
+        }
+        //return $this->crud->performSaveAction($item->getKey());
+        return redirect()->back();
     }
 
     public function project(){
@@ -202,4 +221,12 @@ class DataOrderProjectCrudController extends CrudController
         $sponsor = $collection->pluck('full_name', 'sponsor_id') ? $collection->pluck('full_name', 'sponsor_id') : 0 / null;
         return $sponsor;
     }
+
+    function validateRepeatableFields($products){
+    foreach ($products as $group) {
+        Validator::make((array)$group, [
+            'price' => 'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
+        ])->validate();
+    }
+}
 }
