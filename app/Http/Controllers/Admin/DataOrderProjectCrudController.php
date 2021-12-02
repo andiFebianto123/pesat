@@ -126,7 +126,6 @@ class DataOrderProjectCrudController extends CrudController
                     ],
                     [
                             'name'  => 'price',
-                            'type'  => 'text',
                             'label' => 'Total Donasi'
                     ],
                 ]
@@ -149,7 +148,32 @@ class DataOrderProjectCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        //$this->setupCreateOperation();
+        CRUD::setValidation(DataOrderProjectRequest::class);
+        $sponsor=[
+            'name' => 'sponsor_id',
+            'label' => "Nama Sponsor",
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'options' => $this->sponsor(),
+
+        ];
+        $project=[
+            'name' => 'project_id',
+            'label' => "Nama Proyek",
+            'type' => 'select2_from_array',
+            'allows_null' => false,
+            'options' => $this->project(),
+        ];
+        $price=[
+            'name'  => 'price',
+            'type'  => 'text',
+            'label' => 'Total Donasi'
+        ];
+        $this->crud->addFields([
+            
+            $sponsor,$project,$price
+        ]);
     }
 
     public function store()
