@@ -14,6 +14,8 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\countOf;
+
 /**
  * Class DataOrderCrudController
  * @package App\Http\Controllers\Admin
@@ -273,10 +275,11 @@ class DataOrderCrudController extends CrudController
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
 
+        
         $getDatas = $request->testimonials;
         $datas = json_decode($getDatas);
 
-
+        $uniquedata = array_unique($datas,SORT_REGULAR);
         $sponsorid = $request->sponsor_id;
 
         $id = DB::table('order_hd')->insertGetId([
@@ -286,7 +289,7 @@ class DataOrderCrudController extends CrudController
 
         ]);
         
-        foreach($datas as $key => $data){
+        foreach($uniquedata as $key => $data){
         $child = ChildMaster::where('child_id',$data->child_id)->first();
         $getPrice = $child->price;
         $subs = ($data->monthly_subscription);
@@ -357,7 +360,7 @@ class DataOrderCrudController extends CrudController
         foreach($orderDecodes as $key => $orderDecode){
 
             OrderDt::where('order_dt_id', $orderDecode->order_dt_id)
-                ->update(['child_id' => $orderDecode->child_id,
+                    ->update(['child_id' => $orderDecode->child_id,
                           'monthly_subscription' =>  $orderDecode->monthly_subscription,
                 ]);
 
