@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
 use App\Models\ProjectMaster;
+use Illuminate\Support\Facades\DB;
 
 class CekStatusController extends Controller
 {
@@ -84,9 +85,10 @@ class CekStatusController extends Controller
     {
 
         $curl = curl_init();
+        $idanak = $id."-anak";
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $id . "/status",
+            CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $idanak . "/status",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -106,8 +108,14 @@ class CekStatusController extends Controller
         $decoderespon = json_decode($response, true);
         curl_close($curl);
 
+        
+    
     if($decoderespon != null){
 
+        
+        DB::table('history_status_payment')->insert([
+            'detail_history' => $response,
+        ]);
         if ($decoderespon['transaction_status'] == 'settlement') {
             OrderHd::where('order_id', $id)
                 ->update(['payment_status' => 2]);
