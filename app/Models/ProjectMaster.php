@@ -6,11 +6,12 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Faker\Provider\Image;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use \Venturecraft\Revisionable\RevisionableTrait;
 
 class ProjectMaster extends Model
 {
     use CrudTrait;
-
+    use RevisionableTrait;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES

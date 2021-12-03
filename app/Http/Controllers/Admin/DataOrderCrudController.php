@@ -359,35 +359,31 @@ class DataOrderCrudController extends CrudController
         $request = $this->crud->validateRequest();
         // update the row in the db
         $getDataOrder = $request->dataorder;
-      //  dd($getDataOrder);
+
         $orderDecodes  = json_decode($getDataOrder);
         $x=array_column($orderDecodes, 'order_dt_id');
-        $getData = OrderDt::where('order_id',$request->order_id)
-                            //    where('order_dt_id')
+        $getData = DataDetailOrder::where('order_id',$request->order_id)
+                                ->where('deleted_at',null)
                                 ->get();
         $arraygetData = $getData->toArray();
     
         $getIdData = array_column($arraygetData,'order_dt_id');
         $getIddeletedDatas = array_diff($getIdData, $x);
-      // dd($x,$getIdData);
-//        dd($getIddeletedData);
 
-        OrderDt::whereIn('order_dt_id', $getIddeletedDatas)->update([
-            'deleted_at' => Carbon::now()
-          ]);
-        // /OrderDt::destroy($getIddeletedDatas);
-        // foreach($getIddeletedDatas as $key => $getIddeletedData){
-        //     dd($getIddeletedData);
-        //     OrderDt::where('order_dt_id', $getIddeletedData)
-        //             ->update(['child_id' => $orderDecode->child_id,
-        //                   'monthly_subscription' =>  $orderDecode->monthly_subscription,
-        //         ]);
 
-        // }
-//        DB::table(..)->select(..)->whereNotIn('book_price', [100,200])->get();
-     //   dd($orderDecodes['order_dt_id']);
+        foreach($getIddeletedDatas as $key => $datadeleted){
+            $deletedorder = DataDetailOrder::where('order_dt_id',$datadeleted)->first();
+            $deletedorder->deleted_at = Carbon::now();
+            $deletedorder->save();
+
+        }
+        
+        // OrderDt::whereIn('order_dt_id', $getIddeletedDatas)->update([
+        //     'deleted_at' => Carbon::now()
+        //   ]);
+
         foreach($orderDecodes as $key => $orderDecode){
-           // dd($orderDecode->order_dt_id);
+            
             if($orderDecode->order_dt_id == '' || $orderDecode->order_dt_id == null){
                 
                 
@@ -399,7 +395,7 @@ class DataOrderCrudController extends CrudController
 
                 $endOrderDate     = $startOrderdate->copy()->addMonthsNoOverflow($orderDecode->monthly_subscription);
 
-                $orderdt = new OrderDt();
+                $orderdt = new DataDetailOrder();
                 $orderdt->order_id = $request->order_id;
                 $orderdt->child_id = $orderDecode->child_id;
                 $orderdt->monthly_subscription = $orderDecode->monthly_subscription;
@@ -408,24 +404,22 @@ class DataOrderCrudController extends CrudController
                 $orderdt->end_order_date   = $endOrderDate;
                 $orderdt->save();
             }
-            $deletedOrders = OrderDt::where('order_id',$request->order_id)->get();
+            $deletedOrders = DataDetailOrder::where('order_id',$request->order_id)->get();
 
+            $deletedorder = DataDetailOrder::where('order_dt_id',$orderDecode->order_dt_id)->first();
+            $deletedorder->child_id = $orderDecode->child_id;
+            $deletedorder->monthly_subscription = $orderDecode->monthly_subscription;
+            $deletedorder->save();
 
             
-            OrderDt::where('order_dt_id', $orderDecode->order_dt_id)
-                    ->update(['child_id' => $orderDecode->child_id,
-                          'monthly_subscription' =>  $orderDecode->monthly_subscription,
-                ]);
+            // DataDetailOrder::where('order_dt_id', $orderDecode->order_dt_id)
+            //         ->update(['child_id' => $orderDecode->child_id,
+            //               'monthly_subscription' =>  $orderDecode->monthly_subscription,
+            //     ]);
 
         }
 
 
-        // $array1 = $order//array(1, 2, 3, 4, 5);
-        // $array2 = array(2, 4, 5);
-
-        // $array3 = array_diff($array1, $array2);
-
-        // dd($array3);
 
         $getTotalPrice = OrderDt::groupBy('order_id')
         ->where('order_id',$request->order_id)

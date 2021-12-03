@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use \Venturecraft\Revisionable\RevisionableTrait;
 
 class DataSponsor extends Model
 {
     use CrudTrait;
+    use RevisionableTrait;
+    protected  $revisionForceDeleteEnabled = true;
 
     /*
     |--------------------------------------------------------------------------
