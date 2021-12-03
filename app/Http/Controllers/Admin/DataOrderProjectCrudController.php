@@ -193,8 +193,7 @@ class DataOrderProjectCrudController extends CrudController
         
         // insert item in the db
         foreach($datas as $key => $data){
-        //$item = $this->crud->create($this->crud->getStrippedSaveRequest());
-        //$this->data['entry'] = $this->crud->entry = $item;
+
         $id = DB::table('order_project')->insertGetId([
             'sponsor_id' => $data->sponsor_id,
             'project_id' => $data->project_id,
