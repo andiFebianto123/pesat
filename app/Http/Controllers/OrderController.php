@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChildMaster;
+use App\Models\DataDetailOrder;
+use App\Models\DataOrder;
 use App\Models\OrderDt;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
@@ -142,34 +144,52 @@ class OrderController extends Controller
 
     public function reminderinvoice()
     {
+        $now = Carbon::now();
+        $nowAdd2Days = $now->copy()->addDay(-2);
+        // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
+        $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
+        $datas = DataDetailOrder::where('start_order_date',$newDateFormat)
+        ->distinct()
+        ->get(['order_id']);
+        
+        foreach($datas as $key => $data){
+            
+            dd($data);
+            $orderHd = DataOrder::find($data);
 
-        $orders = DB::table('order_project')
-            ->get();
+            $orderHd->name = 'Paris to London';
+            
+            $orderHd->save();
 
-        // dd($orders);
-        foreach ($orders as $key => $order) {
-            $getTotalAmount = OrderProject::groupBy('project_id')
-                ->where('project_id', $order->project_id)
-                ->where('payment_status', 2)
-                ->selectRaw('sum(price) as sum_price')
-                ->pluck('sum_price')
-                ->first();
-            //  $getLastId = OrderProject::where('project_id',$order->project_id)
-            //                                ->orderBy('order_project_id','desc')
-            //                                ->first();
-            ProjectMaster::where('project_id', $order->project_id)
-            //->where('destination', 'San Diego')
-                ->update(['last_amount' => $getTotalAmount]);
+        }        
 
-            $getProjectMaster = ProjectMaster::where('project_id', $order->project_id)->first();
+        // $orders = DB::table('order_project')
+        //     ->get();
 
-            if ($getProjectMaster->amount <= $getProjectMaster->last_amount) {
+        // // dd($orders);
+        // foreach ($orders as $key => $order) {
+        //     $getTotalAmount = OrderProject::groupBy('project_id')
+        //         ->where('project_id', $order->project_id)
+        //         ->where('payment_status', 2)
+        //         ->selectRaw('sum(price) as sum_price')
+        //         ->pluck('sum_price')
+        //         ->first();
+        //     //  $getLastId = OrderProject::where('project_id',$order->project_id)
+        //     //                                ->orderBy('order_project_id','desc')
+        //     //                                ->first();
+        //     ProjectMaster::where('project_id', $order->project_id)
+        //     //->where('destination', 'San Diego')
+        //         ->update(['last_amount' => $getTotalAmount]);
 
-                ProjectMaster::where('project_id', $order->project_id)
-                    ->update(['is_closed' => 1]);
+        //     $getProjectMaster = ProjectMaster::where('project_id', $order->project_id)->first();
 
-            }
-        }
+        //     if ($getProjectMaster->amount <= $getProjectMaster->last_amount) {
+
+        //         ProjectMaster::where('project_id', $order->project_id)
+        //             ->update(['is_closed' => 1]);
+
+        //     }
+        // }
 
 //     $orders = DB::table('order_hd')
         //             ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')

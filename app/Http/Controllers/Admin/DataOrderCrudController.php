@@ -483,7 +483,7 @@ class DataOrderCrudController extends CrudController
                 $datadeleted->delete();
 
             }
-            $getTotalPrice = OrderDt::groupBy('order_id')
+            $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $request->order_id)
                 ->selectRaw('sum(price) as sum_price')
                 ->pluck('sum_price')
