@@ -360,7 +360,9 @@ class DataOrderCrudController extends CrudController
                     ->get();
 
                 ChildMaster::where('child_id', $data->child_id)
-                    ->update(['is_sponsored' => 1]);
+                    ->update(['is_sponsored' => 1,
+                              'current_order_id' =>$id,         
+                            ]);
 
             }
             $getTotalPrice = OrderDt::groupBy('order_id')
@@ -417,11 +419,10 @@ class DataOrderCrudController extends CrudController
             $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
             if ($child == null) {
                 $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-            }
-            // elseif($child->is_sponsored = 1 && $child->current_order_id != $request->order_id){
-            //     $error[] = 'Detail order ke '.$index.' : Anak sudah disponsori';
+            }  elseif($child->is_sponsored = 1 && $child->current_order_id != $request->order_id){
+                $error[] = 'Detail order ke '.$index.' : Anak sudah disponsori';
 
-            // }
+            }
             else {
                 $childs[$child->child_id] = $child;
             }
@@ -450,6 +451,7 @@ class DataOrderCrudController extends CrudController
 
                 $child = $childs[$orderDecode->child_id];
                 $child->is_sponsored = 1;
+                $child->current_order_id = $request->order_id;
                 $child->save();
 
                 $startOrderdate = Carbon::now();
@@ -475,6 +477,7 @@ class DataOrderCrudController extends CrudController
             foreach ($getDeletedOrder as $key => $datadeleted) {
                 $child = ChildMaster::where('child_id', $datadeleted->child_id)->first();
                 $child->is_sponsored = 0;
+                $child->current_order_id = null;
                 $child->save();
 
                 $datadeleted->delete();
