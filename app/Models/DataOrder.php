@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+//use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Symfony\Component\VarDumper\Cloner\Data;
 use \Venturecraft\Revisionable\RevisionableTrait;
 
 class DataOrder extends Model
@@ -48,10 +51,40 @@ class DataOrder extends Model
        return $this->belongsTo(ChildMaster::class,'child_id','child_id');
     }
 
-    public function childnamewithcondition(){
-   
-        return $this->childname()->where('is_sponsored','=', 0);    
+
+    public function childnamenosponsor()
+    {
+       return $this->belongsTo(ChildMaster::class,'child_id','child_id')->where('is_sponsored',0);
     }
+
+
+
+
+
+
+
+    public function orderdt()
+    {
+        return $this->belongsTo(DataDetailOrder::class,'order_id','order_id');
+    }
+    public function orders()
+    {
+        return $this->orderdt()->belongsTo(ChildMaster::class,'child_id','child_id');
+        
+    }
+
+    public function test()
+	{
+//        return $this->belongsTo(ChildMaster::class, 'child_id','child_id')->where('is_sponsored',false);
+        return $this->orders()->where('is_sponsored',false);
+        // return $this->
+        // dd($users);
+      // return $x->where('is_sponsored',0)->get();
+		// parent::boot();
+		// static::addGlobalScope('is_sponsored', function (Builder $builder) {
+		// 	$builder->where('is_sponsored', 0);
+		// });
+	}
 
    
     /*
