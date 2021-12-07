@@ -57,7 +57,7 @@ class ChildMasterRequest extends FormRequest
             'leave_fc'              =>  'nullable|date|date_format:Y-m-d',
             'reason_to_leave'       =>  'max:255', 
             'internal_discription'  =>  'max:255',
-            'file_profile'          =>  'file|max:5000 (5000 kb)'
+            'file_profile'          =>  'file|max:5000'
             
         ];
     }

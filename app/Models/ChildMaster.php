@@ -59,7 +59,7 @@ class ChildMaster extends Model
     }
     public function dlp()
     {
-      return $this->belongsTo(dlp::class,'child_id','child_id');      
+      return $this->belongsTo(Dlp::class,'child_id','child_id');      
     }
     public function users()
     {
