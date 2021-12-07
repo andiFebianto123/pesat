@@ -13,16 +13,17 @@ class DropRelationUserAttributeTable extends Migration
      */
     public function up()
     {
-        //
-        Schema::table('user_attribute', function (Blueprint $table) {
-            //
-            $table->dropForeign(['user_id']);
-        });
-        Schema::table('user_attribute', function (Blueprint $table) {
-           
-            $table->bigInteger('user_id')->unsigned()->nullable()->change();
-                  
-        });
+        if(Schema::hasTable('user_attribute')){
+            Schema::table('user_attribute', function (Blueprint $table) {
+                //
+                $table->dropForeign(['user_id']);
+            });
+            Schema::table('user_attribute', function (Blueprint $table) {
+               
+                $table->bigInteger('user_id')->unsigned()->nullable()->change();
+                      
+            });
+        }
     }
 
     /**

@@ -38,8 +38,6 @@ class CreateOrderDtsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_dt');
-         
         Schema::table('order_dt', function (Blueprint $table) {
             
             $table->dropForeign(['order_id']);
@@ -48,5 +46,7 @@ class CreateOrderDtsTable extends Migration
             
             $table->dropForeign(['child_id']);
         });
+        
+        Schema::dropIfExists('order_dt');
     }
 }

@@ -35,12 +35,11 @@ class CreateOrderHdsTable extends Migration
      * @return void
      */
     public function down()
-    {
-        Schema::dropIfExists('order_hd');
-         
+    {  
         Schema::table('order_hd', function (Blueprint $table) {
             
             $table->dropForeign(['sponsor_id']);
         });
+        Schema::dropIfExists('order_hd');
     }
 }

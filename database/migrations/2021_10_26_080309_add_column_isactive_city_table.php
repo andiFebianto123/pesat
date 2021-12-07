@@ -35,8 +35,8 @@ class AddColumnIsactiveCityTable extends Migration
     public function down()
     {
         //
-        Schema::table('city', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        // Schema::table('city', function (Blueprint $table) {
+        //     $table->dropColumn('is_active');
+        // });
     }
 }

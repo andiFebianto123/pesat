@@ -31,9 +31,5 @@ class ChangeDataTypeAmountProjectMasterTable extends Migration
     public function down()
     {
         //
-        Schema::table('project_master', function (Blueprint $table) {
-            $table->dropColumn('amount');
-            $table->dropColumn('last_amount');
-        });
     }
 }

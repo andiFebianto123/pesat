@@ -38,12 +38,11 @@ class CreateTableOrderProject extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_project');
-
         Schema::table('order_project', function (Blueprint $table) {
             
             $table->dropForeign(['sponsor_id']);
             $table->dropForeign(['project_id']);
         });
+        Schema::dropIfExists('order_project');
     }
 }

@@ -35,8 +35,8 @@ class AddColumnIsactiveReligionTable extends Migration
     public function down()
     {
         //
-        Schema::table('religion', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        // Schema::table('religion', function (Blueprint $table) {
+        //     $table->dropColumn('is_active');
+        // });
     }
 }

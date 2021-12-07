@@ -34,8 +34,8 @@ class ModifyColumnRegistrationNumberAndAddColumnIsactiveChildMasterTable extends
     public function down()
     {
         //
-        Schema::table('child_master', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        // Schema::table('child_master', function (Blueprint $table) {
+        //     $table->dropColumn('is_active');
+        // });
     }
 }

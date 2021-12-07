@@ -37,8 +37,8 @@ class AddColumnIsactiveProvinceTable extends Migration
     public function down()
     {
         //
-        Schema::table('province', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        // Schema::table('province', function (Blueprint $table) {
+        //     $table->dropColumn('is_active');
+        // });
     }
 }

@@ -32,9 +32,9 @@ class AddColumnChildMasterTable extends Migration
     public function down()
     {
         //
-        Schema::table('child_master', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        // Schema::table('child_master', function (Blueprint $table) {
+        //     $table->dropColumn('status');
+        // });
         Schema::table('child_master', function (Blueprint $table) {
             $table->dropColumn('status_dlp');
         });

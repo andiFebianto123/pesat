@@ -13,11 +13,13 @@ class AddRelationTableUserAttributeToTableUsers extends Migration
      */
     public function up()
     {
-        Schema::table('user_attribute', function (Blueprint $table) {
-            //
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-        });
+        if(Schema::hasTable('user_attribute')){
+            Schema::table('user_attribute', function (Blueprint $table) {
+                //
+    
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
+            });
+        }
     }
 
     /**
@@ -27,9 +29,11 @@ class AddRelationTableUserAttributeToTableUsers extends Migration
      */
     public function down()
     {
-        Schema::table('user_attribute', function (Blueprint $table) {
-            //
-            $table->dropForeign(['user_id']);
-        });
+        if(Schema::hasTable('user_attribute')){
+            Schema::table('user_attribute', function (Blueprint $table) {
+                //
+                $table->dropForeign(['user_id']);
+            });
+        }
     }
 }
