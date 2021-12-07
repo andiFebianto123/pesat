@@ -24,9 +24,10 @@ class DataOrderProjectCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-//    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
+    //use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -49,6 +50,7 @@ class DataOrderProjectCrudController extends CrudController
     protected function setupListOperation()
     {
         $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'Cek_Status', 'last');
+        $this->crud->addButtonFromModelFunction('line', 'cancel', 'cancelOrder', 'last');
         $this->crud->addColumns([
 
             [
@@ -252,4 +254,31 @@ class DataOrderProjectCrudController extends CrudController
         ])->validate();
     }
 }
+
+    public function edit($id)
+    {
+        
+        $getStatus = OrderProject::where('order_project_id', $id)->first();
+        $getStatusPayment = $getStatus->payment_status;
+        if ($getStatusPayment == 2) {
+
+            \Alert::error(trans('Tidak bisa ubah data, karena sudah ada pembayaran'))->flash();
+            return redirect()->back();
+        }
+
+        $this->crud->hasAccessOrFail('update');
+    // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
+    // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->crud->getSaveAction();
+        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit').' '.$this->crud->entity_name;
+
+        $this->data['id'] = $id;
+
+    // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view($this->crud->getEditView(), $this->data);
+    }
 }

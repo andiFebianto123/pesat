@@ -34,6 +34,8 @@ Route::get('/', 'App\Http\Controllers\HomeController@index');
 //Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
 Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
+Route::get('/child-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@index');
+Route::get('/project-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@projectcancelorder');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
 // Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');

@@ -28,9 +28,9 @@ class DataOrderCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+ //   use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     //   use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
+  //  use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
@@ -56,6 +56,7 @@ class DataOrderCrudController extends CrudController
     {
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'sponsoredchild', 'beginning');
         $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'Cek_Status', 'last');
+        $this->crud->addButtonFromModelFunction('line', 'cancel', 'cancelOrder', 'last');
 
         $this->crud->addColumns([
             [
@@ -245,7 +246,7 @@ class DataOrderCrudController extends CrudController
 
     function edit($id)
     {
-        $getStatus = OrderHd::where('order_id', $id)->first();
+        $getStatus = DataOrder::where('order_id', $id)->first();
         $getStatusPayment = $getStatus->payment_status;
         if ($getStatusPayment == 2) {
 
@@ -296,6 +297,10 @@ class DataOrderCrudController extends CrudController
 
         $uniquedata = [];
 
+        if (JSON_ERROR_NONE !== json_last_error() || !is_array($datas) || count($datas) == 0){
+
+            return $this->redirectStoreCrud(['message' => 'Detail order tidak boleh kosong']);            
+        }
         foreach ($datas as $key => $orderDecode) {
 
             $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
@@ -410,21 +415,29 @@ class DataOrderCrudController extends CrudController
             \Alert::error('Data order sudah dibayar')->flash();
             return redirect($this->crud->route);
         
+        }elseif(JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0){
+
+            return $this->redirectUpdateCrud($request->order_id, ['message' => 'Detail order tidak boleh kosong']);            
         }
 
         $childs = [];
         $error = [];
         $index = 1;
+        $intOrderId = (int)$request->order_id;
+      //  dd($intOrderId);
         foreach ($orderDecodes as $key => $orderDecode) {
             $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
+
             if ($child == null) {
                 $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-            }  elseif($child->is_sponsored = 1 && $child->current_order_id != $request->order_id){
+            }  elseif($child->is_sponsored == 1 && $child->current_order_id != $intOrderId){
                 $error[] = 'Detail order ke '.$index.' : Anak sudah disponsori';
 
             }
             else {
+
                 $childs[$child->child_id] = $child;
+
             }
             if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
                 $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';

@@ -67,4 +67,8 @@ class DataOrderProject extends Model
       return '<a class="btn btn-sm btn-link" href="'.url('cek-status/'.$this->order_project_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_project_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
      
     }
+    public function cancelOrder(){
+      return '<a class="btn btn-sm btn-link" href="'.url('project-cancel-order/'.$this->order_project_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_project_id.'" "><i class="fa fa-search"></i> Cancel</a>';
+     
+    }
 }
