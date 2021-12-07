@@ -23,7 +23,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                if($guards=='sponsor'){
+                if($guard == 'sponsor'){
                     return redirect(RouteServiceProvider::HOME);
                 }else{
                     return redirect(backpack_url('dashboard'));
