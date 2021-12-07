@@ -221,6 +221,7 @@ class ProjectMasterCrudController extends CrudController
                 'todayBtn' => 'linked',
                 'format' => 'dd-mm-yyyy',
                 'language' => 'en',
+                'clearBtn'  =>true
             ],
         ];
         $enddate = [ // date_picker
