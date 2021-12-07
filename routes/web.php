@@ -36,7 +36,7 @@ Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index')
 Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
-Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
+// Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
 Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
 Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
 Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');

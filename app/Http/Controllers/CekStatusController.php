@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DataOrder;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
-use App\Models\ProjectMaster;
 use Illuminate\Support\Facades\DB;
 
 class CekStatusController extends Controller
@@ -14,9 +14,10 @@ class CekStatusController extends Controller
     {
 
         $curl = curl_init();
+        $idproyek = $id . "-proyek";
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $id . "/status",
+            CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $idproyek . "/status",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -35,57 +36,158 @@ class CekStatusController extends Controller
         $response = curl_exec($curl);
         $decoderespon = json_decode($response, true);
         curl_close($curl);
-        
-        $getStatus=OrderProject::where('order_project_id',$id)->first();
-        
-        if($getStatus->payment_status==2){
+
+        $transaction = $decoderespon['transaction_status'];
+        $type = $decoderespon['payment_type'];
+        $order_id = $decoderespon['order_id'];
+
+        $idproyek = substr($order_id, 0, -7);
+
+        $getStatus = OrderProject::where('order_project_id', $id)->first();
+
+        if ($getStatus->payment_status == 2) {
             \Alert::add('success', 'Proses pembayaran sudah sukses')->flash();
-            return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
-        }else{
+            return back()->withMessage(['message' => 'Proses pembayaran sudah sukses']);
+        } else {
 
-        if ($decoderespon != null) {
-            if ($decoderespon['transaction_status'] == 'settlement') {
-                OrderProject::where('order_project_id', $id)
-                    ->update(['payment_status' => 2]);
+            if ($transaction == 'capture') {
+                // For credit card transaction, we need to check whether transaction is challenge by FDS or not
+                if ($type == 'credit_card') {
 
-                $getOrder = OrderProject::where('order_project_id',$id)->first();
+                    DB::table('project_history_status_payment')->insert([
+                        'detail_history' => $response,
+                        'status' => 2,
+                        'user_id' => backpack_user()->id,
+                        'status_midtrans' => $transaction,
 
-               // $getProject = ProjectMaster::where('project_id',$getOrder->project_id)->first();
+                    ]);
 
-                    $getTotalAmount = OrderProject::groupBy('project_id')
-                                     ->where('project_id',$getOrder->project_id)
-                                     ->where('payment_status',2)                            
-                                     ->selectRaw('sum(price) as sum_price')
-                                     ->pluck('sum_price')
-                                     ->first();
-                     ProjectMaster::where('project_id', $getOrder->project_id)
-                                     ->update(['last_amount' => $getTotalAmount]);
+                    OrderProject::where('order_project_id', $idproyek)
+                        ->update(['status_midtrans' => $transaction,
+                            'payment_status' => 2,
+                            'payment_type' => $type,
+                        ]);
 
+                 //   echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
+                 \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                 return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
 
+                }
+            } else if ($transaction == 'settlement') {
+                // TODO set payment status in merchant's database to 'Settlement'
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 2,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+
+                ]);
+
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 2,
+                        'payment_type' => $type,
+                    ]);
+
+                //             echo "(settlement)" . $cekType . " Transaction order_id: " . $order_id . " successfully transfered using " . $type;
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'pending') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 1,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+
+                ]);
+
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 1,
+                        'payment_type' => $type,
+                    ]);
+
+                // TODO set payment status in merchant's database to 'Pending'
+                //     echo "(pending) Waiting customer to finish transaction order_id: " . $order_id . " using " . $type;
+                \Alert::add('error', 'Tidak ada status yang diperbarui')->flash();
+                return back()->withMessage(['message' => 'Tidak ada status yang diperbarui']);
+
+            } else if ($transaction == 'deny') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+
+                ]);
+
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+                // TODO set payment status in merchant's database to 'Denied'
+//                echo "(deny) Payment using " . $type . " for transaction order_id: " . $order_id . " is denied.";
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'expire') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+
+                ]);
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+
+                // TODO set payment status in merchant's database to 'expire'
+//                echo "(expire) Payment using " . $type . " for transaction order_id: " . $order_id . " is expired.";
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'cancel') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+
+                ]);
+
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+
+                // TODO set payment status in merchant's database to 'Denied'
+//                echo "(cancel) Payment using " . $type . " for transaction order_id: " . $order_id . " is canceled.";
                     \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
                     return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
 
-                }  
-                else {
-
-                    \Alert::add('error', 'Tidak ada status yang diperbarui')->flash();
-                    return back()->withMessage(['message' => 'Tidak ada status yang diperbarui']);
-
             }
 
-        } else {
-            \Alert::add('error', 'Gagal memuat status, silahkan coba lagi')->flash();
+            return response()->json('');
 
-            return back()->withMessage(['message' => 'Gagal memuat status, silahkan coba lagi']);
         }
-    }
 
     }
     public function childcekstatus($id)
     {
 
         $curl = curl_init();
-        $idanak = $id."-anak";
+        $idanak = $id . "-anak";
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.sandbox.midtrans.com/v2/" . $idanak . "/status",
@@ -104,37 +206,163 @@ class CekStatusController extends Controller
             ),
         ));
 
+
         $response = curl_exec($curl);
         $decoderespon = json_decode($response, true);
         curl_close($curl);
-
         
-    
-    if($decoderespon != null){
-
+        $statuscode = $decoderespon['status_code'];
+        $getStatus = DataOrder::where('order_id', $id)->first();
         
-        DB::table('history_status_payment')->insert([
-            'detail_history' => $response,
-        ]);
-        if ($decoderespon['transaction_status'] == 'settlement') {
-            OrderHd::where('order_id', $id)
-                ->update(['payment_status' => 2]);
+        if($statuscode=='404'){
 
-                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+            \Alert::add('error', 'Data pembayaran tidak ditemukan')->flash();
+            return back()->withMessage(['message' => 'Data pembayaran tidak ditemukan']);
 
-                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
         }else{
-          
-            \Alert::add('error', 'Tidak ada status yang diperbarui')->flash();
 
-            return back()->withMessage(['message' => 'Tidak ada status yang diperbarui']);
+        if ($getStatus->payment_status == 2) {
+
+            \Alert::add('success', 'Proses pembayaran sudah sukses')->flash();
+            return back()->withMessage(['message' => 'Proses pembayaran sudah sukses']);
+
+        } else {
+
+            $transaction = $decoderespon['transaction_status'];
+            $type = $decoderespon['payment_type'];
+            $order_id = $decoderespon['order_id'];
+    
+            $idanak = substr($order_id, 0, -5);
+
+            if ($transaction == 'capture') {
+                // For credit card transaction, we need to check whether transaction is challenge by FDS or not
+                if ($type == 'credit_card') {
+
+                    DB::table('history_status_payment')->insert([
+                        'detail_history' => $response,
+                        'status' => 2,
+                        'status_midtrans' => $transaction,
+                        'user_id' => backpack_user()->id,
+                    ]);
+
+                    OrderHd::where('order_id', $idanak)
+                        ->update([
+                            'status_midtrans' => $transaction,
+                            'payment_status' => 2,
+                            'payment_type' => $type,
+                        ]);
+
+//                    echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
+                        \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                        return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+
+                }
+            } else if ($transaction == 'settlement') {
+                // TODO set payment status in merchant's database to 'Settlement'
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 2,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update([
+                        'status_midtrans' => $transaction,
+                        'payment_status' => 2,
+                        'payment_type' => $type,
+                    ]);
+
+                //             echo "(settlement)" . $cekType . " Transaction order_id: " . $order_id . " successfully transfered using " . $type;
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'pending') {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 1,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 1,
+                        'payment_type' => $type,
+                    ]);
+
+                // TODO set payment status in merchant's database to 'Pending'
+                //     echo "(pending) Waiting customer to finish transaction order_id: " . $order_id . " using " . $type;
+                \Alert::add('error', 'Tidak ada status yang diperbarui')->flash();
+                return back()->withMessage(['message' => 'Tidak ada status yang diperbarui']);
+
+            } else if ($transaction == 'deny') {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+
+                    ]);
+
+                // TODO set payment status in merchant's database to 'Denied'
+//                echo "(deny) Payment using " . $type . " for transaction order_id: " . $order_id . " is denied.";
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'expire') {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+                ]);
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+
+                // TODO set payment status in merchant's database to 'expire'
+            //    echo "(expire) Payment using " . $type . " for transaction order_id: " . $order_id . " is expired.";
+                \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+                return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
+            } else if ($transaction == 'cancel') {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $response,
+                    'status' => 3,
+                    'status_midtrans' => $transaction,
+                    'user_id' => backpack_user()->id,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            }
+            // TODO set payment status in merchant's database to 'Denied'
+        //    echo "(cancel) Payment using " . $type . " for transaction order_id: " . $order_id . " is canceled.";
+            \Alert::add('success', 'Status pembayaran berhasil diperbarui')->flash();
+            return back()->withMessage(['message' => 'Status pembayaran berhasil diperbarui']);
+
         }
 
-    }else{
-
-        \Alert::add('error', 'Gagal memuat status, silahkan coba lagi')->flash();
-
-        return back()->withMessage(['message' => 'Gagal memuat status, silahkan coba lagi']);
+        return response()->json('');
     }
+
     }
 }

@@ -339,7 +339,7 @@ class DataOrderCrudController extends CrudController
                 $orders = new OrderDt();
                 $orders->order_id = $id;
                 $orders->child_id = $data->child_id;
-                $orders->price = $getPrice;
+                $orders->price = $totalPrice;
                 $orders->monthly_subscription = $data->monthly_subscription;
                 $orders->start_order_date = $startOrderdate;
                 $orders->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($data->monthly_subscription);

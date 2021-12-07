@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HistoryStatusPayment;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +11,7 @@ class MidtransController extends Controller
     //
     public function notification()
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');;
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         $notif = new \Midtrans\Notification();
 
@@ -23,33 +22,45 @@ class MidtransController extends Controller
 
         $arraynotif = json_encode($notif->getResponse());
 
-        DB::table('history_status_payment')->insert([
-            'detail_history' => $arraynotif,
-        ]);
+        $cekType = substr($order_id, -6);
+        $idproyek = substr($order_id, 0, -7);
+        $idanak = substr($order_id, 0, -5);
+
         if ($transaction == 'capture') {
             // For credit card transaction, we need to check whether transaction is challenge by FDS or not
             if ($type == 'credit_card') {
 
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
-            if($cekType == 'proyek'){
+                if ($cekType == 'proyek') {
 
-               OrderProject::where('order_project_id', $idproyek)
-                            ->update(['status_midtrans' => $transaction,
-                                      'payment_status'  => 2,
-                                      'payment_type'    => $type
-                                    ]);
-            }else{
+                    DB::table('project_history_status_payment')->insert([
+                        'detail_history' => $arraynotif,
+                        'status'        =>2,
+                        'status_midtrans' => $transaction,
+        
+                    ]);
+    
 
-                OrderHd::where('order_id',$idanak)
+                    OrderProject::where('order_project_id', $idproyek)
+                        ->update(['status_midtrans' => $transaction,
+                            'payment_status' => 2,
+                            'payment_type' => $type,
+                        ]);
+                } else {
+
+                    DB::table('history_status_payment')->insert([
+                        'detail_history' => $arraynotif,
+                        'status'          =>2,
+                        'status_midtrans' => $transaction,
+                    ]);
+
+                    OrderHd::where('order_id', $idanak)
                         ->update([
-                                    'status_midtrans'   => $transaction,
-                                    'payment_status'    => 2,
-                                    'payment_type'    => $type 
-                                ]);
-            }
-            echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
+                            'status_midtrans' => $transaction,
+                            'payment_status' => 2,
+                            'payment_type' => $type,
+                        ]);
+                }
+                echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
 
                 // if ($fraud == 'challenge') {
                 //     // TODO set payment status in merchant's database to 'Challenge by FDS'
@@ -62,118 +73,168 @@ class MidtransController extends Controller
             }
         } else if ($transaction == 'settlement') {
             // TODO set payment status in merchant's database to 'Settlement'
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
-            if($cekType == 'proyek'){
 
-               OrderProject::where('order_project_id', $idproyek)
-                            ->update(['status_midtrans' => $transaction,
-                                      'payment_status'  => 2,
-                                      'payment_type'    => $type
-                                    ]);
-            }else{
+            if ($cekType == 'proyek') {
 
-                OrderHd::where('order_id',$idanak)
-                        ->update([
-                                    'status_midtrans'   => $transaction,
-                                    'payment_status'    => 2,
-                                    'payment_type'      => $type
-                                ]);
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'        =>2,
+                    'status_midtrans' => $transaction,
+    
+                ]);
+
+                OrderProject::where('order_project_id', $idproyek)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 2,
+                        'payment_type' => $type,
+                    ]);
+            } else {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'          =>2,
+                    'status_midtrans' => $transaction,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update([
+                        'status_midtrans' => $transaction,
+                        'payment_status' => 2,
+                        'payment_type' => $type,
+                    ]);
             }
 
-            echo "(settlement)".$cekType." Transaction order_id: " . $order_id . " successfully transfered using " . $type;
+            echo "(settlement)" . $cekType . " Transaction order_id: " . $order_id . " successfully transfered using " . $type;
         } else if ($transaction == 'pending') {
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
 
-            if($cekType == 'proyek'){
+            if ($cekType == 'proyek') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'        =>1,
+                    'status_midtrans' => $transaction,
+    
+                ]);
 
                 OrderProject::where('order_project_id', $idproyek)
-                             ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 1,
-                                       'payment_type'    => $type
-                                     ]);
-             }else{
-                OrderHd::where('order_id',$idanak)
-                        ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 1,
-                                  'payment_type'    => $type
-                                ]);
-             }
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 1,
+                        'payment_type' => $type,
+                    ]);
+            } else {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'          =>1,
+                    'status_midtrans' => $transaction,
+                ]);
+
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 1,
+                        'payment_type' => $type,
+                    ]);
+            }
             // TODO set payment status in merchant's database to 'Pending'
             echo "(pending) Waiting customer to finish transaction order_id: " . $order_id . " using " . $type;
-             
-        } else if ($transaction == 'deny') {
-            
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
 
-            if($cekType == 'proyek'){
+        } else if ($transaction == 'deny') {
+
+
+            if ($cekType == 'proyek') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'        =>3,
+                    'status_midtrans' => $transaction,
+    
+                ]);
 
                 OrderProject::where('order_project_id', $idproyek)
-                             ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3,
-                                       'payment_type'    => $type
-                                     ]);
-             }else{
-                OrderHd::where('order_id',$idanak)
-                        ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3,
-                                  'payment_type'    => $type
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            } else {
 
-                                ]);
-             }
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'          =>3,
+                    'status_midtrans' => $transaction,
+                ]);
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+
+                    ]);
+            }
             // TODO set payment status in merchant's database to 'Denied'
             echo "(deny) Payment using " . $type . " for transaction order_id: " . $order_id . " is denied.";
         } else if ($transaction == 'expire') {
-            
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
 
-            if($cekType == 'proyek'){
 
+            if ($cekType == 'proyek') {
+
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'        =>3,
+                    'status_midtrans' => $transaction,
+    
+                ]);
                 OrderProject::where('order_project_id', $idproyek)
-                             ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3,
-                                       'payment_type'    => $type
-                                     ]);
-             }else{
-                OrderHd::where('order_id',$idanak)
-                        ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3,
-                                  'payment_type'    => $type
-                                ]);
-             }
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            } else {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'          =>3,
+                    'status_midtrans' => $transaction,
+                ]);
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            }
             // TODO set payment status in merchant's database to 'expire'
             echo "(expire) Payment using " . $type . " for transaction order_id: " . $order_id . " is expired.";
         } else if ($transaction == 'cancel') {
 
-            $cekType = substr($order_id,-6);
-            $idproyek      = substr($order_id,0,-7);
-            $idanak        = substr($order_id,0,-5);
+            if ($cekType == 'proyek') {
 
-            if($cekType == 'proyek'){
+                DB::table('project_history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'        =>3,
+                    'status_midtrans' => $transaction,
+    
+                ]);
 
                 OrderProject::where('order_project_id', $idproyek)
-                             ->update(['status_midtrans' => $transaction,
-                                       'payment_status'  => 3,
-                                       'payment_type'    => $type
-                                     ]);
-             }else{
-                OrderHd::where('order_id',$idanak)
-                        ->update(['status_midtrans' => $transaction,
-                                  'payment_status'  => 3,
-                                  'payment_type'    => $type
-                                ]);
-             }
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            } else {
+
+                DB::table('history_status_payment')->insert([
+                    'detail_history' => $arraynotif,
+                    'status'          =>3,
+                    'status_midtrans' => $transaction,
+                ]);
+                
+                OrderHd::where('order_id', $idanak)
+                    ->update(['status_midtrans' => $transaction,
+                        'payment_status' => 3,
+                        'payment_type' => $type,
+                    ]);
+            }
             // TODO set payment status in merchant's database to 'Denied'
             echo "(cancel) Payment using " . $type . " for transaction order_id: " . $order_id . " is canceled.";
         }
-
 
         return response()->json('');
 
