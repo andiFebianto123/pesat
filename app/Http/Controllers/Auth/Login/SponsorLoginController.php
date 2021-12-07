@@ -48,11 +48,7 @@ class SponsorLoginController extends DefaultLoginController
             'email' => $request->email,
             'password' => $request->password,
         ],$remember_me)) {
-            $user = auth()->user();
-
-            $data['session']=session(['key' => $session]);
-
-            return redirect()->intended(url('my-account',$data));
+            return redirect()->intended(url('my-account'));
         } else {
             return redirect()->back()->with(['error' => 'Email atau password yang anda masukan salah.']);
         }
