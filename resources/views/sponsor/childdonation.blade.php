@@ -17,9 +17,9 @@
       <td>{{date('d-m-Y', strtotime($order->created_at))}}</td>
 
       <td>
-        @if($order->payment_status==1)
+        @if($order->payment_status == 1)
         {{"menunggu pembayaran"}}
-        @elseif($order->payment_status=2)
+        @elseif($order->payment_status  == 2)
         {{"suskes"}}
         @else
         {{"Batal"}}
@@ -40,4 +40,7 @@
     @endforeach
   </tbody>
 </table>
+<div class="d-flex justify-content-center">
+            {!! $orders->links() !!}
+    </div>
 @endsection

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Sponsor;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataDetailOrder;
+use App\Models\DataOrder;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
 use App\Models\Sponsor;
@@ -18,7 +20,6 @@ class MyAccountController extends Controller
     public function index()
     {
         $user = auth()->user();
-        //$getemail= $user->email;
         $getUserId = $user->sponsor_id;
         $getuser = Sponsor::where('sponsor_id', $getUserId)->first();
         $data["user"] =  $getuser;
@@ -28,11 +29,10 @@ class MyAccountController extends Controller
     public function childDonation()
     {
         $user = auth()->user();
-        // $getemail= $user->email;
         $getUserId = $user->sponsor_id;
 
         $getOrder = OrderHd::where('sponsor_id', $getUserId)
-            ->get();
+            ->orderBy('order_id','desc')->paginate(5);
         $data['orders'] = $getOrder;
 
         return view('sponsor.childdonation', $data);
@@ -40,7 +40,6 @@ class MyAccountController extends Controller
 
     public function projectDonation()
     {
-//        $getuser    = Sponsor::where('email',$getemail)->first();
         $user = auth()->user();
         $getUserId = $user->sponsor_id;
         $getprojectorder    = OrderProject::where('sponsor_id',$getUserId)
@@ -198,11 +197,10 @@ class MyAccountController extends Controller
                     ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
                     ->select('order_hd.order_id','order_hd.total_price','order_hd.payment_status','order_hd.snap_token','order_hd.status_midtrans','order_hd.created_at','order_hd.payment_type',
                             'odt.order_dt_id','odt.price as price_dt','odt.monthly_subscription','cm.full_name as child_name','cm.price as child_price',
-                            'sm.sponsor_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.no_hp','sm.email'
+                            'sm.sponsor_id','cm.child_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.no_hp','sm.email'
                             )
                     ->get();
         $orderhd = OrderHd::where('order_id',$id)->first();
-       
         $data['orders'] = $orders;
         $data['orderhd']= $orderhd;
 
@@ -219,6 +217,25 @@ class MyAccountController extends Controller
 
         $data['orders'] = $orderproject;
         return view('sponsor.projectdetaildonation',$data); 
+    }
+
+    public function listdlp($id){
+    
+ 
+        $user = auth()->user();
+        $userId = $user->sponsor_id;
+
+        $downloaddlp = DataOrder::where('sponsor_id',$userId)
+                            ->join('order_dt as odt','odt.order_id','=','order_hd.order_id')
+                            ->join('child_master as cm','cm.child_id','=','odt.child_id')
+                            ->join('dlp as dl','dl.child_id','=','cm.child_id')
+                            ->select('cm.child_id','cm.full_name','dl.file_dlp','dl.created_at')
+                            ->where('cm.child_id',$id)
+                            ->orderBy('dl.dlp_id','desc')->paginate(5);
+
+    $data['dlp'] = $downloaddlp;
+
+    return view('sponsor.listdlp',$data);
     }
 
 }

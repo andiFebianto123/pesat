@@ -1,14 +1,20 @@
+
 @extends('sidebar')
 @section('content')
 
 <?php
-if($orderhd->payment_status == 1){
-    $status = 'pending';
-}elseif($orderhd->payment_status ==2){
-    $status = 'success';
-}else{
-    $status = 'cancel';
-}
+    if($orderhd->payment_status == 1){
+    
+      $status = 'pending';
+    
+    }elseif($orderhd->payment_status == 2){
+    
+      $status = 'success';
+    
+    }else{
+
+      $status = 'cancel';
+    }
 ?>
 
 <p>Order {{$orderhd->order_id}} was placed on {{date("Y-m-d", strtotime($orderhd->created_at))}} and is currently {{$status}}</p>
@@ -26,7 +32,11 @@ if($orderhd->payment_status == 1){
     <tr>
       <td>{{$order->child_name."- 1 bulan x ".$order->monthly_subscription}}</td>
       <td>{{$order->price_dt}}</td>
-      <td><button class="btn btn-outline-info" type="submit">Download DLP</button></td>
+      <td>
+      <a href="{{url('list-dlp/'.$order->child_id)}}">
+        <button class="btn btn-outline-info" type="submit">List DLP</button>
+        </a>
+      </td>
     </tr>
 @endforeach
     <tr>
@@ -40,6 +50,8 @@ if($orderhd->payment_status == 1){
   </tbody>
 </table>
 </br>
+
+
 <h5 class="card-title">Billing Address</h5>
 
 <div class="card" style="background:#f8f8f8">

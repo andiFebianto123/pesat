@@ -154,7 +154,6 @@ class OrderController extends Controller
         
         foreach($datas as $key => $data){
             
-            dd($data);
             $orderHd = DataOrder::find($data);
 
             $orderHd->name = 'Paris to London';
