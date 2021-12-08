@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
         Commands\CreateChildOrder::class,
+        Commands\PaymentReminder::class,
     ];
 
     /**
@@ -26,6 +27,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
        $schedule->command('create:childorder')
+                ->daily();
+
+       $schedule->command('create:reminder')
                 ->daily();
               
                 

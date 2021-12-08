@@ -41,86 +41,37 @@ class CreateChildOrder extends Command
      */
     public function handle()
     {
+        $now=Carbon::now();
+        $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
         $orders = DB::table('order_hd')
         ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
         ->where('odt.has_child',0)
+        ->where('odt.end_order_date','<=',$dateafteronemont)
+        ->where('payment_status',2)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
         ->get();
 
+        foreach($orders as $key =>$order){
 
-        foreach($orders as $key => $order){
-
-            if($order->monthly_subscription !=1){
-                
-                $startdate = Carbon::parse($order->start_order_date);
-                $enddate   = Carbon::parse($order->end_order_date);
-                $interval  = $enddate->diffInDays($startdate);
-
-                $intervalneworder = $enddate->addMonthsNoOverflow(-1);
-                $intervalcreateorder = $startdate->diffInDays($intervalneworder);
-                ///////////
-                $now=Carbon::now();
-    
-                $intervalnow=$startdate->diffInDays($now);
-
-                if($intervalnow >=$intervalcreateorder){
-                    $insertorderhd = new OrderHd();
-                    $insertorderhd->parent_order_id = $order->order_id;
-                    $insertorderhd->order_no        = $order->order_no;
-                    $insertorderhd->sponsor_id      = $order->sponsor_id;
-                    $insertorderhd->total_price     = $order->total_price;
-                    $insertorderhd->payment_status  = 1;
-                    $insertorderhd->save();
-        
-        
-                    //update has_child
+                    $lastorderId = DB::table('order_hd')->insertGetId(
+                        [ 'parent_order_id' => $order->order_id,
+                          'order_no'        => $order->order_no,
+                          'sponsor_id'      => $order->sponsor_id,
+                          'total_price'     => $order->total_price,
+                          'payment_status'  => 1
+                        ]
+                    );    
+//                    update has_child
                     OrderDt::where('order_id', $order->order_id)
                             ->where('child_id', $order->child_id)
                             ->update(['has_child' => 1]);
         
                     $newstartdate=Carbon::parse($order->end_order_date);
                     $insertorderdt = new OrderDt();
+                    $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
                     $insertorderdt->child_id             = $order->child_id;
-                    $insertorderdt->order_id             = $order->order_id;
-                    $insertorderdt->price                = $order->price;
-                    $insertorderdt->monthly_subscription = $order->monthly_subscription;
-                    $insertorderdt->start_order_date     = $newstartdate;
-                    $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
-                    
-                    $insertorderdt->save();
-                }
-    
-                
-
-
-
-            }else{
-                $startdate = Carbon::parse($order->start_order_date);
-                $enddate   = Carbon::parse($order->end_order_date);
-                $interval  = $enddate->diffInDays($startdate);
-
-                $intervalcreateorder = $interval-7;
-                $now=Carbon::now();
-                $intervalnow=$startdate->diffInDays($now);
-                
-                if($intervalnow >= $intervalcreateorder){
-                    $insertorderhd = new OrderHd();
-                    $insertorderhd->parent_order_id = $order->order_id;
-                    $insertorderhd->order_no        = $order->order_no;
-                    $insertorderhd->sponsor_id      = $order->sponsor_id;
-                    $insertorderhd->total_price     = $order->total_price;
-                    $insertorderhd->payment_status  = 1;
-                    $insertorderhd->save();
-        
-        
-                    //update has_child
-                    OrderDt::where('order_id', $order->order_id)
-                            ->where('child_id', $order->child_id)
-                            ->update(['has_child' => 1]);
-        
-                    $newstartdate=Carbon::parse($order->end_order_date);
-                    $insertorderdt = new OrderDt();
-                    $insertorderdt->child_id             = $order->child_id;
-                    $insertorderdt->order_id             = $order->order_id;
+                    $insertorderdt->order_id             = $lastorderId;
                     $insertorderdt->price                = $order->price;
                     $insertorderdt->monthly_subscription = $order->monthly_subscription;
                     $insertorderdt->start_order_date     = $newstartdate;
@@ -128,18 +79,49 @@ class CreateChildOrder extends Command
                     
                     $insertorderdt->save();
 
-                }
-
-
-                
-
-
-
-            }
-           
         }
 
 
-    }
+        $now=Carbon::now();
+        $dateafteronemont= $now->copy()->addDay(7);
+        $orders1month = DB::table('order_hd')
+        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+        ->where('odt.has_child',0)
+        ->where('odt.end_order_date','<=',$dateafteronemont)
+        ->where('payment_status',2)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
+        ->get();
+        foreach($orders1month as $key =>$order){
+
+            $lastorderId = DB::table('order_hd')->insertGetId(
+                [ 'parent_order_id' => $order->order_id,
+                  'order_no'        => $order->order_no,
+                  'sponsor_id'      => $order->sponsor_id,
+                  'total_price'     => $order->total_price,
+                  'payment_status'  => 1
+                ]
+            );    
+            //update has_child
+             OrderDt::where('order_id', $order->order_id)
+                     ->where('child_id', $order->child_id)
+                     ->update(['has_child' => 1]);
+
+            $newstartdate=Carbon::parse($order->end_order_date);
+            $insertorderdt = new OrderDt();
+            $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
+            $insertorderdt->child_id             = $order->child_id;
+            $insertorderdt->order_id             = $lastorderId;
+            $insertorderdt->price                = $order->price;
+            $insertorderdt->monthly_subscription = $order->monthly_subscription;
+            $insertorderdt->start_order_date     = $newstartdate;
+            $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
+            
+            $insertorderdt->save();
+
+}
+
+
+     }
 
 }

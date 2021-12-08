@@ -149,24 +149,43 @@ public function reminderinvoice(){
             $enddate   = Carbon::parse($order->end_order_date);
             $interval  = $enddate->diffInDays($startdate);
             ///////////
-            $intervalneworder = $enddate->addMonthsNoOverflow(-1);
-          //  $intervalcreateorder = $startdate->diffInDays($intervalneworder);
-            ///////////
             $now=Carbon::now();
+            $oneweekaftermont = $now->copy()->addDay(7);
+            dd($oneweekaftermont);
+            $dateafteronemont= $now->copy()->addMonthsNoOverflow();
+           
+            $intervalneworder = $now->addMonthsNoOverflow(3);
+//            dd($intervalneworder);
+            //$inetervalremind=
+           
+            $intervalcreateorder = $startdate->diffInDays($intervalneworder);
+            ///////////
+            $intervalereminder = $intervalcreateorder + 14;
+  //          $now=Carbon::now();
 
             $intervalnow=$startdate->diffInDays($now);
+    //        dd($intervalereminder);
             
             $intervalcreateorder = $interval-7;
-            dd($interval,$intervalcreateorder);
+     //       dd($interval,$intervalcreateorder);
 
-            $insertorderhd = new OrderHd();
-            $insertorderhd->parent_order_id = $order->order_id;
-            $insertorderhd->order_no        = $order->order_no;
-            $insertorderhd->sponsor_id      = $order->sponsor_id;
-            $insertorderhd->total_price     = $order->total_price;
-            $insertorderhd->payment_status  = 1;
-            $insertorderhd->save();
+            // $insertorderhd = new OrderHd();
+            // $insertorderhd->parent_order_id = $order->order_id;
+            // $insertorderhd->order_no        = $order->order_no;
+            // $insertorderhd->sponsor_id      = $order->sponsor_id;
+            // $insertorderhd->total_price     = $order->total_price;
+            // $insertorderhd->payment_status  = 1;
+            // $insertorderhd->save();
 
+            $lastorderId = DB::table('order_hd')->insertGetId(
+                [ 'parent_order_id' => $order->order_id,
+                  'order_no'        => $order->order_no,
+                  'sponsor_id'      => $order->sponsor_id,
+                  'total_price'     => $order->total_price,
+                  'payment_status'  => 1
+                ]
+            );   
+//dd($lastorderId);
 
             //update has_child
             OrderDt::where('order_id', $order->order_id)
@@ -176,7 +195,7 @@ public function reminderinvoice(){
             $newstartdate=Carbon::parse($order->end_order_date);
             $insertorderdt = new OrderDt();
             $insertorderdt->child_id             = $order->child_id;
-            $insertorderdt->order_id             = $order->order_id;
+            $insertorderdt->order_id             = $order->$lastorderId;
             $insertorderdt->price                = $order->price;
             $insertorderdt->monthly_subscription = $order->monthly_subscription;
             $insertorderdt->start_order_date     = $newstartdate;
