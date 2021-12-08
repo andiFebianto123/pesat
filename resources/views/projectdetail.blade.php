@@ -63,7 +63,12 @@
                         <tr>
                             <td>Rp. {{number_format($projects->amount, 2, ',', '.')}}</td>
                             <td>Rp. {{number_format($projects->last_amount, 2, ',', '.')}}</td>
+                            @if($projects->end_date == null)
+                            <td>&#8734;</td>
+                            @else
                             <td>{{$interval}}</td>
+                            @endif
+
                         </tr>
                 </tbody>
             </table>

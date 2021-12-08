@@ -94,6 +94,6 @@ class Sponsor extends Model
     }
     public function EditSponsor($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/sponsor/'.$this->sponsor_id.'/edit').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-edit"></i>Edit</a>';
+        return '<a class="btn btn-sm btn-link" href="'.url('admin/sponsor/'.$this->sponsor_id.'/edit').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-edit"></i>Edit2</a>';
     }
 }

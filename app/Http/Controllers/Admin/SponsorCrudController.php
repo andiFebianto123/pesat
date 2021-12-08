@@ -47,8 +47,6 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
-        $this->crud->removeButton('update');
-        $this->crud->addButtonFromModelFunction('line', 'edit', 'EditSponsor', 'middle');
 
         $this->crud->addColumns([
             [

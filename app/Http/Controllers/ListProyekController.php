@@ -42,11 +42,11 @@ class ListProyekController extends Controller
         $imgDetail = ProjectMasterDetail::where('project_id',$id)->get();
 
         $now = Carbon::now();
+    
+
         $enddate   = Carbon::parse($project->end_date);
         $interval  = $enddate->diffInDays($now);
-
-
-
+    
         $data['imgDetails'] = $imgDetail;
         $data['projects']   = $project;
         $data['interval']   = $interval;

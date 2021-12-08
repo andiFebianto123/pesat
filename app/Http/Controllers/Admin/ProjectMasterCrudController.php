@@ -276,7 +276,7 @@ class ProjectMasterCrudController extends CrudController
         $request = $this->crud->validateRequest();
 
         // insert item in the db
-        //$startdate = $request->start_date;
+
         $enddate   = $request->end_date;
         $now = Carbon::now();
         $lastamount = $request->last_amount;
@@ -362,6 +362,22 @@ class ProjectMasterCrudController extends CrudController
                 'type' => 'text',
                 'escaped' => false,
 
+            ],
+            [
+                'name' => 'start_date',
+                'label' => 'Tanggal Mulai',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'end_date',
+                'label' => 'Tanggal Selesai',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'amount',
+                'label' => 'Nominal yang dibutuhkan',
+                'type' => 'text',
+                'prefix'=> 'Rp. '
             ],
             [
                 'name'     => 'featured_image',
