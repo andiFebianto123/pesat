@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\DataOrder;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
@@ -37,18 +38,28 @@ class CekStatusController extends Controller
         $decoderespon = json_decode($response, true);
         curl_close($curl);
 
-        $transaction = $decoderespon['transaction_status'];
-        $type = $decoderespon['payment_type'];
-        $order_id = $decoderespon['order_id'];
-
-        $idproyek = substr($order_id, 0, -7);
-
+        $statuscode = $decoderespon['status_code'];
         $getStatus = OrderProject::where('order_project_id', $id)->first();
+        
+        if($statuscode=='404'){
+
+            \Alert::add('error', 'Data pembayaran tidak ditemukan')->flash();
+            return back()->withMessage(['message' => 'Data pembayaran tidak ditemukan']);
+
+        }else{
 
         if ($getStatus->payment_status == 2) {
+         
             \Alert::add('success', 'Proses pembayaran sudah sukses')->flash();
             return back()->withMessage(['message' => 'Proses pembayaran sudah sukses']);
+        
         } else {
+
+
+            $transaction = $decoderespon['transaction_status'];
+            $type = $decoderespon['payment_type'];
+            $order_id = $decoderespon['order_id'];
+            $idproyek = substr($order_id, 0, -7);    
 
             if ($transaction == 'capture') {
                 // For credit card transaction, we need to check whether transaction is challenge by FDS or not
@@ -181,6 +192,7 @@ class CekStatusController extends Controller
             return response()->json('');
 
         }
+    }
 
     }
     public function childcekstatus($id)

@@ -110,12 +110,12 @@ class DataOrder extends Model
     }
 
     public function Cek_Status(){
-        return '<a class="btn btn-sm btn-link" href="'.url('child-cek-status/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
+        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cek-status/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
        
       }
 
       public function cancelOrder(){
-        return '<a class="btn btn-sm btn-link" href="'.url('child-cancel-order/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cancel</a>';
+        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cancel-order/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cancel</a>';
        
       }
     

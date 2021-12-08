@@ -6,6 +6,8 @@
 // This route file is loaded automatically by Backpack\Base.
 // Routes you generate using Backpack\Generators will be placed here.
 
+use App\Http\Controllers\Admin\CancelOrderController;
+use App\Http\Controllers\Admin\CekStatusController;
 use App\Http\Controllers\Admin\DlpCrudController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProvinceCustomController;
@@ -26,6 +28,12 @@ Route::group([
     Route::get('report', [ReportController::class,'index']);
     Route::post('filter-report', [ReportController::class,'filterreport']);
     Route::get('/send-mail/{dlp_id}', [SendDlp::class,'sendEmail']);
+
+    Route::get('/cek-status/{id}', [CekStatusController::class, 'index']);
+    Route::get('/child-cek-status/{id}', [CekStatusController::class, 'childcekstatus']);
+    Route::get('/child-cancel-order/{id}', [CancelOrderController::class,'index']);
+    Route::get('/project-cancel-order/{id}', [CancelOrderController::class,'projectcancelorder']);
+
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');

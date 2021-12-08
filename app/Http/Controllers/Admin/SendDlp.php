@@ -20,20 +20,20 @@ class SendDlp extends Controller
 
         $getchild = Dlp::where('dlp_id',$id)
                     ->join('child_master as cm','cm.child_id','=','dlp.child_id')
-                    ->first();
+                     ->first();
+
+if($getchild !== null){
+
     if($getchild->is_sponsored == 1){
 
-       $getEmail= DB::table('order_hd')
-            ->Join('order_dt as odt','order_hd.order_id','=','odt.order_id')
-            ->Join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
-            ->Join('child_master as cm','cm.child_id','=','odt.child_id')
-            ->Join('dlp as dl','dl.child_id','=','cm.child_id')
-            ->where('order_hd.deleted_at',null)
-            ->where('dl.dlp_id',$id)
-            ->select('order_hd.*', 'odt.*','dl.*','cm.full_name as child_name','sm.full_name as sponsor_name','sm.email')
-            ->orderBy('order_hd.order_id','desc')
-            ->first();
-      //  dd($getEmail);
+
+        $getEmail = DB::table('child_master')
+                        ->join('order_hd as ohd','ohd.order_id','=','child_master.current_order_id')
+                        ->join('sponsor_master as sm','sm.sponsor_id','=','ohd.sponsor_id')
+                        ->join('dlp as dl','dl.child_id','=','child_master.child_id')
+                        ->where('dl.dlp_id',$id)
+                        ->select('ohd.*', 'dl.*','child_master.full_name as child_name','sm.full_name as sponsor_name','sm.email')
+                        ->first();
 
         $cekfile = Dlp::where('dlp_id', $id)->first();
         $file= $cekfile->file_dlp;
@@ -79,5 +79,10 @@ class SendDlp extends Controller
         return back()->withMessage(['message' => 'The child dont have a sponsor']);
 
     }
-    }
+    }else{
+        \Alert::add('error', 'Data tidak ditemukan')->flash();
+
+        return back()->withMessage(['message' => 'Data tidak ditemukan']);       
+    }   
+}
 }

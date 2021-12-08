@@ -31,22 +31,28 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::get('/project-order/{snap_token}/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
 	
 });
+
+	Route::group(['middleware'=>['isloggedin']],function(){
+
+	// Bila user sudah login maka ketika akses halaman ini diredirect ke Halaman Akun Saya
+	Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
+	Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
+	Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');
+	Route::post('/create-account','App\Http\Controllers\Sponsor\MyAccountController@createaccount');
+
+});
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 //Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 // DIPINDAH KE route backpack/custom.php
-Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
-Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
-Route::get('/child-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@index');
-Route::get('/project-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@projectcancelorder');
+// Route::get('/cek-status/{id}', 'App\Http\Controllers\CekStatusController@index');
+// Route::get('/child-cek-status/{id}', 'App\Http\Controllers\CekStatusController@childcekstatus');
+// Route::get('/child-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@index');
+// Route::get('/project-cancel-order/{id}', 'App\Http\Controllers\CancelOrderController@projectcancelorder');
+
+
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
 // Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
-
-// Bila user sudah login maka ketika akses halaman ini diredirect ke Halaman Akun Saya
-Route::get('/forgot-password','App\Http\Controllers\Sponsor\MyAccountController@forgotpassword');
-Route::post('/reset-password','App\Http\Controllers\Sponsor\MyAccountController@resetpassword');
-Route::get('/register','App\Http\Controllers\Sponsor\MyAccountController@register');
-Route::post('/create-account','App\Http\Controllers\Sponsor\MyAccountController@createaccount');
 
 Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childdetail');
 Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
