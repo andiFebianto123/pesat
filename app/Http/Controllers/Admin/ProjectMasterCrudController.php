@@ -283,14 +283,20 @@ class ProjectMasterCrudController extends CrudController
         $amount     = $request->amount;
         
      
-        if($enddate==null){
-                $this->crud->getRequest()->request->set('is_closed', 1);
+        if($enddate == null){
+            
+                $this->crud->getRequest()->request->set('is_closed', 0);
+        
         }else{
             
             if($now >= $enddate || $lastamount >= $amount){
+        
                 $this->crud->getRequest()->request->set('is_closed', 1);                
+        
             }else{
+        
                 $this->crud->getRequest()->request->set('is_closed', 0);
+        
             }
         }
 
@@ -322,14 +328,20 @@ class ProjectMasterCrudController extends CrudController
         $amount     = $request->amount;
         $lastAmount = $getProject->last_amount;
 
-        if($enddate==null){
-            $this->crud->getRequest()->request->set('is_closed', 1);
+        if($enddate == null){
+
+            $this->crud->getRequest()->request->set('is_closed', 0);
+        
         }else{
         
         if($now >= $enddate || $lastAmount >= $amount){
+        
             $this->crud->getRequest()->request->set('is_closed', 1);                
+        
         }else{
+        
             $this->crud->getRequest()->request->set('is_closed', 0);
+        
         }
     }
         // update the row in the db

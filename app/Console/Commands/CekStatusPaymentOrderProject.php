@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\OrderProject;
 use App\Models\ProjectMaster;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,7 @@ class CekStatusPaymentOrderProject extends Command
         $orders = DB::table('order_project')
 		            ->get();
 
+
         foreach($orders as $key => $order){
             $getTotalAmount = OrderProject::groupBy('project_id')
                                     ->where('project_id',$order->project_id)
@@ -55,12 +57,16 @@ class CekStatusPaymentOrderProject extends Command
 
             $getProjectMaster = ProjectMaster::where('project_id', $order->project_id)->first();
 
-            if($getProjectMaster->amount <= $getProjectMaster->last_amount){
+            $enddate   = $getProjectMaster->end_date;    
+            $now = Carbon::now();
+            if($enddate !== null){
+                if($getProjectMaster->amount <= $getProjectMaster->last_amount || $now >= $enddate){
 
-            ProjectMaster::where('project_id', $order->project_id)
-                            ->update(['is_closed' =>1]);
+                    ProjectMaster::where('project_id', $order->project_id)
+                                ->update(['is_closed' =>1]);
 
             }
+        }
         }
  
     }

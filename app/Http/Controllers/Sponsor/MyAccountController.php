@@ -160,7 +160,7 @@ class MyAccountController extends Controller
             'hometown'      => 'required|max:255',
             'dateofbirth' => 'required|date|date_format:Y-m-d',
             'address'       => 'required|max:255',
-            'email'         => 'required|email|max:255',
+            'email'         => 'unique:sponsor_master|required|email|max:255',
             'password'      => 'required|confirmed|min:6',
             'nohp'         => 'required|max:255',
             'memberofchurch' => 'max:255'
@@ -169,10 +169,6 @@ class MyAccountController extends Controller
 
         $cekEmail = Sponsor::where('email',$request->email)->first();
 
-       
-        if($cekEmail){
-        return   redirect()->back()->with(['error' => 'Email sudah terdaftar , silahkan gunakan email lain !!']);       
-        }else{
         $insertsponsor = new Sponsor();
         $insertsponsor->name             = $request->name;
         $insertsponsor->full_name        = $request->fullname;
@@ -186,7 +182,7 @@ class MyAccountController extends Controller
         $insertsponsor->save();
 
         return   redirect()->back()->with(['success' => 'Akun berhasil dibuat , silahkan login !!']);       
-        }
+    
     }
 
     public function childdetaildonation($id){
