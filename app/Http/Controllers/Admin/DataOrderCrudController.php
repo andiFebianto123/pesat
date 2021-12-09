@@ -331,7 +331,7 @@ class DataOrderCrudController extends CrudController
                 $this->crud->getRequest()->request->set('total_price', $totalPrice);
 
                 $startOrderdate = Carbon::now();
-                $orders = new OrderDt();
+                $orders = new DataDetailOrder();
                 $orders->order_id = $id;
                 $orders->child_id = $data->child_id;
                 $orders->price = $totalPrice;
@@ -493,7 +493,7 @@ class DataOrderCrudController extends CrudController
                 ->pluck('sum_price')
                 ->first();
 
-            $orderHd = OrderHd::where('order_id', $request->order_id)->first();
+            $orderHd = DataOrder::where('order_id', $request->order_id)->first();
             $orderHd->sponsor_id = $request->sponsor_id;
            // $orderHd->payment_status = $request->payment_status;
             $orderHd->total_price = $getTotalPrice;
@@ -504,6 +504,33 @@ class DataOrderCrudController extends CrudController
             \Alert::success(trans('backpack::crud.update_success'))->flash();
 
             // save the redirect choice for next time
+
+            $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $request->order_id)
+            ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->select(
+                'order_hd.*',
+                'odt.*',
+                'cm.full_name',
+                'sm.full_name as sponsor_name',
+                'sm.email',
+                'sm.no_hp'
+            )
+            ->get();
+
+            $getTotalPrice = DataDetailOrder::groupBy('order_id')
+            ->where('order_id', $request->order_id)
+            ->selectRaw('sum(price) as sum_price')
+            ->pluck('sum_price')
+            ->first();
+            $order = DataOrder::where('order_id', $request->order_id)->first();
+            $midtrans = new CreateSnapTokenService($Snaptokenorder, $request->order_id);
+            $snapToken = $midtrans->getSnapToken();
+            $order->snap_token = $snapToken;
+            $order->total_price = $getTotalPrice;
+            $order->save();
+
             $this->crud->setSaveAction();
 
             return $this->crud->performSaveAction($orderHd->getKey());

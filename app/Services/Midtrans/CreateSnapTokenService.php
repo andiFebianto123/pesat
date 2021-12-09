@@ -27,29 +27,24 @@ class CreateSnapTokenService extends Midtrans
                 'order_id' => $this->code."-anak",
                 'gross_amount' => $this->order[0]->total_price,
             ],
-            'item_details' => [
-                [
-                    'id' => $this->order[0]->child_id,
-                    'price' => $this->order[0]->price,
-                    'quantity' => 1,
-                    'name' => $this->order[0]->full_name,
-                ],
-                // [
-                //     'id' => 2,
-                //     'price' => '60001',
-                //     'quantity' => 1,
-                //     'name' => 'Memory Card VGEN 5GB',
-                // ],
+            'item_details' => [],
 
-                //$this->order
-            ],
-            'customer_details' => [
+                'customer_details' => [
                 'first_name' => $this->order[0]->sponsor_name,
                 'email' => $this->order[0]->email,
                 'phone' => $this->order[0]->no_hp,
             ]
         ];
- 
+
+        foreach ($this->order as $key => $detail) {
+            $params['item_details'][] = array (  
+                    'id' => $this->order[$key]->child_id,
+                    'price' => $this->order[$key]->price,
+                    'quantity' => 1,
+                    'name' => $this->order[$key]->full_name,
+            );
+        }
+
         $snapToken = Snap::getSnapToken($params);
  
         return $snapToken;
