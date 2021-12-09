@@ -26,7 +26,7 @@ class DataOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'sponsor_id'      =>  'required|regex:/^[0-9]+$/',
         ];
     }
 

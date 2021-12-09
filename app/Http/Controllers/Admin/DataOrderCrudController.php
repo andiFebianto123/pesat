@@ -183,16 +183,6 @@ class DataOrderCrudController extends CrudController
     function setupUpdateOperation()
     {
 
-        $status = [
-            'name' => 'payment_status',
-            'label' => "Status Pembayaran",
-            'type' => 'select_from_array',
-            'options' => [1 => 'Menunggu Pembayaran', 2 => 'Sudah Dibayar', 3 => 'Kadaluarsa'],
-            'allows_null' => false,
-            'allows_multiple' => false,
-
-        ];
-
         $sponsor = [
             'name' => 'sponsor_id',
             'type' => 'select',
@@ -240,7 +230,7 @@ class DataOrderCrudController extends CrudController
         ];
 
         $this->crud->addFields([
-            $sponsor, $status, $dataorder,
+            $sponsor, $dataorder,
         ]);
     }
 
@@ -364,18 +354,18 @@ class DataOrderCrudController extends CrudController
                     )
                     ->get();
 
-                ChildMaster::where('child_id', $data->child_id)
-                    ->update(['is_sponsored' => 1,
-                              'current_order_id' =>$id,         
-                            ]);
+                 
+                $child->is_sponsored = 1;
+                $child->current_order_id = $id;    
+                $child->save();
 
             }
-            $getTotalPrice = OrderDt::groupBy('order_id')
+            $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $id)
                 ->selectRaw('sum(price) as sum_price')
                 ->pluck('sum_price')
                 ->first();
-            $order = OrderHd::where('order_id', $id)->first();
+            $order = DataOrder::where('order_id', $id)->first();
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $id);
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
@@ -424,7 +414,7 @@ class DataOrderCrudController extends CrudController
         $error = [];
         $index = 1;
         $intOrderId = (int)$request->order_id;
-      //  dd($intOrderId);
+      
         foreach ($orderDecodes as $key => $orderDecode) {
             $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
 
@@ -443,6 +433,7 @@ class DataOrderCrudController extends CrudController
                 $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
 
             }
+        $index++;
         }
         if (count($error) != 0) {
 
@@ -504,7 +495,7 @@ class DataOrderCrudController extends CrudController
 
             $orderHd = OrderHd::where('order_id', $request->order_id)->first();
             $orderHd->sponsor_id = $request->sponsor_id;
-            $orderHd->payment_status = $request->payment_status;
+           // $orderHd->payment_status = $request->payment_status;
             $orderHd->total_price = $getTotalPrice;
             $orderHd->save();
             DB::commit();

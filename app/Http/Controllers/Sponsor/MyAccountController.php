@@ -31,7 +31,7 @@ class MyAccountController extends Controller
         $user = auth()->user();
         $getUserId = $user->sponsor_id;
 
-        $getOrder = OrderHd::where('sponsor_id', $getUserId)
+        $getOrder = DataOrder::where('sponsor_id', $getUserId)
             ->orderBy('order_id','desc')->paginate(5);
         $data['orders'] = $getOrder;
 
@@ -43,7 +43,7 @@ class MyAccountController extends Controller
         $user = auth()->user();
         $getUserId = $user->sponsor_id;
         $getprojectorder    = OrderProject::where('sponsor_id',$getUserId)
-                                ->get();
+                                ->orderBy('order_project_id','desc')->paginate(5);
         $data['projectorders']   = $getprojectorder;
         return view('sponsor.projectdonation',$data);
     }
