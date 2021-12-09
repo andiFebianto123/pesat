@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CancelOrderController;
 use App\Http\Controllers\Admin\CekStatusController;
 use App\Http\Controllers\Admin\DlpCrudController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ImportChildController;
 use App\Http\Controllers\Admin\ProvinceCustomController;
 use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
 use App\Http\Controllers\Admin\ReportController;
@@ -33,6 +34,9 @@ Route::group([
     Route::get('/child-cek-status/{id}', [CekStatusController::class, 'childcekstatus']);
     Route::get('/child-cancel-order/{id}', [CancelOrderController::class,'index']);
     Route::get('/project-cancel-order/{id}', [CancelOrderController::class,'projectcancelorder']);
+
+    Route::get('/import-anak', [ImportChildController::class, 'index']);
+    Route::post('import', [ImportChildController::class, 'import']);//->name('import');
 
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');

@@ -15,8 +15,9 @@
         "laravel/framework": "^8.54",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "venturecraft/revisionable" : "1.*" ,
-        "midtrans/midtrans-php": "^2.5"
+        "maatwebsite/excel": "^3.1",
+        "midtrans/midtrans-php": "^2.5",
+        "venturecraft/revisionable": "1.*"
     },
     "require-dev": {
         "backpack/generators": "^3.1",
