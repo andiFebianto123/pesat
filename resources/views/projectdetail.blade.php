@@ -73,6 +73,7 @@
                 </tbody>
             </table>
             </br>
+            @if($projects->is_closed == false)
             <div class="row">
                 <div class='col-8'>
                     <input type="number" name="total" class="form-control" required>
@@ -81,6 +82,7 @@
                 <button type="submit" class="btn btn-primary" style="margin-left:80px">Donation</button>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

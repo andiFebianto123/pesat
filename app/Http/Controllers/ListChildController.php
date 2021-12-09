@@ -18,7 +18,8 @@ class ListChildController extends Controller
         $provinceid = $request->input('provinceid');
         $class = $request->input('class');
         $gender = $request->input('gender');
-        $childsdatas = ChildMaster::where('deleted_at',null);
+        $childsdatas = ChildMaster::where('deleted_at',null)
+                                    ->where('is_sponsored',0);
       
         if($provinceid==null && $class==null &&  $gender == null ){
 

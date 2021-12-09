@@ -48,10 +48,8 @@
                 <option value="12">12 Bulan</option>
         </select>
     </br>
-    @if($childs->is_sponsored== true)
-        <button id="bt-isSponsored" type="submit" class="btn btn-success" disabled='true'>Sudah Tersponsori</button>
-    @else
-        <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
+    @if($childs->is_sponsored == false)
+    <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
     @endif
     </br>
     </br>

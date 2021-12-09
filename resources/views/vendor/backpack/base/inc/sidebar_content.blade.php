@@ -16,6 +16,8 @@
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('religion') }}'><i class='nav-icon la la-venus-double'></i> Agama</a></li>
         <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor-type') }}'><i class='nav-icon la la-diamond'></i> Type Sponsor</a></li> -->
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-role') }}'><i class='nav-icon la la-gears'></i> User Role</a></li>
+        <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('import-anak') }}'><i class='nav-icon la la-male'></i> Import Data Anak</a></li>
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-role') }}'><i class='la la-street-view'></i> Import Data Sponsor</a></li> -->
     </ul>
 </li>
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('project-master-detail') }}'><i class='nav-icon la la-question'></i> Project master details</a></li> -->
