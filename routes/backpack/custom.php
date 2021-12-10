@@ -36,7 +36,7 @@ Route::group([
     Route::get('/project-cancel-order/{id}', [CancelOrderController::class,'projectcancelorder']);
 
     Route::get('/import-anak', [ImportChildController::class, 'index']);
-    Route::post('import', [ImportChildController::class, 'import']);//->name('import');
+    Route::post('import', [ImportChildController::class, 'import'])->name('import');
 
     Route::crud('province', 'ProvinceCrudController');
     Route::crud('city', 'CityCrudController');
