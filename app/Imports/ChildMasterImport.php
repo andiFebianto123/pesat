@@ -61,11 +61,8 @@ class ChildMasterImport implements ToModel, WithHeadingRow, WithValidation,Skips
     public function rules(): array
     {
         return [
-            // 'registration_number' => [
-            //     'required',
-            //   //  'unique',
-            // ],
-            '*.registration_number' => 'unique:child_master',// => 'unique:child_master,registration_number',
+
+            '*.registration_number' => 'unique:child_master',
         ];
     }
 }

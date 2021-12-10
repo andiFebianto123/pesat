@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CekStatusController;
 use App\Http\Controllers\Admin\DlpCrudController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ImportChildController;
+use App\Http\Controllers\Admin\ImportSponsorController;
 use App\Http\Controllers\Admin\ProvinceCustomController;
 use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
 use App\Http\Controllers\Admin\ReportController;
@@ -38,7 +39,10 @@ Route::group([
     Route::get('/import-anak', [ImportChildController::class, 'index']);
     Route::post('import', [ImportChildController::class, 'import'])->name('import');
 
-    Route::crud('province', 'ProvinceCrudController');
+    Route::get('/import-sponsor', [ImportSponsorController::class, 'index']);
+    Route::post('importsponsor', [ImportSponsorController::class, 'importsponsor']);
+
+    Route::crud('province', 'ProvinceCrudController');  
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');
     Route::crud('sponsor-type', 'SponsorTypeCrudController');
