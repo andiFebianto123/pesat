@@ -40,58 +40,52 @@ class PaymentReminder extends Command
      */
     public function handle()
     {
+
+        $now=Carbon::now();
+        $dateafter2weeks= $now->copy()->addDay(14);
         $orders = DB::table('order_hd')
+            ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+            ->where('odt.has_child',0)
+            ->where('odt.start_order_date','<=',$dateafter2weeks)
+            ->where('odt.has_remind',0)
+            ->where('payment_status',1)
+            ->where('order_hd.deleted_at',null)
+            ->where('odt.deleted_at',null)
+            ->get();
+
+            foreach($orders as $key =>$order){
+
+
+//                    update has_child
+                OrderDt::where('order_id', $order->order_id)
+                        ->where('child_id', $order->child_id)
+                        ->update(['has_remind' => 1]);
+    
+
+    }  
+
+        $now=Carbon::now();
+        $dateafter3days= $now->copy()->addDay(4);
+        $orders1month = DB::table('order_hd')
         ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
         ->where('odt.has_child',0)
-        ->where('payment_status',1)
+        ->where('odt.start_order_date','<=',$dateafter3days)
         ->where('odt.has_remind',0)
+        ->where('payment_status',1)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
         ->get();
 
-        foreach($orders as $key => $order){
-            if($order->monthly_subscription !=1){
-                $startdate = Carbon::parse($order->start_order_date);
-                $enddate   = Carbon::parse($order->end_order_date);
-                $interval  = $enddate->diffInDays($startdate);
-
-                $intervalneworder = $enddate->addMonthsNoOverflow(-1);
-                $intervalcreateorder = $startdate->diffInDays($intervalneworder);
-                $intervalremind=$intervalcreateorder + 14;
-                ///////////
-                $now=Carbon::now();
-    
-                $intervalnow=$startdate->diffInDays($now);
-
-                if($intervalnow >= $intervalremind){
-                    OrderDt::where('order_dt_id',$order->order_dt_id)
-                            ->where('order_id', $order->order_id)
-                            ->where('child_id', $order->child_id)
-                            ->where('has_child',0)
-                            ->update(['has_remind' => 1]);
-  
-                }
+    foreach($orders1month as $key =>$order){
 
 
-            }else{
-                $startdate = Carbon::parse($order->start_order_date);
-                $enddate   = Carbon::parse($order->end_order_date);
-                $interval  = $enddate->diffInDays($startdate);
+        //                    update has_child
+                        OrderDt::where('order_id', $order->order_id)
+                                ->where('child_id', $order->child_id)
+                                ->update(['has_remind' => 1]);
+            
+        
+            }  
 
-                $intervalcreateorder = $interval-7;
-                $intervalremind=$intervalcreateorder + 3;
-                $now=Carbon::now();
-                $intervalnow=$startdate->diffInDays($now);
-
-                if($intervalnow >= $intervalremind ){
-                    OrderDt::where('order_dt_id', $order->order_dt_id)
-                            ->where('child_id', $order->child_id)
-                            
-                            ->update(['has_remind' => 1]);
-                }
-
-            }
-
-        }
-
-       // return Command::SUCCESS;
     }
 }

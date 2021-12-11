@@ -140,6 +140,18 @@ public function reminderinvoice(){
             ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
             ->get();      
     
+    $now=Carbon::now();
+    $dateafter2weeks= $now->copy()->addDay(-4);
+    dd($dateafter2weeks);
+    $orders = DB::table('order_hd')
+        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+        ->where('odt.has_child',0)
+        ->where('odt.start_order_date','<=',$dateafter2weeks)
+        ->where('odt.has_reminder',0)
+        ->where('payment_status',1)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
+        ->get();
 
       foreach ($orders as $key => $order) {
 
@@ -151,7 +163,7 @@ public function reminderinvoice(){
             ///////////
             $now=Carbon::now();
             $oneweekaftermont = $now->copy()->addDay(7);
-            dd($oneweekaftermont);
+      //      dd($oneweekaftermont);
             $dateafteronemont= $now->copy()->addMonthsNoOverflow();
            
             $intervalneworder = $now->addMonthsNoOverflow(3);
