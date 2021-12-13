@@ -240,9 +240,12 @@ class CekStatusController extends Controller
 
         try {
 
-            $decoderespon = \Midtrans\Transaction::status($id . '-anak');
-            $response = json_encode($decoderespon);
             $getStatus = DataOrder::where('order_id', $id)->first();
+            $getOrderIdMidtrans = $getStatus->order_id_midtrans;
+
+            $decoderespon = \Midtrans\Transaction::status($getOrderIdMidtrans);
+
+            $response = json_encode($decoderespon);
             $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get('child_id');
 
             if ($getStatus->payment_status == 2) {
@@ -257,8 +260,6 @@ class CekStatusController extends Controller
                 $transaction = $decoderespon->transaction_status;
                 $type = $decoderespon->payment_type;
                 $order_id = $decoderespon->order_id;
-
-               // $idanak = substr($order_id, 0, -5);
                
                 if ($transaction == 'capture') {
                     // For credit card transaction, we need to check whether transaction is challenge by FDS or not
@@ -360,13 +361,13 @@ class CekStatusController extends Controller
 
                     DB::table('history_status_payment')->insert([
                         'detail_history' => $response,
-                        'status' => 3,
+                        //'status' => 3,
                         'status_midtrans' => $transaction,
                         'user_id' => backpack_user()->id,
                     ]);
                     DataOrder::where('order_id', $id)
                         ->update(['status_midtrans' => $transaction,
-                            'payment_status' => 3,
+                          //  'payment_status' => 3,
                             'payment_type' => $type,
                         ]);
 

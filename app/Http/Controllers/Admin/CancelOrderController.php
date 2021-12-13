@@ -22,6 +22,9 @@ class CancelOrderController extends Controller
         \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
 
         $cekDatas = DataOrder::where('order_id', $id)->first();
+        
+        $getOrderIdMidtrans = $cekDatas->order_id_midtrans;
+        
 
         $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get('child_id');
         DB::beginTransaction();
@@ -38,8 +41,8 @@ class CancelOrderController extends Controller
 
                 try {
 
-                    $orderId = $id . "-anak";
-                    \Midtrans\Transaction::cancel($orderId);
+                    //$orderId = $id . "-anak";
+                    \Midtrans\Transaction::cancel($getOrderIdMidtrans);
 
                     $orderHd = DataOrder::find($id);
                     $orderHd->payment_status = 3;

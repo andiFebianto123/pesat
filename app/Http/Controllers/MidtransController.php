@@ -34,13 +34,18 @@ class MidtransController extends Controller
 
         $arraynotif = json_encode($notif->getResponse());
 
-        $cekType = substr($order_id, -6);
-        $orderIdproyek = substr($order_id, 0, -7);
-        $orderIdanak = substr($order_id, 0, -5);
+        $explodeId = explode('-',$order_id);//substr($order_id, -6);
+        
+        $cekType = $explodeId[0];
+        
+      //  dd($cekType);
+        $orderId = $explodeId[1];//substr($order_id, 0, -7);
 
-        $getProjectId = OrderProject::where('order_project_id',$orderIdproyek)->first();
+        //$orderIdanak = substr($order_id, 0, -5);
+       // dd($order_id,$orderIdanak);
+        $getProjectId = OrderProject::where('order_project_id',$orderId)->first();
        
-        $cekDetailOrder = DataDetailOrder::where('order_id', $orderIdanak)->get();   
+        $cekDetailOrder = DataDetailOrder::where('order_id', $orderId)->get();   
     
         if ($transaction == 'capture') {
             // For credit card transaction, we need to check whether transaction is challenge by FDS or not
@@ -58,7 +63,7 @@ class MidtransController extends Controller
                     ]);
     
 
-                    OrderProject::where('order_project_id', $orderIdproyek)
+                    OrderProject::where('order_project_id', $orderId)
                         ->update(['status_midtrans' => $transaction,
                             'payment_status' => 2,
                             'payment_type' => $type,
@@ -91,7 +96,7 @@ class MidtransController extends Controller
                         'status_midtrans' => $transaction,
                     ]);
 
-                    DataOrder::where('order_id', $orderIdanak)
+                    DataOrder::where('order_id', $orderId)
                         ->update([
                             'status_midtrans' => $transaction,
                             'payment_status' => 2,
@@ -116,7 +121,7 @@ class MidtransController extends Controller
     
                 ]);
 
-                OrderProject::where('order_project_id', $orderIdproyek)
+                OrderProject::where('order_project_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 2,
                         'payment_type' => $type,
@@ -148,7 +153,7 @@ class MidtransController extends Controller
                     'status_midtrans' => $transaction,
                 ]);
 
-                OrderHd::where('order_id', $orderIdanak)
+                OrderHd::where('order_id', $orderId)
                     ->update([
                         'status_midtrans' => $transaction,
                         'payment_status' => 2,
@@ -173,7 +178,7 @@ class MidtransController extends Controller
     
                 ]);
 
-                OrderProject::where('order_project_id', $orderIdproyek)
+                OrderProject::where('order_project_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 1,
                         'payment_type' => $type,
@@ -205,7 +210,7 @@ class MidtransController extends Controller
                     'status_midtrans' => $transaction,
                 ]);
 
-                DataOrder::where('order_id', $orderIdanak)
+                DataOrder::where('order_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 1,
                         'payment_type' => $type,
@@ -229,7 +234,7 @@ class MidtransController extends Controller
     
                 ]);
 
-                OrderProject::where('order_project_id', $orderIdproyek)
+                OrderProject::where('order_project_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 3,
                         'payment_type' => $type,
@@ -260,7 +265,7 @@ class MidtransController extends Controller
                     'status'          =>3,
                     'status_midtrans' => $transaction,
                 ]);
-                DataOrder::where('order_id', $orderIdanak)
+                DataOrder::where('order_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 3,
                         'payment_type' => $type,
@@ -293,7 +298,7 @@ class MidtransController extends Controller
                     'status_midtrans' => $transaction,
     
                 ]);
-                OrderProject::where('order_project_id', $orderIdproyek)
+                OrderProject::where('order_project_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 3,
                         'payment_type' => $type,
@@ -321,12 +326,10 @@ class MidtransController extends Controller
 
                 DB::table('history_status_payment')->insert([
                     'detail_history' => $arraynotif,
-                    'status'          =>3,
                     'status_midtrans' => $transaction,
                 ]);
-                DataOrder::where('order_id', $orderIdanak)
+                DataOrder::where('order_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
                         'payment_type' => $type,
                     ]);
                 
@@ -356,7 +359,7 @@ class MidtransController extends Controller
     
                 ]);
 
-                OrderProject::where('order_project_id', $orderIdproyek)
+                OrderProject::where('order_project_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 3,
                         'payment_type' => $type,
@@ -388,7 +391,7 @@ class MidtransController extends Controller
                     'status_midtrans'=> $transaction,
                 ]);
                 
-                DataOrder::where('order_id', $orderIdanak)
+                DataOrder::where('order_id', $orderId)
                     ->update(['status_midtrans' => $transaction,
                         'payment_status' => 3,
                         'payment_type' => $type,

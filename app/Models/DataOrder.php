@@ -75,15 +75,7 @@ class DataOrder extends Model
 
     public function test()
 	{
-//        return $this->belongsTo(ChildMaster::class, 'child_id','child_id')->where('is_sponsored',false);
         return $this->orders()->where('is_sponsored',false);
-        // return $this->
-        // dd($users);
-      // return $x->where('is_sponsored',0)->get();
-		// parent::boot();
-		// static::addGlobalScope('is_sponsored', function (Builder $builder) {
-		// 	$builder->where('is_sponsored', 0);
-		// });
 	}
 
    
