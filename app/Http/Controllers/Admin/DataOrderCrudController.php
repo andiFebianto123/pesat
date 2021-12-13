@@ -14,6 +14,7 @@ use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
+use DateTime;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -365,10 +366,12 @@ class DataOrderCrudController extends CrudController
                 ->selectRaw('sum(price) as sum_price')
                 ->pluck('sum_price')
                 ->first();
+
             $order = DataOrder::where('order_id', $id)->first();
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $id);
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
+            $order->order_id_midtrans = 'anak-'.$id;
             $order->total_price = $getTotalPrice;
             $order->save();
             DB::commit();
@@ -524,6 +527,7 @@ class DataOrderCrudController extends CrudController
             ->selectRaw('sum(price) as sum_price')
             ->pluck('sum_price')
             ->first();
+
             $order = DataOrder::where('order_id', $request->order_id)->first();
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $request->order_id);
             $snapToken = $midtrans->getSnapToken();

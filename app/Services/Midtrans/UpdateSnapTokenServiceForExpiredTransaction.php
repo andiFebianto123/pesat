@@ -1,10 +1,11 @@
 <?php
  
 namespace App\Services\Midtrans;
- 
+
+use DateTime;
 use Midtrans\Snap;
  
-class CreateSnapTokenService extends Midtrans
+class UpdateSnapTokenServiceForExpiredTransaction extends Midtrans
 {
     protected $order;
     protected $code;
@@ -21,10 +22,12 @@ class CreateSnapTokenService extends Midtrans
  
     public function getSnapToken()
     {
+        $dates = new DateTime();
+        $timestamp = $dates->getTimestamp();
 
         $params = [
             'transaction_details' => [
-                'order_id' => "anak-".$this->code,
+                'order_id' => "anak-".$this->code."-".$timestamp,
                 'gross_amount' => $this->order[0]->total_price,
             ],
             'item_details' => [],
@@ -46,6 +49,7 @@ class CreateSnapTokenService extends Midtrans
         }
 
         $snapToken = Snap::getSnapToken($params);
+ 
         return $snapToken;
     }
 }

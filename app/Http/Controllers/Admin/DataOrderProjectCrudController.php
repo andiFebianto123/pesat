@@ -106,11 +106,6 @@ class DataOrderProjectCrudController extends CrudController
 
 
         $this->crud->addFields([
-            [   // repeatable
-                'name'  => 'dataorder',
-                'label' => 'List Order',
-                'type'  => 'repeatable',
-                'fields' => [
                     [
                             'name' => 'sponsor_id',
                             'label' => "Nama Sponsor",
@@ -130,8 +125,6 @@ class DataOrderProjectCrudController extends CrudController
                             'name'  => 'price',
                             'label' => 'Total Donasi'
                     ],
-                ]
-            ]
     ]);
  
 
@@ -182,24 +175,12 @@ class DataOrderProjectCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-
-        $products = json_decode($this->crud->getRequest()->input('dataorder'));
-
-        $this->validateRepeatableFields($products);
-
-
         $request = $this->crud->validateRequest();
 
-        $getDatas = $request->dataorder;
-        $datas    = json_decode($getDatas);
-        
-        // insert item in the db
-        foreach($datas as $key => $data){
-
         $id = DB::table('order_project')->insertGetId([
-            'sponsor_id' => $data->sponsor_id,
-            'project_id' => $data->project_id,
-            'price'   => $data->price,
+            'sponsor_id' => $request->sponsor_id,
+            'project_id' => $request->project_id,
+            'price'   => $request->price,
             'payment_status' => 1,
             'created_at'    => Carbon::now(),
 
@@ -227,7 +208,7 @@ class DataOrderProjectCrudController extends CrudController
 
         // save the redirect choice for next time
         $this->crud->setSaveAction();
-        }
+
         //return $this->crud->performSaveAction($item->getKey());
         return redirect()->back();
     }

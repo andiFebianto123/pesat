@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ChildMaster;
 use App\Models\DataDetailOrder;
 use App\Models\DataOrder;
-use App\Models\OrderDt;
-use App\Models\OrderHd;
 use App\Models\OrderProject;
 use App\Models\ProjectMaster;
 use App\Services\Midtrans\CreateSnapTokenService;
+use App\Services\Midtrans\UpdateSnapTokenServiceForExpiredTransaction;
 use Carbon\Carbon;
+use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 class OrderController extends Controller
 {
     //
+   
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -46,7 +48,7 @@ class OrderController extends Controller
                 );
                 // save table order_dt
                 $startOrderdate = Carbon::now();
-                $orders = new OrderDt();
+                $orders = new DataDetailOrder();
                 $orders->order_id = $OrderId;
                 $orders->child_id = $request->childid;
                 $orders->price = $totalprice;
@@ -69,10 +71,12 @@ class OrderController extends Controller
                     )
                     ->get();
 
-                $order = OrderHd::where('order_id', $OrderId)->first();
+
+                $order = DataOrder::where('order_id', $OrderId)->first();
                 $midtrans = new CreateSnapTokenService($Snaptokenorder, $OrderId);
                 $snapToken = $midtrans->getSnapToken();
                 $order->snap_token = $snapToken;
+                $order->order_id_midtrans = 'anak-'.$OrderId;
                 $order->save();
 
                 //update is_sponsored
@@ -91,7 +95,46 @@ class OrderController extends Controller
     }
     public function orderdonation($snapToken, $code)
     {
-        $data['order'] = OrderHd::where('order_id', $code)->first();
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+            \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+
+            try{
+
+            $decoderespon = \Midtrans\Transaction::status('anak-'.$code);
+
+            if($decoderespon->transaction_status == 'expire'){
+
+                $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $code)
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+                ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+                ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+                ->select(
+                    'order_hd.*',
+                    'odt.*',
+                    'cm.full_name',
+                    'sm.full_name as sponsor_name',
+                    'sm.email',
+                    'sm.no_hp'
+                )
+                ->get();
+                
+                $dates = new DateTime();
+                $timestamp = $dates->getTimestamp();
+                
+                $order = DataOrder::where('order_id', $code)->first();
+                $midtrans = new UpdateSnapTokenServiceForExpiredTransaction($Snaptokenorder, $code);
+                $snapToken = $midtrans->getSnapToken();
+                $order->snap_token = $snapToken;
+                $order->order_id_midtrans = 'anak-'.$code.'-'.$timestamp;
+                $order->save();
+            }                   
+        }catch(Exception $e){
+ 
+        } 
+        $data['order'] = DataOrder::where('order_id', $code)->first();
         $data['snapToken'] = $snapToken;
 
         return view('showpayment', $data);
@@ -101,7 +144,7 @@ class OrderController extends Controller
     public function cekstatus()
     {
 
-        $datas = OrderHd::where('payment_status', 1)->get();
+        $datas = DataOrder::where('payment_status', 1)->get();
 
         foreach ($datas as $data) {
             $orderno = $data->order_no;
@@ -130,11 +173,11 @@ class OrderController extends Controller
             curl_close($curl);
 
             if ($decoderespon['status_code'] == '200' && $decoderespon['transaction_status'] == 'settlement') {
-                OrderHd::where('order_no', $orderno)
+                DataOrder::where('order_no', $orderno)
                     ->update(['payment_status' => 2]);
             }
             if ($decoderespon['status_code'] == '407') {
-                OrderHd::where('order_no', $orderno)
+                DataOrder::where('order_no', $orderno)
                     ->update(['payment_status' => 3]);
             }
 
