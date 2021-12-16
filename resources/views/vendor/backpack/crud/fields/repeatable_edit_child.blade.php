@@ -27,7 +27,6 @@
   @endif
 
 
-
 <div class="container-repeatable-elements">
     <div
         data-repeatable-holder="{{ $field['name'] }}"
@@ -64,13 +63,8 @@
 
   </div>
 
-
-  <button type="button" class="btn btn-outline-primary btn-sm ml-1 add-repeatable-element-button">+ {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button>
-
   <!-- <button type="button" class="btn btn-outline-primary btn-sm ml-1" data-toggle="modal" data-target="#exampleModal">+ {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button> -->
-
-  <form id="form-add-data" action="{{url('add-child-donation')}}" method="post">
-  {{ csrf_field() }}
+  <button type="button" class="btn btn-outline-primary btn-sm ml-1 add-repeatable-element-button">+ {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button>
 
 <div class="modal fade" id="exampleModal"  role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">  
   <div class="modal-dialog" role="document">
@@ -95,15 +89,6 @@
                 @endforeach    
                 </select>
           </div>
-          <div class="form-group">
-            <label for="message-text" class="col-form-label">Durasi Subscribe:</label>
-            <select class="form-control" id = "subscribe" name = "subs">
-                    <option value="1">1 Bulan</option>
-                    <option value="3">3 Bulan</option>
-                    <option value="6">6 Bulan</option>
-                    <option value="12">12 Bulan</option>
-                </select>
-          </div>
 
         </div>
     </div>
@@ -116,7 +101,6 @@
     </div>
   </div>
 </div>
-</form>
 
 @include('crud::fields.inc.wrapper_end')
 
@@ -175,6 +159,8 @@
                     })
           var allChilds = @json($childs);
           var filteredChilds = allChilds;
+
+          var childForDeleted = @json($childs);
         /**
          * Takes all inputs and makes them an object.
          */
@@ -248,15 +234,11 @@
 
             if (element.val()) {
                 var repeatable_fields_values = JSON.parse(element.val());
-             //   console.log(repeatable_fields_values);
 
                 for (var i = 0; i < repeatable_fields_values.length; ++i) {
-                    
-             //       console.log(repeatable_fields_values[i])
-                    
+                                        
                     var repeat_value = repeatable_fields_values[i];
 
-               //     console.log(repeat_value);
                     if(repeat_value.child_id != null){
                         delete filteredChilds[repeat_value.child_id];
                     }
@@ -300,16 +282,10 @@
 
             // this is the container that holds the group of fields inside the main form.
             var container_holder = $('[data-repeatable-holder='+field_name+']');
-           
-            // var selectedChild =  new_field_group.find('select[name="child_id"]').val();
-
-            // console.log(selectedChild);
-            //     if(allChilds[selectedChild] != null){
-            //         filteredChilds[selectedChild] = allChilds[selectedChild]
-                    
-            //     }
+                     
            
             new_field_group.find('.delete-element').click(function(){
+
                 new_field_group.find('input, select, textarea').each(function(i, el) {
                     // we trigger this event so fields can intercept when they are beeing deleted from the page
                     // implemented because of ckeditor instances that stayed around when deleted from page
@@ -317,12 +293,26 @@
                     $(el).trigger('backpack_field.deleted');
                 });
                     
-                var deletedChild =  new_field_group.find('select[name="child_id"]').val();
-                if(allChilds[deletedChild] != null){
-                    filteredChilds[deletedChild] = allChilds[deletedChild]
+              //  var deletedChild =  new_field_group.find('select[name="child_id"]').val();
+
+              var deletedChild = new_field_group.find('select[data-repeatable-input-name="child_id"]').val();
+                var childAfterDeleted = { [deletedChild] : childForDeleted[deletedChild]};
+
+                var childToArray        = Object.entries(filteredChilds);
+                var deletedChildToArray = Object.entries(childAfterDeleted);
+                var arrayPush = childToArray.concat(deletedChildToArray);
+                const childObj = Object.fromEntries(arrayPush.map(item => [item[0], item[1]]));
+                filteredChilds = childObj;
+
+                // if(allChilds[deletedChild] != null){
+                //     filteredChilds[deletedChild] = allChilds[deletedChild]
                     
+                // }
+                
+                $('#child').empty();
+                for(key in filteredChilds){
+                    $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);
                 }
-               // console.log(allChilds[deletedChild]);
                 // decrement the container current number of rows by -1
                 updateRepeatableRowCount(container_holder, -1);
 
@@ -418,7 +408,7 @@
 
         // this function is responsible for managing rows numbers upon creation/deletion of elements
         function setupElementRowsNumbers(container) {
-         //   console.log(container);
+         
             container.children().each(function(i, el) {
                 var rowNumber = i+1;
                 $(el).attr('data-row-number', rowNumber);
@@ -479,8 +469,7 @@
             var subs = $('#subscribe').val();
 
             delete filteredChilds[childid];
-             console.log (filteredChilds);
-
+          
               $('#child').empty();
                 for(key in filteredChilds){
                     $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);

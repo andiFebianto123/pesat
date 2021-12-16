@@ -32,6 +32,7 @@ class DataOrderCrudController extends CrudController
  //   use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     //   use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
   //  use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
+  use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {create as traitcreate;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
@@ -116,7 +117,7 @@ class DataOrderCrudController extends CrudController
             [ // repeatable
                 'name' => 'testimonials',
                 'label' => 'List Order',
-                'type' => 'repeatable',
+                'type' => 'repeatable_create_child',
                 'fields' => [
                     [
                         'name' => 'order_no',
@@ -163,7 +164,7 @@ class DataOrderCrudController extends CrudController
                 // optional
                 'new_item_label' => 'Add Data', // customize the text of the button
                 // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
-                'min_rows' => 1, // minimum rows allowed, when reached the "delete" buttons will be hidden
+                'min_rows' => 0, // minimum rows allowed, when reached the "delete" buttons will be hidden
                 //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
 
             ],
@@ -195,7 +196,7 @@ class DataOrderCrudController extends CrudController
         $dataorder = [ // repeatable
             'name' => 'dataorder',
             'label' => 'Testimonials',
-            'type' => 'repeatablechild',
+            'type' => 'repeatable_edit_child',
             'fields' => [
 
                 [
@@ -298,12 +299,31 @@ class DataOrderCrudController extends CrudController
         $this->data['id'] = $id;
 
         $this->data['childs'] = $childs;
-      //  dd($this->data['childs']);
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
 
 
 }
+
+    function create()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        $getChild = ChildMaster::where('is_sponsored', 0)
+        ->get();
+
+        $child = $getChild->pluck('full_name','child_id');
+
+        // prepare the fields you need to show
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->crud->getSaveAction();
+        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.add').' '.$this->crud->entity_name;
+        $this->data['childs'] = $child;
+        
+    // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view($this->crud->getCreateView(), $this->data);
+    }
+
 
     function store()
     {
