@@ -16,13 +16,11 @@ class ListProyekController extends Controller
 
         if($text == null){
 
-            $project = ProjectMaster::where('is_closed',0)
-                                    ->paginate(9);
+            $project = ProjectMaster::paginate(9);
             
     
         }else{
             $project= ProjectMaster::where('title','like','%'.$text.'%')
-                                    ->where('is_closed',0)
                                     ->paginate(9);
         }
         $data['projects'] = $project;
