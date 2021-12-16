@@ -130,6 +130,9 @@ class DataOrderCrudController extends CrudController
                         'type' => 'select2_from_array',
                         'allows_null' => false,
                         'options' => $this->child(null),
+                        'attributes'=>[
+                            'disabled'=>true
+                          ]
                     ],
                     [
                         'name' => 'monthly_subscription',
