@@ -195,7 +195,7 @@ class DataOrderCrudController extends CrudController
         $dataorder = [ // repeatable
             'name' => 'dataorder',
             'label' => 'Testimonials',
-            'type' => 'repeatable',
+            'type' => 'repeatablechild',
             'fields' => [
 
                 [
@@ -206,17 +206,20 @@ class DataOrderCrudController extends CrudController
                 [
                     'name' => 'child_id',
                     'label' => "Nama Anak",
-                    'type' => 'select2_from_array',
+                    'type' => 'select_from_array',
                     'attribute' => 'full_name',
                     'options' => [],
                     'allows_null' => false,
+                    'attributes'=>[
+                        'disabled'=>true
+                      ]
 
                 ],
 
                 [
                     'name' => 'monthly_subscription',
                     'label' => 'Durasi Subscribe',
-                    'type' => 'select_from_array',
+                    'type' => 'select2_from_array',
                     'options' => [1 => '1 Bulan', 3 => '3 Bulan', 6 => '6 Bulan', 12 => '12 Bulan'],
                     'allows_null' => false,
                     'allows_multiple' => false,
@@ -242,20 +245,24 @@ class DataOrderCrudController extends CrudController
         \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
         \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
 
-
         $getStatus = DataOrder::where('order_id', $id)->first();
         $getStatusPayment = $getStatus->payment_status;
 
         $getStatusMidtrans = $getStatus->order_id_midtrans;
 
-        $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+        try{
 
+
+        $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
         if($decoderespon->transaction_status){
 
             \Alert::error(trans('Tidak bisa ubah data, no order sudah terdaftar di payment gateway'))->flash();
             return redirect()->back();
 
         }
+    }catch(Exception $e){
+
+    }
 
         if ($getStatusPayment == 2) {
 
@@ -269,24 +276,34 @@ class DataOrderCrudController extends CrudController
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
             ->get();
+        
         $orderDt = json_encode($getOrderDt);
+       
         $child = $getOrderDt->pluck('child_id');
 
         $fields = $this->crud->getUpdateFields();
 
+
+        $childs = $this->child($child);
+
         $fields['dataorder']['value'] = $orderDt;
-        $fields['dataorder']['fields'][1]['options'] = $this->child($child);
+        $fields['dataorder']['fields'][1]['options'] = $childs;
         $this->crud->setOperationSetting('fields', $fields);
+
         $this->data['entry'] = $this->crud->getEntry($id);
         $this->data['crud'] = $this->crud;
         $this->data['saveAction'] = $this->crud->getSaveAction();
         $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
-
+    
         $this->data['id'] = $id;
 
+        $this->data['childs'] = $childs;
+      //  dd($this->data['childs']);
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
-    }
+
+
+}
 
     function store()
     {
@@ -588,7 +605,7 @@ class DataOrderCrudController extends CrudController
                 $query->orWhereIn('child_id', $child);
             })
             ->get();
-
+            
         return $getchild->pluck('full_name', 'child_id');
     }
 
