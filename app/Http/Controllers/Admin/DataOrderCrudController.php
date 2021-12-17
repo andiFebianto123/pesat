@@ -129,18 +129,36 @@ class DataOrderCrudController extends CrudController
                         'label' => "Nama Anak",
                         'type' => 'select2_from_array',
                         'allows_null' => false,
-                        'options' => $this->child(null),
+                        'options' => [],
                         'attributes'=>[
                             'disabled'=>true
-                          ]
+                        ],
+                        'wrapperAttributes' => [
+                            'class' => 'form-group col-md-6',
+                        ],
+                    ],
+                    [
+                        'name' => 'price',
+                        'label'=> 'Biaya',
+                        'type' => 'text',
+                        'prefix'=> 'Rp. ',
+                        'attributes'=>[
+                            'disabled'=>true
+                        ],
+                        'wrapperAttributes' => [
+                            'class' => 'form-group col-md-6',
+                        ],
                     ],
                     [
                         'name' => 'monthly_subscription',
                         'label' => "Durasi Subscribe",
-                        'type' => 'select_from_array',
+                        'type' => 'select2_from_array',
                         'options' => [1 => '1 Bulan', 3 => '3 Bulan', 6 => '6 Bulan', 12 => '12 Bulan'],
                         'allows_null' => false,
                         'allows_multiple' => false,
+                        // 'attributes'=>[
+                        //     'id' => 'subs'
+                        //   ]
 
                     ],
                     [
@@ -171,6 +189,33 @@ class DataOrderCrudController extends CrudController
                 //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
 
             ],
+            [
+                'name' => 'empty',
+                'type' => 'hidden',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6',
+                ],
+
+
+            ],
+
+            [
+                'name' => 'totalprice',
+                'label' => "Total Price",
+                'type' => 'text_for_order',
+                'prefix'=> 'Rp.',
+                'default'=> 0,
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attributes'=>[
+                    'disabled'=>true,
+                    'id' => 'totalprice'
+                  ]
+
+
+            ],
+
         ]);
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -312,16 +357,30 @@ class DataOrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        $getChild = ChildMaster::where('is_sponsored', 0)
-        ->get();
+        // $getChild = ChildMaster::where('is_sponsored', 0)
+        // ->get();
 
-        $child = $getChild->pluck('full_name','child_id');
+       // $child = $getChild->pluck('full_name','child_id');
+
+        $fields = $this->crud->getCreateFields();
+
+        $childs = $this->child(null);
+
+        $optionChilds= $childs->pluck('full_name','child_id');
+
+        $priceChilds = $childs->pluck('price','child_id');
+
+
+        $fields['testimonials']['fields'][1]['options'] = $optionChilds;
+        $this->crud->setOperationSetting('fields', $fields);
 
         // prepare the fields you need to show
         $this->data['crud'] = $this->crud;
         $this->data['saveAction'] = $this->crud->getSaveAction();
         $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.add').' '.$this->crud->entity_name;
-        $this->data['childs'] = $child;
+        $this->data['childs'] = $optionChilds;
+        $this->data['childForPrice']  = $priceChilds;
+        
         
     // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getCreateView(), $this->data);
@@ -628,10 +687,11 @@ class DataOrderCrudController extends CrudController
                 $query->orWhereIn('child_id', $child);
             })
             ->get();
-            
-        return $getchild->pluck('full_name', 'child_id');
-    }
 
+ 
+        return $getchild;//->pluck('full_name', 'child_id');
+    }
+    
     function sponsor()
     {
 

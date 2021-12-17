@@ -66,7 +66,9 @@
   <!-- <button type="button" class="btn btn-outline-primary btn-sm ml-1" data-toggle="modal" data-target="#exampleModal">+ {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button> -->
   <button type="button" class="btn btn-outline-primary btn-sm ml-1 add-repeatable-element-button">+ {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button>
 
-<div class="modal fade" id="exampleModal"  role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">  
+  <!-- <input type="text" id="totalprice" value="0"/> -->
+
+  <div class="modal fade" id="exampleModal"  role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">  
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -158,9 +160,12 @@
                         theme: "bootstrap",
                     })
           var allChilds = @json($childs);
-          var filteredChilds = allChilds;
+          var filteredChilds = $.extend({}, allChilds);
 
           var childForDeleted = @json($childs);
+
+          var childForPrice = @json($childForPrice);
+         
         /**
          * Takes all inputs and makes them an object.
          */
@@ -225,6 +230,7 @@
             // this way we have a clean element we can clone when the user
             // wants to add a new group of inputs
             var field_group_clone = container.clone();
+
             container.remove();
 
            element.parent().find('.add-repeatable-element-button').click(function(){
@@ -280,10 +286,11 @@
             var field_name = container.data('repeatable-identifier');
             var new_field_group = field_group.clone();
 
+
+            
             // this is the container that holds the group of fields inside the main form.
             var container_holder = $('[data-repeatable-holder='+field_name+']');
-                     
-           
+                          
             new_field_group.find('.delete-element').click(function(){
 
                 new_field_group.find('input, select, textarea').each(function(i, el) {
@@ -293,26 +300,43 @@
                     $(el).trigger('backpack_field.deleted');
                 });
                     
-
+              
               var deletedChild = new_field_group.find('select[data-repeatable-input-name="child_id"]').val();
-                var childAfterDeleted = { [deletedChild] : childForDeleted[deletedChild]};
-
-                var childToArray = Object.entries(filteredChilds);       
-                var childDeletedToArray = Object.entries(childAfterDeleted);
-
-                var arrayPush = childToArray.concat(childDeletedToArray);
-                const childObj = Object.fromEntries(arrayPush.map(item => [item[0], item[1]]));
-                filteredChilds = childObj;
-
-                // if(allChilds[deletedChild] != null){
-                //     filteredChilds[deletedChild] = allChilds[deletedChild]
+                if(allChilds[deletedChild] != null){
+                    filteredChilds[deletedChild] = allChilds[deletedChild]
                     
-                // }
-                
+                }
+   
                 $('#child').empty();
                 for(key in filteredChilds){
                     $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);
+
                 }
+
+            var subscription = new_field_group.find('select[data-repeatable-input-name="monthly_subscription"]');
+
+            var price = childForPrice[values.child_id];
+            var subs = values.monthly_subscription;
+                subscription.data('prev', subscription.val());
+          //      subscription.change(function(){
+                var totalPrice = 0
+                    if(childForPrice[values.child_id] !== null ){
+                        alert('test');
+                        console.log('tesst');
+                        totalPrice = childForPrice[values.child_id];
+                    }
+
+                var prev = subscription.data('prev');
+                console.log(subscription.val());
+               // var newTotalPrice = parseInt(totalPrice) * $(this).val() - parseInt(totalPrice) * (prev || 0)
+               var deletePrice = price * subscription.val();
+             
+
+                $("#totalprice").val(parseInt($("#totalprice").val()) - deletePrice);
+                    subscription.data('prev', subscription.val());
+                //    });
+
+
                 // decrement the container current number of rows by -1
                 updateRepeatableRowCount(container_holder, -1);
 
@@ -404,6 +428,25 @@
                     $(el).trigger('change');
                 });
             }
+
+            var subscription = new_field_group.find('select[data-repeatable-input-name="monthly_subscription"]');
+            subscription.data('prev', subscription.val());
+            subscription.change(function(){
+
+                var totalPrice = 0
+        if(childForPrice[values.child_id] !=null ){
+            
+            totalPrice = childForPrice[values.child_id];
+        }
+
+        var prev = subscription.data('prev');
+        console.log($(this).val());
+        var newTotalPrice = parseInt(totalPrice) * $(this).val() - parseInt(totalPrice) * (prev || 0)
+
+
+        $("#totalprice").val(parseInt($("#totalprice").val()) + newTotalPrice);
+        subscription.data('prev', subscription.val());
+            });
         }
 
         // this function is responsible for managing rows numbers upon creation/deletion of elements
@@ -452,7 +495,8 @@
             container.parent().parent().find('.add-repeatable-element-button').toggleClass('d-none', current_rows >= max_rows);
         }
 
-        $('#exampleModal').appendTo("body"); 
+        $('#exampleModal').appendTo("body");
+        
 
         function openModal(container, field_group_clone){
             
@@ -460,6 +504,9 @@
             $('#bt-submit').off();
             $('#bt-submit').click(function(){
             addChildDonation(container, field_group_clone);
+                
+            var new_field_group = field_group_clone;//field_group.clone();
+
                          });
         }
 
@@ -467,6 +514,14 @@
 
             var childid = $('#child').val();
             var subs = $('#subscribe').val();
+
+            var totalPrice = 0
+        if(childForPrice[childid] !=null ){
+            
+            totalPrice = childForPrice[childid];
+        }
+
+        $("#totalprice").val(parseInt($("#totalprice").val()) + parseInt(totalPrice));
 
             delete filteredChilds[childid];
           
@@ -476,7 +531,7 @@
                 }
 
             newRepeatableElement(container, field_group_clone,{
-                child_id:childid,monthly_subscription:6
+                child_id:childid,monthly_subscription:1,price:totalPrice
             });
 
 
