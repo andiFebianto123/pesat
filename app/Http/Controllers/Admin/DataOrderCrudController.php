@@ -13,6 +13,7 @@ use App\Services\Midtrans\CreateSnapTokenService;
 use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Backpack\CRUD\app\Library\Widget;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -29,7 +30,8 @@ class DataOrderCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
- //   use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    //use Backpack\CRUD\app\Library\Widget;
+    //   use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     //   use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
   //  use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
   use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {create as traitcreate;}
@@ -46,7 +48,10 @@ class DataOrderCrudController extends CrudController
         CRUD::setModel(\App\Models\DataOrder::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/data-order');
         CRUD::setEntityNameStrings('data order', 'data orders');
+
     }
+
+// alternatively, use a fluent syntax to define each widget attribute
 
     /**
      * Define what happens when the List operation is loaded.
@@ -105,7 +110,9 @@ class DataOrderCrudController extends CrudController
     {
         CRUD::setValidation(DataOrderRequest::class);
 
+
         $this->crud->addFields([
+
             [
                 'name' => 'sponsor_id',
                 'label' => "Nama Sponsor",
@@ -156,9 +163,6 @@ class DataOrderCrudController extends CrudController
                         'options' => [1 => '1 Bulan', 3 => '3 Bulan', 6 => '6 Bulan', 12 => '12 Bulan'],
                         'allows_null' => false,
                         'allows_multiple' => false,
-                        // 'attributes'=>[
-                        //     'id' => 'subs'
-                        //   ]
 
                     ],
                     [
@@ -241,9 +245,56 @@ class DataOrderCrudController extends CrudController
             'attribute' => 'full_name',
         ];
 
+        $orderid = [
+            'name' => 'order_id',
+            'type' => 'text',
+            'label' => 'No Order',
+            'attributes'=>[
+                'disabled'=>true
+            ],
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],        
+        ];
+
+        $email =[
+            'name' => 'email',
+            'label' => 'Email',
+            'attributes'=>[
+                'disabled'=>true
+            ],            
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ];
+        $nowa = [
+            'name' => 'no_hp',
+            'type' => 'text',
+            'label' => 'No Wa',
+            'attributes'=>[
+                'disabled'=>true
+            ],
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+        ];
+        $address = [
+            'name' => 'address',
+            'type' => 'text',
+            'label' => 'Alamat',
+            'attributes'=>[
+                'disabled'=>true
+            ],
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+        ];
+
         $dataorder = [ // repeatable
             'name' => 'dataorder',
-            'label' => 'Testimonials',
+            'label' => 'List Order',
             'type' => 'repeatable_edit_child',
             'fields' => [
 
@@ -325,7 +376,7 @@ class DataOrderCrudController extends CrudController
             ];
 
         $this->crud->addFields([
-            $sponsor, $dataorder,$space,$totalPrice
+            $sponsor, $orderid,$email,$nowa,$address,$dataorder,$space,$totalPrice
         ]);
     }
 
@@ -338,6 +389,10 @@ class DataOrderCrudController extends CrudController
 
         $getStatus = DataOrder::where('order_id', $id)->first();
         $getStatusPayment = $getStatus->payment_status;
+        $getSponsor = Sponsor::where('sponsor_id',$getStatus->sponsor_id)->first();
+        $getEmail = $getSponsor->email;
+        $getNoWa = $getSponsor->no_hp;
+        $getAddress = $getSponsor->address;
 
         $getStatusMidtrans = $getStatus->order_id_midtrans;
 
@@ -363,12 +418,11 @@ class DataOrderCrudController extends CrudController
         $this->crud->hasAccessOrFail('update');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
-    //    dd($id);
+
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
             ->get();
         
-
 
         $orderDt = json_encode($getOrderDt);
        
@@ -376,21 +430,16 @@ class DataOrderCrudController extends CrudController
 
         $fields = $this->crud->getUpdateFields();
 
-
         $childs = $this->child($child,true);
         $childPrice = $this->childprice($child);
         $priceChilds = $childs->pluck('price','child_id');
-        // $getTempTotal = DataDetailOrder::where('order_id', $id)
-        //                             ->groupBy('order_dt.order_id')
-        //                             ->selectRaw('sum(price) as sum_price')
-        //                             ->pluck('sum_price')
-        //                             ->first();
-        //dd($getTempTotal);
-      //  $getTempTotal = $this->sumprice($id);
-        //$fields['totalprice'] = $getTempTotal;
-        //$fields['totalprice']['totalprice']=$getTempTotal;
+
+
         $fields['dataorder']['fields'][2]['options']=$childPrice;
         
+        $fields['email']['value'] = $getEmail;
+        $fields['no_hp']['value'] = $getNoWa;
+        $fields['address']['value'] = $getAddress;
         $fields['dataorder']['value'] = $orderDt;
         $fields['dataorder']['fields'][1]['options'] = $childs;
         $this->crud->setOperationSetting('fields', $fields);
