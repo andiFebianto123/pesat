@@ -139,7 +139,7 @@ class DataOrderCrudController extends CrudController
                     ],
                     [
                         'name' => 'price',
-                        'label'=> 'Biaya',
+                        'label'=> 'Biaya / Bulan',
                         'type' => 'text',
                         'prefix'=> 'Rp. ',
                         'attributes'=>[
@@ -261,8 +261,24 @@ class DataOrderCrudController extends CrudController
                     'allows_null' => false,
                     'attributes'=>[
                         'disabled'=>true
-                      ]
+                    ],
+                      'wrapperAttributes' => [
+                        'class' => 'form-group col-md-6',
+                    ],
 
+                ],
+                [
+                    'name' => 'child_id',
+                    'label'=> 'Biaya / Bulan',
+                    'type' =>  'select_from_array',//'text',
+                    'attribute'=>'price',
+                    'prefix'=> 'Rp. ',
+                    'attributes'=>[
+                        'disabled'=>true
+                    ],
+                    'wrapperAttributes' => [
+                        'class' => 'form-group col-md-6',
+                    ],
                 ],
 
                 [
@@ -281,9 +297,35 @@ class DataOrderCrudController extends CrudController
             //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
 
         ];
+        $space =             [
+            'name' => 'empty',
+            'type' => 'hidden',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+
+        ];
+
+        $totalPrice =[
+            'name' => 'totalprice',
+            'label' => "Total Price",
+            'type' => 'text',
+            'prefix'=> 'Rp.',
+            'default'=>$this->sumprice($this->crud->getCurrentEntryId()),
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6',
+            ],
+            'attributes'=>[
+                'disabled'=>true,
+                'id' => 'totalprice'
+              ]
+
+
+            ];
 
         $this->crud->addFields([
-            $sponsor, $dataorder,
+            $sponsor, $dataorder,$space,$totalPrice
         ]);
     }
 
@@ -321,11 +363,13 @@ class DataOrderCrudController extends CrudController
         $this->crud->hasAccessOrFail('update');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
-
+    //    dd($id);
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
             ->get();
         
+
+
         $orderDt = json_encode($getOrderDt);
        
         $child = $getOrderDt->pluck('child_id');
@@ -333,20 +377,34 @@ class DataOrderCrudController extends CrudController
         $fields = $this->crud->getUpdateFields();
 
 
-        $childs = $this->child($child);
-
+        $childs = $this->child($child,true);
+        $childPrice = $this->childprice($child);
+        $priceChilds = $childs->pluck('price','child_id');
+        // $getTempTotal = DataDetailOrder::where('order_id', $id)
+        //                             ->groupBy('order_dt.order_id')
+        //                             ->selectRaw('sum(price) as sum_price')
+        //                             ->pluck('sum_price')
+        //                             ->first();
+        //dd($getTempTotal);
+      //  $getTempTotal = $this->sumprice($id);
+        //$fields['totalprice'] = $getTempTotal;
+        //$fields['totalprice']['totalprice']=$getTempTotal;
+        $fields['dataorder']['fields'][2]['options']=$childPrice;
+        
         $fields['dataorder']['value'] = $orderDt;
         $fields['dataorder']['fields'][1]['options'] = $childs;
         $this->crud->setOperationSetting('fields', $fields);
 
         $this->data['entry'] = $this->crud->getEntry($id);
         $this->data['crud'] = $this->crud;
+     
         $this->data['saveAction'] = $this->crud->getSaveAction();
         $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
     
         $this->data['id'] = $id;
 
         $this->data['childs'] = $childs;
+        $this->data['childForPrice']= $childPrice;
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
 
@@ -357,19 +415,13 @@ class DataOrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        // $getChild = ChildMaster::where('is_sponsored', 0)
-        // ->get();
-
-       // $child = $getChild->pluck('full_name','child_id');
-
         $fields = $this->crud->getCreateFields();
 
-        $childs = $this->child(null);
+        $childs = $this->child(null,null);
 
         $optionChilds= $childs->pluck('full_name','child_id');
 
         $priceChilds = $childs->pluck('price','child_id');
-
 
         $fields['testimonials']['fields'][1]['options'] = $optionChilds;
         $this->crud->setOperationSetting('fields', $fields);
@@ -679,7 +731,7 @@ class DataOrderCrudController extends CrudController
         }
     }
 
-    function child($child)
+    function child($child,$isPluck)
     {
 
         $getchild = ChildMaster::where('is_sponsored', 0)
@@ -688,10 +740,38 @@ class DataOrderCrudController extends CrudController
             })
             ->get();
 
+ if($isPluck ==true){
+    return $getchild->pluck('full_name', 'child_id');
+ }else{
+
+    return $getchild;//->pluck('full_name', 'child_id');
+ }
+
+    }
+
+    function childprice($child)
+    {
+
+        $getchild = ChildMaster::where('is_sponsored', 0)
+            ->when($child != null, function ($query) use ($child) {
+                $query->orWhereIn('child_id', $child);
+            })
+            ->get();
+
+    return $getchild->pluck('price', 'child_id');
  
-        return $getchild;//->pluck('full_name', 'child_id');
     }
     
+    function sumprice($id){
+       
+                $getTempTotal = DataDetailOrder::where('order_id', $id)
+                                    ->groupBy('order_dt.order_id')
+                                    ->selectRaw('sum(price) as sum_price')
+                                    ->pluck('sum_price')
+                                    ->first();
+                                 //   dd($getTempTotal);
+                return $getTempTotal;//->pluck('order_id','sumprice');
+    }
     function sponsor()
     {
 

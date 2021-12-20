@@ -158,9 +158,10 @@
                         theme: "bootstrap",
                     })
           var allChilds = @json($childs);
-          var filteredChilds = allChilds;
+          var filteredChilds = $.extend({}, allChilds);//allChilds;
 
           var childForDeleted = @json($childs);
+          var childForPrice = @json($childForPrice);
         /**
          * Takes all inputs and makes them an object.
          */
@@ -296,23 +297,39 @@
               //  var deletedChild =  new_field_group.find('select[name="child_id"]').val();
 
               var deletedChild = new_field_group.find('select[data-repeatable-input-name="child_id"]').val();
-                var childAfterDeleted = { [deletedChild] : childForDeleted[deletedChild]};
-
-                var childToArray        = Object.entries(filteredChilds);
-                var deletedChildToArray = Object.entries(childAfterDeleted);
-                var arrayPush = childToArray.concat(deletedChildToArray);
-                const childObj = Object.fromEntries(arrayPush.map(item => [item[0], item[1]]));
-                filteredChilds = childObj;
-
-                // if(allChilds[deletedChild] != null){
-                //     filteredChilds[deletedChild] = allChilds[deletedChild]
+ 
+                 if(allChilds[deletedChild] != null){
+                    filteredChilds[deletedChild] = allChilds[deletedChild]
                     
-                // }
+                }
                 
                 $('#child').empty();
                 for(key in filteredChilds){
                     $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);
                 }
+
+                var subscription = new_field_group.find('select[data-repeatable-input-name="monthly_subscription"]');
+
+                var price = childForPrice[values.child_id];
+                var subs = values.monthly_subscription;
+                subscription.data('prev', subscription.val());
+
+                var totalPrice = 0
+                if(childForPrice[values.child_id] !== null ){
+            
+                    totalPrice = childForPrice[values.child_id];
+                }
+
+                var prev = subscription.data('prev');
+                console.log(subscription.val());
+
+                var deletePrice = price * subscription.val();
+ 
+
+                $("#totalprice").val(parseInt($("#totalprice").val()) - deletePrice);
+                subscription.data('prev', subscription.val());
+
+
                 // decrement the container current number of rows by -1
                 updateRepeatableRowCount(container_holder, -1);
 
@@ -404,6 +421,25 @@
                     $(el).trigger('change');
                 });
             }
+
+            var subscription = new_field_group.find('select[data-repeatable-input-name="monthly_subscription"]');
+            subscription.data('prev', subscription.val());
+            subscription.change(function(){
+
+                var totalPrice = 0
+        if(childForPrice[values.child_id] !=null ){
+            
+            totalPrice = childForPrice[values.child_id];
+        }
+
+        var prev = subscription.data('prev');
+        console.log($(this).val());
+        var newTotalPrice = parseInt(totalPrice) * $(this).val() - parseInt(totalPrice) * (prev || 0)
+
+
+        $("#totalprice").val(parseInt($("#totalprice").val()) + newTotalPrice);
+        subscription.data('prev', subscription.val());
+            });
         }
 
         // this function is responsible for managing rows numbers upon creation/deletion of elements
@@ -460,6 +496,7 @@
             $('#bt-submit').off();
             $('#bt-submit').click(function(){
             addChildDonation(container, field_group_clone);
+            var new_field_group = field_group_clone;
                          });
         }
 
@@ -468,6 +505,15 @@
             var childid = $('#child').val();
             var subs = $('#subscribe').val();
 
+            var totalPrice = 0
+            
+            if(childForPrice[childid] !=null ){
+            
+                totalPrice = childForPrice[childid];
+            }
+            console.log(childForPrice);
+            $("#totalprice").val(parseInt($("#totalprice").val()) + parseInt(totalPrice));
+          
             delete filteredChilds[childid];
           
               $('#child').empty();
@@ -476,7 +522,7 @@
                 }
 
             newRepeatableElement(container, field_group_clone,{
-                child_id:childid,monthly_subscription:6
+                child_id:childid,monthly_subscription:1
             });
 
 

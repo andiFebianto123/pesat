@@ -321,8 +321,7 @@
           //      subscription.change(function(){
                 var totalPrice = 0
                     if(childForPrice[values.child_id] !== null ){
-                        alert('test');
-                        console.log('tesst');
+                        
                         totalPrice = childForPrice[values.child_id];
                     }
 
@@ -520,7 +519,7 @@
             
             totalPrice = childForPrice[childid];
         }
-
+        console.log(childForPrice);
         $("#totalprice").val(parseInt($("#totalprice").val()) + parseInt(totalPrice));
 
             delete filteredChilds[childid];
