@@ -153,7 +153,7 @@ class MidtransController extends Controller
                     'status_midtrans' => $transaction,
                 ]);
 
-                OrderHd::where('order_id', $orderId)
+                DataOrder::where('order_id', $orderId)
                     ->update([
                         'status_midtrans' => $transaction,
                         'payment_status' => 2,

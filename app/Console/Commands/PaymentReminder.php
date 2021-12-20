@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\DataDetailOrder;
 use PDF;
 use App\Models\OrderDt;
 use Carbon\Carbon;
@@ -86,7 +87,7 @@ class PaymentReminder extends Command
 
 
 //                    update has_child
-                OrderDt::where('order_id', $order->order_id)
+                DataDetailOrder::where('order_id', $order->order_id)
                         ->where('child_id', $order->child_id)
                         ->update(['has_remind' => 1]);
                 $datenow = Carbon::now();
@@ -158,7 +159,7 @@ class PaymentReminder extends Command
 
 
         //                    update has_child
-                        OrderDt::where('order_id', $order->order_id)
+                        DataDetailOrder::where('order_id', $order->order_id)
                                 ->where('child_id', $order->child_id)
                                 ->update(['has_remind' => 1]);
 

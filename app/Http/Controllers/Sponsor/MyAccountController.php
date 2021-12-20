@@ -187,7 +187,7 @@ class MyAccountController extends Controller
 
     public function childdetaildonation($id){
         
-        $orders = OrderHd::where('order_hd.order_id',$id)
+        $orders = DataOrder::where('order_hd.order_id',$id)
                     ->join('order_dt as odt','odt.order_id','=','order_hd.order_id')
                     ->join('child_master as cm','cm.child_id','=','odt.child_id')
                     ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
@@ -196,7 +196,7 @@ class MyAccountController extends Controller
                             'sm.sponsor_id','cm.child_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.no_hp','sm.email'
                             )
                     ->get();
-        $orderhd = OrderHd::where('order_id',$id)->first();
+        $orderhd = DataOrder::where('order_id',$id)->first();
         $data['orders'] = $orders;
         $data['orderhd']= $orderhd;
 

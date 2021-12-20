@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\ChildMasterRequest;
 use App\Models\ChildMaster;
 use App\Models\City;
+use App\Models\DataDetailOrder;
 use App\Models\OrderDt;
 use App\Models\Province;
 use App\Models\Religion;
@@ -891,7 +892,7 @@ class ChildMasterCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('delete');
 
-        $checkchild = OrderDt::where('child_id',$id);
+        $checkchild = DataDetailOrder::where('child_id',$id);
         $child= $checkchild->exists();
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;

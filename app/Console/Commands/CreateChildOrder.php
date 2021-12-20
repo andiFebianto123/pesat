@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 use PDF;
 use App\Http\Controllers\ReminderOrder;
 use App\Mail\ReminderNewOrder;
+use App\Models\DataDetailOrder;
 use App\Models\OrderDt;
 use App\Models\OrderHd;
 use Carbon\Carbon;
@@ -95,12 +96,12 @@ class CreateChildOrder extends Command
                         ]
                     );    
 //                    update has_child
-                    OrderDt::where('order_id', $order->order_id)
+                    DataDetailOrder::where('order_id', $order->order_id)
                             ->where('child_id', $order->child_id)
                             ->update(['has_child' => 1]);
         
                     $newstartdate=Carbon::parse($order->end_order_date);
-                    $insertorderdt = new OrderDt();
+                    $insertorderdt = new DataDetailOrder();
                     $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
                     $insertorderdt->child_id             = $order->child_id;
                     $insertorderdt->order_id             = $lastorderId;
@@ -186,12 +187,12 @@ class CreateChildOrder extends Command
                 ]
             );    
             //update has_child
-             OrderDt::where('order_id', $order->order_id)
+             DataDetailOrder::where('order_id', $order->order_id)
                      ->where('child_id', $order->child_id)
                      ->update(['has_child' => 1]);
 
             $newstartdate=Carbon::parse($order->end_order_date);
-            $insertorderdt = new OrderDt();
+            $insertorderdt = new DataDetailOrder();
             $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
             $insertorderdt->child_id             = $order->child_id;
             $insertorderdt->order_id             = $lastorderId;

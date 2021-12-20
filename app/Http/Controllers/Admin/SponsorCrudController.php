@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\SponsorRequest;
 use App\Http\Requests\SponsorUpdateRequest as UpdateRequest;
+use App\Models\DataOrder;
 use App\Models\OrderDt;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
@@ -612,7 +613,7 @@ class SponsorCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('delete');
 
-        $cekChild = OrderHd::where('sponsor_id', $id);
+        $cekChild = DataOrder::where('sponsor_id', $id);
         $child = $cekChild->exists();
 
         $cekProject = OrderProject::where('sponsor_id',$id);
