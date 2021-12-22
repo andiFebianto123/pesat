@@ -188,52 +188,80 @@ class OrderController extends Controller
     public function reminderinvoice()
     {
 
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+        $datasOrder = ProjectMaster::where('is_closed',0)
+                    ->get();
+       
+    foreach($datasOrder as $key => $data){
+//            dd($data->end_date);
+        if($data->end_date !== null){
+            
+                $orderProject = OrderProject::where('project_id',$data->project_id)
+                            ->where('payment_status',2)
+                            ->groupBy('project_id')
+                            ->selectRaw('sum(price) as sum_price')
+                            ->pluck('sum_price');
+                          
+                $amount = intval($data->amount);
+                $totalPrice = intval($orderProject[0]);
+            
+                $now = Carbon::now();
+   
+        if($totalPrice >= $amount || $now > $data->end_date){// 
 
-        $now = Carbon::now();
-        $nowAdd2Days = $now->copy()->addDay(-2);
+              $projectMaster = ProjectMaster::find($data->project_id);
+              $projectMaster->is_closed = 1;
+              $projectMaster->save();
+
+             }
+            }
+        }
+
+    //     \Midtrans\Config::$isProduction = config('midtrans.is_production');
+    //     \Midtrans\Config::$serverKey = config('midtrans.server_key');
+    //     \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+    //     \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+    //     $now = Carbon::now();
+    //     $nowAdd2Days = $now->copy()->addDay(-2);
 
 
-        $datasOrder = OrderProject::where('created_at','<=',$nowAdd2Days)
-                    ->where('order_project.payment_status',1)
-                    ->get('order_project.order_project_id');
+    //     $datasOrder = OrderProject::where('created_at','<=',$nowAdd2Days)
+    //                 ->where('order_project.payment_status',1)
+    //                 ->get('order_project.order_project_id');
     
      
-        DB::beginTransaction();
-        try{
+    //     DB::beginTransaction();
+    //     try{
 
-        foreach($datasOrder as $key => $datas){
+    //     foreach($datasOrder as $key => $datas){
 
-            $orderProject = OrderProject::find($datas)->first();
+    //         $orderProject = OrderProject::find($datas)->first();
            
-            $orderProject->payment_status = 3;
+    //         $orderProject->payment_status = 3;
           
-            $orderProject->save();
+    //         $orderProject->save();
           
-            \Midtrans\Transaction::cancel($orderProject->order_project_id_midtrans);     
-            DB::commit();    
+    //         \Midtrans\Transaction::cancel($orderProject->order_project_id_midtrans);     
+    //         DB::commit();    
       
-        }        
-    }catch(Exception $e){
+    //     }        
+    // }catch(Exception $e){
       
 
-         if($e->getCode() !== 404){
+    //      if($e->getCode() !== 404){
 
-            $errorMessage = array('order_project_id' => $orderProject->order_project_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
+    //         $errorMessage = array('order_project_id' => $orderProject->order_project_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
 
-            \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
+    //         \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
 
-            DB::rollBack();
+    //         DB::rollBack();
            
-        }else{
+    //     }else{
            
-            DB::commit();
+    //         DB::commit();
 
-        }
-    }   
+    //     }
+    // }   
         // $now = Carbon::now();
         // $nowAdd2Days = $now->copy()->addDay(-2);
         // // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);

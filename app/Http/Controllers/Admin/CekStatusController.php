@@ -25,7 +25,7 @@ class CekStatusController extends Controller
         DB::beginTransaction();
         try {
 
-            $decoderespon = \Midtrans\Transaction::status($id . '-proyek');
+            $decoderespon = \Midtrans\Transaction::status( 'proyek-'.$id);
 
             $response = json_encode($decoderespon);
             $statuscode = $decoderespon->status_code;

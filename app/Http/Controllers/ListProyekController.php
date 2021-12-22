@@ -41,14 +41,17 @@ class ListProyekController extends Controller
 
         $now = Carbon::now();
     
-
+     //   $startdate = Carbon::parse($project->start_date);
         $enddate   = Carbon::parse($project->end_date);
         $interval  = $enddate->diffInDays($now);
     
         $data['imgDetails'] = $imgDetail;
         $data['projects']   = $project;
+        if($now >= $enddate){
+        $data['interval']   = 0;
+        }else{
         $data['interval']   = $interval;
-        
+        }
         return view('projectdetail',$data);
     }
     }
