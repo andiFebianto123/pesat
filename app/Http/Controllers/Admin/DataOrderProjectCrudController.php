@@ -201,6 +201,7 @@ class DataOrderProjectCrudController extends CrudController
         $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$id);
         $snapToken = $midtrans->getSnapToken();
         $order->snap_token = $snapToken;
+        $order->order_project_id_midtrans = 'proyek-'.$id;
         $order->save();
         
         // show a success message

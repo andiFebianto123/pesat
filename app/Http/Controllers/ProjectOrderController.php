@@ -17,16 +17,13 @@ class ProjectOrderController extends Controller
     public function index(Request $request){
         $user = auth()->user();
         
-      //  $getUserId = $user->sponsor_id;
         if($user==null){
         
             return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         
         }else{
 
-
-            //$sponsor= Sponsor::where('email',$email)->get()->first();
-            $idsponsor= $user->sponsor_id;//$sponsor->sponsor_id;
+            $idsponsor= $user->sponsor_id;
   
             // save table order_project
              $OrderId = DB::table('order_project')->insertGetId(
@@ -48,6 +45,7 @@ class ProjectOrderController extends Controller
              $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$OrderId);
              $snapToken = $midtrans->getSnapToken();
              $order->snap_token = $snapToken;
+             $order->order_project_id_midtrans = 'proyek-'.$OrderId;;
              $order->save();
             
             return  Redirect::route('orderprojectcheckout',array('snap_token' => $snapToken,'code' => $OrderId));

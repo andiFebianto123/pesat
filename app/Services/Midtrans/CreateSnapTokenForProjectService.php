@@ -25,7 +25,7 @@ class CreateSnapTokenForProjectService extends Midtrans
         
         $params = [
             'transaction_details' => [
-                'order_id' => $this->code."-proyek",
+                'order_id' => "proyek-".$this->code,
                 'gross_amount' => $this->order[0]->price,
             ],
             'item_details' => [

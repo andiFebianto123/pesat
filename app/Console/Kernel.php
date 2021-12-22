@@ -32,8 +32,13 @@ class Kernel extends ConsoleKernel
        $schedule->command('create:reminder')
                 ->daily();
               
-       $schedule->command('check:status')
-                ->everyMinute();
+    //    $schedule->command('check:status')
+    //             ->everyMinute();
+       $schedule->command('check:paidornot')
+                ->daily();
+                
+       $schedule->command('check:paidornotforproject')
+                ->daily();
     }
 
     /**

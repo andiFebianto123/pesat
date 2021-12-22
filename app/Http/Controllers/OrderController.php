@@ -196,35 +196,24 @@ class OrderController extends Controller
         $now = Carbon::now();
         $nowAdd2Days = $now->copy()->addDay(-2);
 
-        $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
-        // $datasOrder = DataDetailOrder::where('start_order_date',$newDateFormat)
-                    
-        //             ->distinct()
-        //             ->get('order_id');
 
-        $datasOrder = DataDetailOrder::where('start_order_date','<=',$newDateFormat)
-                    ->join('order_hd as ohd','ohd.order_id','=','order_dt.order_id')
-                    ->where('ohd.payment_status',1)
-                    ->distinct()
-                    ->get('ohd.order_id');
-                
-        $datasChild = DataDetailOrder::where('start_order_date',$newDateFormat)
-                    ->get('child_id');
+        $datasOrder = OrderProject::where('created_at','<=',$nowAdd2Days)
+                    ->where('order_project.payment_status',1)
+                    ->get('order_project.order_project_id');
+    
      
-     //   dd($datasOrder);
         DB::beginTransaction();
         try{
 
         foreach($datasOrder as $key => $datas){
 
-            $orderHd = DataOrder::find($datas)->first();
+            $orderProject = OrderProject::find($datas)->first();
            
-            $orderHd->payment_status = 3;
+            $orderProject->payment_status = 3;
           
-            $orderHd->save();
-
+            $orderProject->save();
           
-            \Midtrans\Transaction::cancel($orderHd->order_id_midtrans);     
+            \Midtrans\Transaction::cancel($orderProject->order_project_id_midtrans);     
             DB::commit();    
       
         }        
@@ -233,7 +222,7 @@ class OrderController extends Controller
 
          if($e->getCode() !== 404){
 
-            $errorMessage = array('order_id' => $orderHd->order_id, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
+            $errorMessage = array('order_project_id' => $orderProject->order_project_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
 
             \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
 
@@ -245,13 +234,6 @@ class OrderController extends Controller
 
         }
     }   
-        foreach($datasChild as $key => $datachild){
-
-            $childmaster = ChildMaster::find($datachild)->first();
-            $childmaster->is_sponsored = 0;
-            $childmaster->current_order_id = null;
-            $childmaster->save();
-        }
         // $now = Carbon::now();
         // $nowAdd2Days = $now->copy()->addDay(-2);
         // // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
