@@ -45,7 +45,7 @@ Route::get('/', 'App\Http\Controllers\HomeController@index');
 //Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
-// Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
+Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
 Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childdetail');
 Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
 Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');
@@ -63,3 +63,9 @@ Route::prefix('sponsor')
 				Route::post('logout', 'SponsorLoginController@logout')->name('logout');
     		});
 	});
+
+	// Route::get('create-log', function () {
+  
+	// 	\Log::channel('logstatusmidtrans')->info('This is info log level for testing');
+		 
+	// });

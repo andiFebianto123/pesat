@@ -24,3 +24,4 @@
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('dlp') }}'><i class='nav-icon la la-question'></i> Dlp</a></li> -->
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('user-attribute') }}'><i class='nav-icon la la-question'></i> User attributes</a></li> -->
 <!-- <li class='nav-item'><a class='nav-link' href='{{ backpack_url('data-detail-order') }}'><i class='nav-icon la la-question'></i> Data detail orders</a></li> -->
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('config') }}'><i class='nav-icon la la-gear'></i> Config</a></li>

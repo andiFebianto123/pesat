@@ -187,23 +187,88 @@ class OrderController extends Controller
 
     public function reminderinvoice()
     {
+
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$serverKey = config('midtrans.server_key');
+        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
         $now = Carbon::now();
         $nowAdd2Days = $now->copy()->addDay(-2);
-        // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
-        $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
-        $datas = DataDetailOrder::where('start_order_date',$newDateFormat)
-        ->distinct()
-        ->get(['order_id']);
-        
-        foreach($datas as $key => $data){
-            
-            $orderHd = DataOrder::find($data);
 
-            $orderHd->name = 'Paris to London';
-            
+        $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
+        // $datasOrder = DataDetailOrder::where('start_order_date',$newDateFormat)
+                    
+        //             ->distinct()
+        //             ->get('order_id');
+
+        $datasOrder = DataDetailOrder::where('start_order_date','<=',$newDateFormat)
+                    ->join('order_hd as ohd','ohd.order_id','=','order_dt.order_id')
+                    ->where('ohd.payment_status',1)
+                    ->distinct()
+                    ->get('ohd.order_id');
+                
+        $datasChild = DataDetailOrder::where('start_order_date',$newDateFormat)
+                    ->get('child_id');
+     
+     //   dd($datasOrder);
+        DB::beginTransaction();
+        try{
+
+        foreach($datasOrder as $key => $datas){
+
+            $orderHd = DataOrder::find($datas)->first();
+           
+            $orderHd->payment_status = 3;
+          
             $orderHd->save();
 
+          
+            \Midtrans\Transaction::cancel($orderHd->order_id_midtrans);     
+            DB::commit();    
+      
         }        
+    }catch(Exception $e){
+      
+
+         if($e->getCode() !== 404){
+
+            $errorMessage = array('order_id' => $orderHd->order_id, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
+
+            \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
+
+            DB::rollBack();
+           
+        }else{
+           
+            DB::commit();
+
+        }
+    }   
+        foreach($datasChild as $key => $datachild){
+
+            $childmaster = ChildMaster::find($datachild)->first();
+            $childmaster->is_sponsored = 0;
+            $childmaster->current_order_id = null;
+            $childmaster->save();
+        }
+        // $now = Carbon::now();
+        // $nowAdd2Days = $now->copy()->addDay(-2);
+        // // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
+        // $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
+        // $datas = DataDetailOrder::where('start_order_date',$newDateFormat)
+        // ->distinct()
+        // ->get(['order_id']);
+        
+        // foreach($datas as $key => $data){
+            
+        //     $orderHd = DataOrder::find($data);
+
+        //     $orderHd->name = 'Paris to London';
+            
+        //     $orderHd->save();
+
+        // }        
 
         // $orders = DB::table('order_project')
         //     ->get();
