@@ -9,12 +9,14 @@ use App\Models\OrderProject;
 use App\Models\ProjectMaster;
 use App\Services\Midtrans\CreateSnapTokenService;
 use App\Services\Midtrans\UpdateSnapTokenServiceForExpiredTransaction;
+use PDF;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
 class OrderController extends Controller
@@ -188,244 +190,167 @@ class OrderController extends Controller
     public function reminderinvoice()
     {
 
-        $datasOrder = ProjectMaster::where('is_closed',0)
-                    ->get();
-       
-    foreach($datasOrder as $key => $data){
-//            dd($data->end_date);
-        if($data->end_date !== null){
-            
-                $orderProject = OrderProject::where('project_id',$data->project_id)
-                            ->where('payment_status',2)
-                            ->groupBy('project_id')
-                            ->selectRaw('sum(price) as sum_price')
-                            ->pluck('sum_price');
-                          
-                $amount = intval($data->amount);
-                $totalPrice = intval($orderProject[0]);
-            
-                $now = Carbon::now();
-   
-        if($totalPrice >= $amount || $now > $data->end_date){// 
-
-              $projectMaster = ProjectMaster::find($data->project_id);
-              $projectMaster->is_closed = 1;
-              $projectMaster->save();
-
-             }
-            }
-        }
-
-    //     \Midtrans\Config::$isProduction = config('midtrans.is_production');
-    //     \Midtrans\Config::$serverKey = config('midtrans.server_key');
-    //     \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-    //     \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
-    //     $now = Carbon::now();
-    //     $nowAdd2Days = $now->copy()->addDay(-2);
-
-
-    //     $datasOrder = OrderProject::where('created_at','<=',$nowAdd2Days)
-    //                 ->where('order_project.payment_status',1)
-    //                 ->get('order_project.order_project_id');
+        DB::beginTransaction();
+        try{
     
-     
-    //     DB::beginTransaction();
-    //     try{
+        $now=Carbon::now();
+        $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
+        $orders = DB::table('order_hd')
+        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+        ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
+        ->join('child_master as cm','cm.child_id','=','odt.child_id')
+        ->where('odt.has_child',0)
+        ->where('odt.monthly_subscription','!=',1)
+        ->where('odt.end_order_date','<=',$dateafteronemont)
+        ->where('payment_status',2)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
+        ->addSelect(
+                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
+                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.monthly_subscription','odt.start_order_date','odt.end_order_date',
+                    'sm.sponsor_id','sm.full_name as sponsor_name','sm.email','sm.address as sponsor_address','sm.no_hp','cm.child_id','cm.full_name as child_name',
+                    'cm.registration_number','cm.gender','cm.date_of_birth','cm.class','cm.school','cm.school_year'
 
-    //     foreach($datasOrder as $key => $datas){
+        )
+        ->get();
 
-    //         $orderProject = OrderProject::find($datas)->first();
-           
-    //         $orderProject->payment_status = 3;
-          
-    //         $orderProject->save();
-          
-    //         \Midtrans\Transaction::cancel($orderProject->order_project_id_midtrans);     
-    //         DB::commit();    
-      
-    //     }        
-    // }catch(Exception $e){
-      
-
-    //      if($e->getCode() !== 404){
-
-    //         $errorMessage = array('order_project_id' => $orderProject->order_project_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
-
-    //         \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
-
-    //         DB::rollBack();
-           
-    //     }else{
-           
-    //         DB::commit();
-
-    //     }
-    // }   
-        // $now = Carbon::now();
-        // $nowAdd2Days = $now->copy()->addDay(-2);
-        // // $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
-        // $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
-        // $datas = DataDetailOrder::where('start_order_date',$newDateFormat)
-        // ->distinct()
-        // ->get(['order_id']);
+        if($orders){
+        foreach($orders as $key =>$order){
+    
+                    $lastorderId = DB::table('order_hd')->insertGetId(
+                        [ 'parent_order_id' => $order->order_id,
+                          'sponsor_id'      => $order->sponsor_id,
+                          'total_price'     => $order->total_price,
+                          'payment_status'  => 1,
+                          'created_at'      => Carbon::now()
+                        ]
+                    );    
+//                    update has_child
+                    DataDetailOrder::where('order_id', $order->order_id)
+                            ->where('child_id', $order->child_id)
+                            ->update(['has_child' => 1]);
         
-        // foreach($datas as $key => $data){
+                    $newstartdate=Carbon::parse($order->end_order_date);
+                    $insertorderdt = new DataDetailOrder();
+                    $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
+                    $insertorderdt->child_id             = $order->child_id;
+                    $insertorderdt->order_id             = $lastorderId;
+                    $insertorderdt->price                = $order->price;
+                    $insertorderdt->monthly_subscription = $order->monthly_subscription;
+                    $insertorderdt->start_order_date     = $newstartdate;
+                    $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
+                    
+                    $insertorderdt->save();
+                    
+                    $datenow = Carbon::now();
+                    $formatdatenow = date('Y-m-d', strtotime($datenow));
+
+                    $data["email"] = $order->email;
+                    $data["title"] = "Reminder for Your Subscription";
+                    $data["body"] = "This is Demo";
+                    $data["sponsor_name"] = $order->sponsor_name;
+                    $data["order_id"] = $order->order_id;
+                    $data["sponsor_address"] = $order->sponsor_address;
+                    $data["no_hp"] = $order->no_hp;
+                    $data["child_name"]=$order->child_name;
+                    $data["monthly_subscription"]=$order->monthly_subscription;
+                    $data["price"]  = $order->price;
+                    $data["total_price"]  = $order->total_price;
+                    $data["date_now"]   = $formatdatenow;
+         
+                    $pdf = PDF::loadView('Email.NewOrder', $data);
+         
+                    Mail::send('Email.BodyNewOrder', $data, function($message)use($data, $pdf) {
+                   $message->to($data["email"], $data["email"])
+                           ->subject($data["title"])
+                           ->attachData($pdf->output(), $data["order_id"]."_".$data["sponsor_name"].".pdf");
+               });
             
-        //     $orderHd = DataOrder::find($data);
+                }
+    //            DB::commit();
+            }
+        $now=Carbon::now();
+        $dateafteroneweek= $now->copy()->addDay(7);
+        $orders1month = DB::table('order_hd')
+        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
+        ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
+        ->join('child_master as cm','cm.child_id','=','odt.child_id')
+        ->where('odt.has_child',0)
+        ->where('odt.end_order_date','<=',$dateafteroneweek)
+        ->where('payment_status',2)
+        ->where('odt.monthly_subscription',1)
+        ->where('order_hd.deleted_at',null)
+        ->where('odt.deleted_at',null)
+        ->addSelect(
+                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
+                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.price','odt.monthly_subscription','odt.start_order_date',
+                    'odt.end_order_date','sm.sponsor_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.email','sm.no_hp',
+                    'cm.child_id','cm.full_name as child_name','cm.registration_number','cm.registration_number','cm.gender','cm.date_of_birth',
+                    'cm.class','cm.school','cm.school_year'
+        )
 
-        //     $orderHd->name = 'Paris to London';
+        ->get();
+
+    if($orders1month){
+        
+        foreach($orders1month as $key =>$order){
+
+            $lastorderId = DB::table('order_hd')->insertGetId(
+                [ 'parent_order_id' => $order->order_id,
+                  'sponsor_id'      => $order->sponsor_id,
+                  'total_price'     => $order->total_price,
+                  'payment_status'  => 1,
+                  'created_at'      => Carbon::now()
+                ]
+                
+            );
+
+            DataDetailOrder::where('order_id', $order->order_id)
+                     ->where('child_id', $order->child_id)
+                     ->update(['has_child' => 1]);
+
+            $newstartdate=Carbon::parse($order->end_order_date);
+            $insertorderdt = new DataDetailOrder();
+            $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
+            $insertorderdt->child_id             = $order->child_id;
+            $insertorderdt->order_id             = $lastorderId;
+            $insertorderdt->price                = $order->price;
+            $insertorderdt->monthly_subscription = $order->monthly_subscription;
+            $insertorderdt->start_order_date     = $newstartdate;
+            $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
             
-        //     $orderHd->save();
+            $insertorderdt->save();
 
-        // }        
 
-        // $orders = DB::table('order_project')
-        //     ->get();
+            $datenow = Carbon::now();
+            $formatdatenow = date('Y-m-d', strtotime($datenow));
 
-        // // dd($orders);
-        // foreach ($orders as $key => $order) {
-        //     $getTotalAmount = OrderProject::groupBy('project_id')
-        //         ->where('project_id', $order->project_id)
-        //         ->where('payment_status', 2)
-        //         ->selectRaw('sum(price) as sum_price')
-        //         ->pluck('sum_price')
-        //         ->first();
-        //     //  $getLastId = OrderProject::where('project_id',$order->project_id)
-        //     //                                ->orderBy('order_project_id','desc')
-        //     //                                ->first();
-        //     ProjectMaster::where('project_id', $order->project_id)
-        //     //->where('destination', 'San Diego')
-        //         ->update(['last_amount' => $getTotalAmount]);
+            $data["email"]       = $order->email;
+            $data["title"]       = "Reminder for Your Subscription";
+            $data["body"]        = "This is Demo";
+            $data["sponsor_name"]= $order->sponsor_name;
+            $data["sponsor_address"]= $order->sponsor_address;
+            $data["no_hp"]      = $order->no_hp;
+            $data["order_id"]      = $order->order_id;
+            $data["child_name"]=$order->child_name;
+            $data["monthly_subscription"] = $order->monthly_subscription;
+            $data["price"] = $order->price;
+            $data["total_price"] = $order->total_price;
+            $data["date_now"]   = $formatdatenow;
+             
+            Mail::send('Email.BodyNewOrder', $data, function($message)use($data) {
+           $message->to($data["email"], $data["email"])
+                   ->subject($data["title"]);
+       });
+       DB::commit();
+    }
+   
+    }
+}catch(Exception $e){
+    DB::rollBack();
 
-        //     $getProjectMaster = ProjectMaster::where('project_id', $order->project_id)->first();
-
-        //     if ($getProjectMaster->amount <= $getProjectMaster->last_amount) {
-
-        //         ProjectMaster::where('project_id', $order->project_id)
-        //             ->update(['is_closed' => 1]);
-
-        //     }
-        // }
-
-//     $orders = DB::table('order_hd')
-        //             ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
-        //             ->get();
-
-//     $now=Carbon::now();
-        //     $dateafter2weeks= $now->copy()->addDay(-4);
-        //     dd($dateafter2weeks);
-        //     $orders = DB::table('order_hd')
-        //         ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
-        //         ->where('odt.has_child',0)
-        //         ->where('odt.start_order_date','<=',$dateafter2weeks)
-        //         ->where('odt.has_reminder',0)
-        //         ->where('payment_status',1)
-        //         ->where('order_hd.deleted_at',null)
-        //         ->where('odt.deleted_at',null)
-        //         ->get();
-
-//       foreach ($orders as $key => $order) {
-
-//         //if($order->monthly_subscription != 1){
-
-//             $startdate = Carbon::parse($order->start_order_date);
-        //             $enddate   = Carbon::parse($order->end_order_date);
-        //             $interval  = $enddate->diffInDays($startdate);
-        //             ///////////
-        //             $now=Carbon::now();
-        //             $oneweekaftermont = $now->copy()->addDay(7);
-        //       //      dd($oneweekaftermont);
-        //             $dateafteronemont= $now->copy()->addMonthsNoOverflow();
-
-//             $intervalneworder = $now->addMonthsNoOverflow(3);
-        // //            dd($intervalneworder);
-        //             //$inetervalremind=
-
-//             $intervalcreateorder = $startdate->diffInDays($intervalneworder);
-        //             ///////////
-        //             $intervalereminder = $intervalcreateorder + 14;
-        //   //          $now=Carbon::now();
-
-//             $intervalnow=$startdate->diffInDays($now);
-        //     //        dd($intervalereminder);
-
-//             $intervalcreateorder = $interval-7;
-        //      //       dd($interval,$intervalcreateorder);
-
-//             // $insertorderhd = new OrderHd();
-        //             // $insertorderhd->parent_order_id = $order->order_id;
-        //             // $insertorderhd->order_no        = $order->order_no;
-        //             // $insertorderhd->sponsor_id      = $order->sponsor_id;
-        //             // $insertorderhd->total_price     = $order->total_price;
-        //             // $insertorderhd->payment_status  = 1;
-        //             // $insertorderhd->save();
-
-//             $lastorderId = DB::table('order_hd')->insertGetId(
-        //                 [ 'parent_order_id' => $order->order_id,
-        //                   'order_no'        => $order->order_no,
-        //                   'sponsor_id'      => $order->sponsor_id,
-        //                   'total_price'     => $order->total_price,
-        //                   'payment_status'  => 1
-        //                 ]
-        //             );
-        // //dd($lastorderId);
-
-//             //update has_child
-        //             OrderDt::where('order_id', $order->order_id)
-        //                     ->where('child_id', $order->child_id)
-        //                     ->update(['has_child' => 1]);
-
-//             $newstartdate=Carbon::parse($order->end_order_date);
-        //             $insertorderdt = new OrderDt();
-        //             $insertorderdt->child_id             = $order->child_id;
-        //             $insertorderdt->order_id             = $order->$lastorderId;
-        //             $insertorderdt->price                = $order->price;
-        //             $insertorderdt->monthly_subscription = $order->monthly_subscription;
-        //             $insertorderdt->start_order_date     = $newstartdate;
-        //             $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
-
-//             $insertorderdt->save();
-
-        //$jumdays= cal_days_in_month(CAL_GREGORIAN, 11,2021);
-        //dd($dateAfterOneMonth);
-
-        //}else{
-
-        //}
-        //     $startdate = Carbon::parse($order->updated_at)->format('Y-m-d H:i:s');
-        //     $enddate = Carbon::parse(date('Y-m-d H:i:s', strtotime('+'.$order->monthly_subscription.' month', strtotime($startdate))));
-        //     $intervaltotal = $enddate->diffInDays($startdate);
-
-        //     $reminder = $intervaltotal-7;
-
-        //     $end = Carbon::parse($order->updated_at)->format('Y-m-d H:i:s');
-        //     $now  = Carbon::now();
-
-        //     $intervalnow = $now->diffInDays($end);
-
-        //     $totalreminder = DB::table('order_hd')
-        //                  ->leftJoin('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
-        //                  //->whereNotNull('parent_order_id')
-        //                  ->where('parent_order_id',$order->order_id)
-        //                  ->get();
-
-        //      if (count($totalreminder) < 1){
-
-        //         if ($intervalnow >= $reminder) {
-
-        //             $insertorders = new OrderHd();
-        //             $insertorders->parent_order_id = $order->order_id;
-        //             $insertorders->order_no        = $order->order_no;
-        //             $insertorders->sponsor_id      = $order->sponsor_id;
-        //             $insertorders->total_price     = $order->total_price;
-        //             $insertorders->payment_status  = 1;
-        //             $insertorders->save();
-
-        //     }
-        // }
-
-//     }
+    throw $e;
+}
 
     }
 

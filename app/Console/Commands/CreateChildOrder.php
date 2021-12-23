@@ -8,6 +8,7 @@ use App\Models\DataDetailOrder;
 use App\Models\OrderDt;
 use App\Models\OrderHd;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -47,6 +48,9 @@ class CreateChildOrder extends Command
      */
     public function handle()
     {
+        DB::beginTransaction();
+        try{
+    
         $now=Carbon::now();
         $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
         $orders = DB::table('order_hd')
@@ -54,37 +58,21 @@ class CreateChildOrder extends Command
         ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
         ->join('child_master as cm','cm.child_id','=','odt.child_id')
         ->where('odt.has_child',0)
+        ->where('odt.monthly_subscription','!=',1)
         ->where('odt.end_order_date','<=',$dateafteronemont)
         ->where('payment_status',2)
         ->where('order_hd.deleted_at',null)
         ->where('odt.deleted_at',null)
-        ->addSelect('order_hd.order_id')
-        ->addSelect('odt.order_dt_id')
-        ->addSelect('order_hd.parent_order_id')
-        ->addSelect('order_hd.order_no')
-        ->addSelect('order_hd.total_price')
-        ->addSelect('order_hd.payment_status')
-        ->addSelect('odt.parent_order_dt_id')
-        ->addSelect('odt.price')
-        ->addSelect('odt.monthly_subscription')
-        ->addSelect('odt.start_order_date')
-        ->addSelect('odt.end_order_date')
-        ->addSelect('sm.sponsor_id')
-        ->addSelect('sm.full_name as sponsor_name')
-        ->addSelect('sm.email')
-        ->addSelect('sm.address as sponsor_address')
-        ->addSelect('sm.no_hp')
-        ->addSelect('cm.child_id')
-        ->addSelect('cm.full_name as child_name')
-        ->addSelect('cm.registration_number')
-        ->addSelect('cm.gender')
-        ->addSelect('cm.date_of_birth')
-        ->addSelect('cm.class')
-        ->addSelect('cm.school')
-        ->addSelect('cm.school_year')
+        ->addSelect(
+                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
+                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.monthly_subscription','odt.start_order_date','odt.end_order_date',
+                    'sm.sponsor_id','sm.full_name as sponsor_name','sm.email','sm.address as sponsor_address','sm.no_hp','cm.child_id','cm.full_name as child_name',
+                    'cm.registration_number','cm.gender','cm.date_of_birth','cm.class','cm.school','cm.school_year'
+
+        )
         ->get();
 
-        
+        if($orders){
         foreach($orders as $key =>$order){
     
                     $lastorderId = DB::table('order_hd')->insertGetId(
@@ -135,10 +123,10 @@ class CreateChildOrder extends Command
                            ->subject($data["title"])
                            ->attachData($pdf->output(), $data["order_id"]."_".$data["sponsor_name"].".pdf");
                });
-        
+            
                 }
 
-
+            }
         $now=Carbon::now();
         $dateafteroneweek= $now->copy()->addDay(7);
         $orders1month = DB::table('order_hd')
@@ -148,34 +136,21 @@ class CreateChildOrder extends Command
         ->where('odt.has_child',0)
         ->where('odt.end_order_date','<=',$dateafteroneweek)
         ->where('payment_status',2)
+        ->where('odt.monthly_subscription',1)
         ->where('order_hd.deleted_at',null)
         ->where('odt.deleted_at',null)
-        ->addSelect('order_hd.order_id')
-        ->addSelect('order_hd.parent_order_id')
-        ->addSelect('order_hd.order_no')
-        ->addSelect('order_hd.total_price')
-        ->addSelect('order_hd.payment_status')
-        ->addSelect('odt.order_dt_id')
-        ->addSelect('odt.parent_order_dt_id')
-        ->addSelect('odt.price')
-        ->addSelect('odt.monthly_subscription')
-        ->addSelect('odt.start_order_date')
-        ->addSelect('odt.end_order_date')
-        ->addSelect('sm.sponsor_id')
-        ->addSelect('sm.full_name as sponsor_name')
-        ->addSelect('sm.address as sponsor_address')
-        ->addSelect('sm.email')
-        ->addSelect('sm.no_hp')
-        ->addSelect('cm.child_id')
-        ->addSelect('cm.full_name as child_name')
-        ->addSelect('cm.registration_number')
-        ->addSelect('cm.gender')
-        ->addSelect('cm.date_of_birth')
-        ->addSelect('cm.class')
-        ->addSelect('cm.school')
-        ->addSelect('cm.school_year')
+        ->addSelect(
+                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
+                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.price','odt.monthly_subscription','odt.start_order_date',
+                    'odt.end_order_date','sm.sponsor_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.email','sm.no_hp',
+                    'cm.child_id','cm.full_name as child_name','cm.registration_number','cm.registration_number','cm.gender','cm.date_of_birth',
+                    'cm.class','cm.school','cm.school_year'
+        )
+
         ->get();
 
+    if($orders1month){
+        
         foreach($orders1month as $key =>$order){
 
             $lastorderId = DB::table('order_hd')->insertGetId(
@@ -185,9 +160,10 @@ class CreateChildOrder extends Command
                   'payment_status'  => 1,
                   'created_at'      => Carbon::now()
                 ]
-            );    
-            //update has_child
-             DataDetailOrder::where('order_id', $order->order_id)
+                
+            );
+
+            DataDetailOrder::where('order_id', $order->order_id)
                      ->where('child_id', $order->child_id)
                      ->update(['has_child' => 1]);
 
@@ -203,6 +179,7 @@ class CreateChildOrder extends Command
             
             $insertorderdt->save();
 
+
             $datenow = Carbon::now();
             $formatdatenow = date('Y-m-d', strtotime($datenow));
 
@@ -212,20 +189,26 @@ class CreateChildOrder extends Command
             $data["sponsor_name"]= $order->sponsor_name;
             $data["sponsor_address"]= $order->sponsor_address;
             $data["no_hp"]      = $order->no_hp;
-            $data["order_no"]      = $order->order_no;
+            $data["order_id"]      = $order->order_id;
             $data["child_name"]=$order->child_name;
             $data["monthly_subscription"] = $order->monthly_subscription;
             $data["price"] = $order->price;
             $data["total_price"] = $order->total_price;
             $data["date_now"]   = $formatdatenow;
- 
+             
             Mail::send('Email.BodyNewOrder', $data, function($message)use($data) {
            $message->to($data["email"], $data["email"])
                    ->subject($data["title"]);
        });
- 
-
+       DB::commit();
     }
+   
+    }
+}catch(Exception $e){
+    DB::rollBack();
+
+    throw $e;
+}
 
 
      }
