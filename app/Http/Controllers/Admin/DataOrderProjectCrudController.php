@@ -239,15 +239,38 @@ class DataOrderProjectCrudController extends CrudController
 
     public function edit($id)
     {
-        
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$serverKey = config('midtrans.server_key');
+        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+       
         $getStatus = OrderProject::where('order_project_id', $id)->first();
+       
         $getStatusPayment = $getStatus->payment_status;
+      
+        $getStatusMidtrans = $getStatus->order_project_id_midtrans;
+
         if ($getStatusPayment == 2) {
 
             \Alert::error(trans('Tidak bisa ubah data, karena sudah ada pembayaran'))->flash();
             return redirect()->back();
         }
 
+        
+        try{
+
+          
+            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+           
+            if($decoderespon->transaction_status){
+    
+                \Alert::error(trans('Tidak bisa ubah data, no order sudah terdaftar di payment gateway'))->flash();
+                return redirect()->back();
+    
+            }
+        }catch(Exception $e){
+    
+        }
         $this->crud->hasAccessOrFail('update');
     // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;

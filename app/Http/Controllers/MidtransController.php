@@ -34,15 +34,13 @@ class MidtransController extends Controller
 
         $arraynotif = json_encode($notif->getResponse());
 
-        $explodeId = explode('-',$order_id);//substr($order_id, -6);
+        $explodeId = explode('-',$order_id);
         
         $cekType = $explodeId[0];
         
-      //  dd($cekType);
-        $orderId = $explodeId[1];//substr($order_id, 0, -7);
+        $orderId = $explodeId[1];
 
-        //$orderIdanak = substr($order_id, 0, -5);
-       // dd($order_id,$orderIdanak);
+
         $getProjectId = OrderProject::where('order_project_id',$orderId)->first();
        
         $cekDetailOrder = DataDetailOrder::where('order_id', $orderId)->get();   
