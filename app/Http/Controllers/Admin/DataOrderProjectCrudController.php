@@ -11,6 +11,7 @@ use App\Services\Midtrans\CreateSnapTokenService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,6 +28,7 @@ class DataOrderProjectCrudController extends CrudController
     // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
     //use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     /**
@@ -245,7 +247,7 @@ class DataOrderProjectCrudController extends CrudController
         \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
        
         $getStatus = OrderProject::where('order_project_id', $id)->first();
-       
+     
         $getStatusPayment = $getStatus->payment_status;
       
         $getStatusMidtrans = $getStatus->order_project_id_midtrans;
@@ -259,9 +261,9 @@ class DataOrderProjectCrudController extends CrudController
         
         try{
 
-          
+        
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-           
+            
             if($decoderespon->transaction_status){
     
                 \Alert::error(trans('Tidak bisa ubah data, no order sudah terdaftar di payment gateway'))->flash();
@@ -285,5 +287,40 @@ class DataOrderProjectCrudController extends CrudController
 
     // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
+    }
+    public function update()
+    {
+        $this->crud->hasAccessOrFail('update');
+
+        // execute the FormRequest authorization and validation, if one is required
+        $request = $this->crud->validateRequest();
+        // update the row in the db
+     
+        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
+                            $this->crud->getStrippedSaveRequest());
+        $this->data['entry'] = $this->crud->entry = $item;
+
+        // show a success message
+        \Alert::success(trans('backpack::crud.update_success'))->flash();
+
+        // save the redirect choice for next time
+
+        
+        $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$item->order_project_id)
+        ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
+        ->join('project_master as pm','pm.project_id','=','order_project.project_id')
+        ->get();
+    
+        $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
+      
+        $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $request->order_project_id);
+        $snapToken = $midtrans->getSnapToken();
+        $order->snap_token = $snapToken;
+        $order->price =$item->price;
+        $order->save();
+
+        $this->crud->setSaveAction();
+
+        return $this->crud->performSaveAction($item->getKey());
     }
 }
