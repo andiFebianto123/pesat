@@ -128,7 +128,7 @@ class CancelOrderController extends Controller
             } else {
 
                 try {
-                    $orderId = $id . "-proyek";
+                    $orderId =  "proyek-" . $id;
                     \Midtrans\Transaction::cancel($orderId);
 
                     $projectOrder->payment_status = 3;
