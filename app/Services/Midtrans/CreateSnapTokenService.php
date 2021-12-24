@@ -25,7 +25,7 @@ class CreateSnapTokenService extends Midtrans
         $params = [
             'transaction_details' => [
                 'order_id' => "anak-".$this->code,
-                'gross_amount' => $this->order[0]->total_price,
+                'gross_amount' =>$this->order[0]->total_price,
             ],
             'item_details' => [],
 
@@ -39,7 +39,7 @@ class CreateSnapTokenService extends Midtrans
         foreach ($this->order as $key => $detail) {
             $params['item_details'][] = array (  
                     'id' => $this->order[$key]->child_id,
-                    'price' => $this->order[$key]->price,
+                    'price' => $this->order[$key]->price * $this->order[$key]->monthly_subscription,
                     'quantity' => 1,
                     'name' => $this->order[$key]->full_name,
             );
