@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\ProjectMasterRequest;
-use App\Models\OrderHd;
+use Carbon\Carbon;
 use App\Models\OrderProject;
 use App\Models\ProjectMaster;
 use App\Models\ProjectMasterDetail;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\ProjectMasterRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-use Carbon\Carbon;
 
 /**
  * Class ProjectMasterCrudController
@@ -53,7 +53,28 @@ class ProjectMasterCrudController extends CrudController
                 'name' => 'title',
                 'label' => 'Name',
             ],
-
+            [
+                'name' => 'start_date',
+                'label' => 'Tanggal Mulai',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'end_date',
+                'label' => 'Tanggal Selesai',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'amount',
+                'label' => 'Nominal',
+                'type' => 'number',
+                'prefix' => 'Rp. ',
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                    $validator = Validator::make(['value' => $searchTerm], ['value' => 'numeric']);
+                    if (!$validator->fails()) {
+                        $query->orWhere('amount', $searchTerm);
+                    }
+                },
+            ],
             [
                 'type' => 'relationship',
                 'name' => 'users', // the relationship name in your Model
@@ -142,7 +163,7 @@ class ProjectMasterCrudController extends CrudController
                 'todayBtn' => 'linked',
                 'format' => 'dd-mm-yyyy',
                 'language' => 'en',
-                'clearBtn'  =>true
+                'clearBtn' => true,
             ],
         ];
         $amount = [
@@ -154,7 +175,7 @@ class ProjectMasterCrudController extends CrudController
             'name' => 'last_amount',
             'label' => '',
             'type' => 'hidden',
-            'default'=>0,
+            'default' => 0,
         ];
         $photo = [
             'label' => "Gambar Unggulan",
@@ -174,9 +195,9 @@ class ProjectMasterCrudController extends CrudController
         $isclosed = [
             'name' => 'is_closed',
             'type' => 'hidden',
-            'default'=>0
+            'default' => 0,
         ];
-        $this->crud->addFields([$title, $discription,$label1,$label2,$startdate,$enddate,$amount,$lastamount, $photo, $createdby,$isclosed]);
+        $this->crud->addFields([$title, $discription, $label1, $label2, $startdate, $enddate, $amount, $lastamount, $photo, $createdby, $isclosed]);
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -235,7 +256,7 @@ class ProjectMasterCrudController extends CrudController
                 'todayBtn' => 'linked',
                 'format' => 'dd-mm-yyyy',
                 'language' => 'en',
-                'clearBtn'  =>true
+                'clearBtn' => true,
             ],
         ];
 
@@ -243,7 +264,7 @@ class ProjectMasterCrudController extends CrudController
             'name' => 'amount',
             'label' => 'Nominal',
             'type' => 'number',
-            'prefix'        => 'Rp',
+            'prefix' => 'Rp',
         ];
         $photo = [
             'label' => "Gambar Unggulan",
@@ -265,10 +286,10 @@ class ProjectMasterCrudController extends CrudController
             'type' => 'hidden',
         ];
 
-        $this->crud->addFields([$title, $discription,$startdate,$enddate,$amount, $photo, $createdby,$isClosed]);
+        $this->crud->addFields([$title, $discription, $startdate, $enddate, $amount, $photo, $createdby, $isClosed]);
     }
 
-    public function store()
+    function store()
     {
         $this->crud->hasAccessOrFail('create');
 
@@ -276,33 +297,22 @@ class ProjectMasterCrudController extends CrudController
         $request = $this->crud->validateRequest();
 
         // insert item in the db
+        $enddate = $request->end_date;
+        if ($enddate != null) {
+            $enddate = Carbon::parse($enddate)->startOfDay();
+        }
+        $now = Carbon::now()->startOfDay();
+        $amount = $request->amount;
+        $lastAmount = 0;
+        if (($enddate != null & $now > $enddate) || $lastAmount >= $amount) {
+            $this->crud->getRequest()->request->set('is_closed', 1);
 
-        $enddate   = $request->end_date;
-        $now = Carbon::now();
-        $lastamount = $request->last_amount;
-        $amount     = $request->amount;
-        
-     
-        if($enddate == null){
-            
-                $this->crud->getRequest()->request->set('is_closed', 0);
-        
-        }else{
-            
-            if($now >= $enddate || $lastamount >= $amount){
-        
-                $this->crud->getRequest()->request->set('is_closed', 1);                
-        
-            }else{
-        
-                $this->crud->getRequest()->request->set('is_closed', 0);
-        
-            }
+        } else {
+            $this->crud->getRequest()->request->set('is_closed', 0);
         }
 
         $item = $this->crud->create($this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
-
 
         // show a success message
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
@@ -313,40 +323,32 @@ class ProjectMasterCrudController extends CrudController
         return $this->crud->performSaveAction($item->getKey());
     }
 
-    public function update()
+    function update()
     {
         $this->crud->hasAccessOrFail('update');
 
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
 
-        $getProject = ProjectMaster::where('project_id',$request->project_id)
-                            ->first();
-                            
-        $enddate   = $request->end_date;    
-        $now = Carbon::now();
-        $amount     = $request->amount;
-        $lastAmount = $getProject->last_amount;
-
-        if($enddate == null){
-
-            $this->crud->getRequest()->request->set('is_closed', 0);
-        
-        }else{
-        
-        if($now >= $enddate || $lastAmount >= $amount){
-        
-            $this->crud->getRequest()->request->set('is_closed', 1);                
-        
-        }else{
-        
-            $this->crud->getRequest()->request->set('is_closed', 0);
-        
+        $getProject = ProjectMaster::where('project_id', $request->project_id)
+            ->firstOrFail();
+        $enddate = $request->end_date;
+        if ($enddate != null) {
+            $enddate = Carbon::parse($enddate)->startOfDay();
         }
-    }
+        $now = Carbon::now()->startOfDay();
+        $amount = $request->amount;
+        $lastAmount = $getProject->last_amount;
+        if (($enddate != null & $now > $enddate) || $lastAmount >= $amount) {
+            $this->crud->getRequest()->request->set('is_closed', 1);
+
+        } else {
+            $this->crud->getRequest()->request->set('is_closed', 0);
+        }
+
         // update the row in the db
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-                            $this->crud->getStrippedSaveRequest());
+            $this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
 
         // show a success message
@@ -357,7 +359,6 @@ class ProjectMasterCrudController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
-
 
     function setupShowOperation()
     {
@@ -370,7 +371,7 @@ class ProjectMasterCrudController extends CrudController
             ],
             [
                 'name' => 'discription',
-                'label' => 'Diskripsi',
+                'label' => 'Deskripsi',
                 'type' => 'text',
                 'escaped' => false,
 
@@ -387,20 +388,20 @@ class ProjectMasterCrudController extends CrudController
             ],
             [
                 'name' => 'amount',
-                'label' => 'Nominal yang dibutuhkan',
-                'type' => 'text',
-                'prefix'=> 'Rp. '
+                'label' => 'Nominal',
+                'type' => 'number',
+                'prefix' => 'Rp. ',
             ],
             [
-                'name'     => 'featured_image',
-                'label'    => 'Foto',
-                'type'     => 'image',
-                'prefix'   => 'storage/',
-                'height'   => '150px',
-                'function' => function($entry) {          
-                 return   url($entry->featured_image);
-                }
-              ],
+                'name' => 'featured_image',
+                'label' => 'Foto',
+                'type' => 'image',
+                'prefix' => 'storage/',
+                'height' => '150px',
+                'function' => function ($entry) {
+                    return url($entry->featured_image);
+                },
+            ],
 
         ]);
     }
@@ -411,9 +412,8 @@ class ProjectMasterCrudController extends CrudController
         $cekProject = OrderProject::where('project_id', $id);
         $project = $cekProject->exists();
 
-        $cekImg = ProjectMasterDetail::where('project_id',$id);
-        $img    = $cekImg->exists();
-
+        $cekImg = ProjectMasterDetail::where('project_id', $id);
+        $img = $cekImg->exists();
 
         $id = $this->crud->getCurrentEntryId() ?? $id;
         if ($project == true || $img == true) {
