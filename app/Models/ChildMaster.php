@@ -63,7 +63,7 @@ class ChildMaster extends Model
     }
     public function users()
     {
-      return $this->hasMany(User::class, 'id','created_by');
+      return $this->belongsTo(User::class,'created_by', 'id');
     }
     /*
     |--------------------------------------------------------------------------

@@ -76,12 +76,16 @@ class ProjectMasterCrudController extends CrudController
                 },
             ],
             [
-                'type' => 'relationship',
-                'name' => 'users', // the relationship name in your Model
-                'label' => 'Author',
+                'type' => 'select',
+                'name' => 'created_by', // the relationship name in your Model
+                'label' => 'Last Author',
                 'entity' => 'users', // the relationship name in your Model
                 'attribute' => 'name', // attribute on Article that is shown to admin
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+                'model'     => "App\Models\Users",
+                'orderLogic' => function ($query, $column, $columnDirection) {
+                    return $query->leftJoin('users', 'users.id', '=', 'project_master.created_by')
+                        ->orderBy('users.name', $columnDirection)->select('project_master.*');
+                }
             ],
 
         ]);
@@ -101,7 +105,6 @@ class ProjectMasterCrudController extends CrudController
     function setupCreateOperation()
     {
         CRUD::setValidation(ProjectMasterRequest::class);
-        $userid = backpack_user()->id;
 
         $title = [
             'name' => 'title',
@@ -190,7 +193,6 @@ class ProjectMasterCrudController extends CrudController
             'name' => 'created_by',
             'type' => 'hidden',
             'label' => 'id',
-            'default' => $userid,
         ];
         $isclosed = [
             'name' => 'is_closed',
@@ -275,10 +277,10 @@ class ProjectMasterCrudController extends CrudController
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
             'prefix' => '/storage',
         ];
+
         $createdby = [
             'name' => 'created_by',
             'type' => 'hidden',
-            'label' => 'id',
         ];
 
         $isClosed = [
@@ -310,6 +312,9 @@ class ProjectMasterCrudController extends CrudController
         } else {
             $this->crud->getRequest()->request->set('is_closed', 0);
         }
+
+        // MERGE USER
+        $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
         $item = $this->crud->create($this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
@@ -345,6 +350,9 @@ class ProjectMasterCrudController extends CrudController
         } else {
             $this->crud->getRequest()->request->set('is_closed', 0);
         }
+
+        // MERGE USER
+        $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
         // update the row in the db
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
@@ -391,6 +399,14 @@ class ProjectMasterCrudController extends CrudController
                 'label' => 'Nominal',
                 'type' => 'number',
                 'prefix' => 'Rp. ',
+            ],
+            [
+                'type' => 'select',
+                'name' => 'created_by', // the relationship name in your Model
+                'label' => 'Last Author',
+                'entity' => 'users', // the relationship name in your Model
+                'attribute' => 'name', // attribute on Article that is shown to admin
+                'model'     => "App\Models\Users",
             ],
             [
                 'name' => 'featured_image',

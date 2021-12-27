@@ -71,12 +71,16 @@ class ChildMasterCrudController extends CrudController
             ],
 
             [
-                'type' => 'relationship',
-                'name' => 'users', // the relationship name in your Model
-                'label' => 'Author',
+                'type' => 'select',
+                'name' => 'created_by', // the relationship name in your Model
+                'label' => 'Last Author',
                 'entity' => 'users', // the relationship name in your Model
                 'attribute' => 'name', // attribute on Article that is shown to admin
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+                'model'     => "App\Models\Users",
+                'orderLogic' => function ($query, $column, $columnDirection) {
+                    return $query->leftJoin('users', 'users.id', '=', 'child_master.created_by')
+                        ->orderBy('users.name', $columnDirection)->select('child_master.*');
+                }
             ],
             [
                 'name' => 'DLP',
@@ -101,13 +105,9 @@ class ChildMasterCrudController extends CrudController
     {
         CRUD::setValidation(ChildMasterRequest::class);
 
-        $userid = backpack_user()->id;
-
         $createdby = [
             'name' => 'created_by',
             'type' => 'hidden',
-            'label' => "Nama Lengkap",
-            'default' => $userid,
         ];
         $name = [
             'name' => 'full_name',
@@ -369,8 +369,6 @@ class ChildMasterCrudController extends CrudController
         $createdby = [
             'name' => 'created_by',
             'type' => 'hidden',
-            'label' => "Nama Lengkap",
-            // 'default' => $userid,
         ];
         $name = [
             'name' => 'full_name',
@@ -741,6 +739,15 @@ class ChildMasterCrudController extends CrudController
             ],
 
             [
+                'type' => 'select',
+                'name' => 'created_by', // the relationship name in your Model
+                'label' => 'Last Author',
+                'entity' => 'users', // the relationship name in your Model
+                'attribute' => 'name', // attribute on Article that is shown to admin
+                'model'     => "App\Models\Users",
+            ],
+
+            [
                 'name' => 'photo_profile',
                 'label' => 'Foto Profile',
                 'type' => 'image',
@@ -825,6 +832,10 @@ class ChildMasterCrudController extends CrudController
         if (count($error) > 0) {
             return $this->redirectStoreCrud($error);
         }
+
+        // MERGE USER
+        $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
+
         // insert item in the db
         $item = $this->crud->create($this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
@@ -874,6 +885,9 @@ class ChildMasterCrudController extends CrudController
         if (count($error) > 0) {
             return $this->redirectUpdateCrud($id, $error);
         }
+
+        // MERGE USER
+        $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
         $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
             $this->crud->getStrippedSaveRequest());

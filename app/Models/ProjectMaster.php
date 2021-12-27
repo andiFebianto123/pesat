@@ -40,7 +40,7 @@ class ProjectMaster extends Model
 
     public function users()
     {
-      return $this->hasMany(User::class, 'id','created_by');
+      return $this->belongsTo(User::class, 'created_by', 'id');
     }
     public function sponsor_type()
     {
