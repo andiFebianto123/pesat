@@ -193,15 +193,18 @@ class DataOrderProjectCrudController extends CrudController
             $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
             $project = ProjectMaster::where('project_id', $request->project_id)->first();
 
+            $error = [];
             if (empty($sponsor)) {
-                \Alert::error(trans("The selected sponsor is invalid."))->flash();
-                return $this->redirectStoreCrud(['message' => "The selected sponsor is invalid."]);
+                $error['sponsor_id'] = ["The selected sponsor is invalid."];
+            }
+            if (empty($project)) {
+                $error['project_id'] = ["The selected project is invalid."];
+            }
+            if (count($error) != 0) {
+                DB::rollback();
+                return $this->redirectStoreCrud(['message' => $error]);
             }
 
-            if (empty($project)) {
-                \Alert::error(trans("The selected project is invalid."))->flash();
-                return $this->redirectStoreCrud(['message' => "The selected project is invalid."]);
-            }
 
             $orderProject = OrderProject::create([
                 'sponsor_id' => $request->sponsor_id,
@@ -247,7 +250,6 @@ class DataOrderProjectCrudController extends CrudController
             return $this->crud->performSaveAction($item->getKey());
         } catch (Execption $e) {
             if ($e->getCode() == 404) {
-                \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
                 return $this->redirectStoreCrud(['message' => ('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode())]);
             }
 
@@ -320,42 +322,41 @@ class DataOrderProjectCrudController extends CrudController
             DB::rollBack();
         }
     }
-    public function update()
+    public function update($id, Request $request)
     {
         $this->crud->hasAccessOrFail('update');
-        $redirectUrl = $this->crud->route;
 
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
 
-        $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
-        $project = ProjectMaster::where('project_id', $request->project_id)->first();
-
-        if (empty($sponsor)) {
-            \Alert::error(trans("The selected sponsor is invalid."))->flash();
-            return \Redirect::to($redirectUrl);
-        }
-
-        if (empty($project)) {
-            \Alert::error(trans("The selected project is invalid."))->flash();
-            return \Redirect::to($redirectUrl);
-        }
-
-
-        $getStatus = OrderProject::where('order_project_id', $request->order_project_id)->firstOrFail();
-
-        $getStatusMidtrans = $getStatus->order_project_id_midtrans;
 
         DB::beginTransaction();
 
         try {
+            $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
+            $project = ProjectMaster::where('project_id', $request->project_id)->first();
+
+            $error = [];
+            if (empty($sponsor)) {
+                $error['sponsor_id'] = ["The selected sponsor is invalid."];
+            }
+            if (empty($project)) {
+                $error['project_id'] = ["The selected project is invalid."];
+            }
+            if (count($error) != 0) {
+                DB::rollback();
+                return $this->redirectUpdateCrud($id, ['message' => $error]);
+            }
+
+            $getStatus = OrderProject::where('order_project_id', $request->order_project_id)->firstOrFail();
+
+            $getStatusMidtrans = $getStatus->order_project_id_midtrans;
+
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
 
             if ($decoderespon['transaction_status']) {
-
-                \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
-                return \Redirect::to($redirectUrl);
+                return $this->redirectUpdateCrud($id, ['message' => ['Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans']]);
             }
 
             $item = $this->crud->update(
@@ -388,8 +389,7 @@ class DataOrderProjectCrudController extends CrudController
             return $this->crud->performSaveAction($item->getKey());
         } catch (Exception $e) {
             if ($e->getCode() == 404) {
-                \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
-                return \Redirect::to($redirectUrl);
+                return $this->redirectUpdateCrud($id, ['message' => ['Gagal mendapatkan status order proyek dari Midtrans']]);
             }
 
             DB::rollBack();
