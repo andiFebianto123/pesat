@@ -8,6 +8,7 @@ use App\Models\ProjectMaster;
 use App\Models\Sponsor;
 use App\Services\Midtrans\CreateSnapTokenForProjectService;
 use App\Services\Midtrans\CreateSnapTokenService;
+use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
@@ -26,10 +27,17 @@ class DataOrderProjectCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitstore;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        edit as traitedit;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        update as traitupdate;
+    }
     //use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RedirectCrud;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -59,33 +67,33 @@ class DataOrderProjectCrudController extends CrudController
                 'name' => 'order_project_id',
                 'label' => 'Order ID',
                 'type' => 'text',
-              
+
             ],
             [
                 'name' => 'sponsor_id',
                 'label' => 'Sponsor',
                 'entity' => 'sponsorname',
                 'attribute' => 'full_name',
-              
+
             ],
             [
                 'name' => 'project_id',
                 'label' => 'Nama Proyek',
                 'entity' => 'projectname',
                 'attribute' => 'title',
-              
+
             ],
             [
                 'name' => 'price',
                 'label' => 'Nominal Donasi',
-                'prefix'=> 'Rp. '
+                'prefix' => 'Rp. '
             ],
             [
                 'name' => 'payment_status',
                 'label' => 'Status Pembayaran',
                 'type' => 'radio',
-                'options' => [1 => 'Menungggu Pembayaran', 2 => 'Sukses',3 =>'Batal'],
-              
+                'options' => [1 => 'Menungggu Pembayaran', 2 => 'Sukses', 3 => 'Batal'],
+
             ],
         ]);
 
@@ -108,27 +116,27 @@ class DataOrderProjectCrudController extends CrudController
 
 
         $this->crud->addFields([
-                    [
-                            'name' => 'sponsor_id',
-                            'label' => "Nama Sponsor",
-                            'type' => 'select2_from_array',
-                            'allows_null' => false,
-                            'options' => $this->sponsor(),
-                
-                    ],
-                    [
-                            'name' => 'project_id',
-                            'label' => "Nama Proyek",
-                            'type' => 'select2_from_array',
-                            'allows_null' => false,
-                            'options' => $this->project(),
-                    ],
-                    [
-                            'name'  => 'price',
-                            'label' => 'Total Donasi'
-                    ],
-    ]);
- 
+            [
+                'name' => 'sponsor_id',
+                'label' => "Nama Sponsor",
+                'type' => 'select2_from_array',
+                'allows_null' => false,
+                'options' => $this->sponsor(),
+
+            ],
+            [
+                'name' => 'project_id',
+                'label' => "Nama Proyek",
+                'type' => 'select2_from_array',
+                'allows_null' => false,
+                'options' => $this->project(),
+            ],
+            [
+                'name'  => 'price',
+                'label' => 'Total Donasi'
+            ],
+        ]);
+
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -147,7 +155,7 @@ class DataOrderProjectCrudController extends CrudController
     {
         //$this->setupCreateOperation();
         CRUD::setValidation(DataOrderProjectRequest::class);
-        $sponsor=[
+        $sponsor = [
             'name' => 'sponsor_id',
             'label' => "Nama Sponsor",
             'type' => 'select2_from_array',
@@ -155,21 +163,21 @@ class DataOrderProjectCrudController extends CrudController
             'options' => $this->sponsor(),
 
         ];
-        $project=[
+        $project = [
             'name' => 'project_id',
             'label' => "Nama Proyek",
             'type' => 'select2_from_array',
             'allows_null' => false,
             'options' => $this->project(),
         ];
-        $price=[
+        $price = [
             'name'  => 'price',
             'type'  => 'text',
             'label' => 'Total Donasi'
         ];
         $this->crud->addFields([
-            
-            $sponsor,$project,$price
+
+            $sponsor, $project, $price
         ]);
     }
 
@@ -178,68 +186,85 @@ class DataOrderProjectCrudController extends CrudController
         $this->crud->hasAccessOrFail('create');
 
         $request = $this->crud->validateRequest();
+        DB::beginTransaction();
 
-        $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
-        $project = ProjectMaster::where('project_id', $request->project_id)->first();
+        try {
 
-        if(empty($sponsor)) {
-            \Alert::error(trans("The selected sponsor is invalid."))->flash();
-            return redirect()->back();
+            $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
+            $project = ProjectMaster::where('project_id', $request->project_id)->first();
+
+            if (empty($sponsor)) {
+                \Alert::error(trans("The selected sponsor is invalid."))->flash();
+                return $this->redirectStoreCrud(['message' => "The selected sponsor is invalid."]);
+            }
+
+            if (empty($project)) {
+                \Alert::error(trans("The selected project is invalid."))->flash();
+                return $this->redirectStoreCrud(['message' => "The selected project is invalid."]);
+            }
+
+            $orderProject = OrderProject::create([
+                'sponsor_id' => $request->sponsor_id,
+                'project_id' => $request->project_id,
+                'price'   => $request->price,
+                'payment_status' => 1,
+                'created_at'    => Carbon::now(),
+
+            ]);
+
+            $id = $orderProject->order_project_id;
+
+            $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id', $id)
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
+                ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
+                ->select(
+                    'order_project.*',
+                    'pm.title',
+                    'sm.full_name',
+                    'sm.email',
+                    'sm.no_hp'
+                )
+                ->get();
+
+            $order = OrderProject::where('order_project_id', $id)->first();
+            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $id);
+            $snapToken = $midtrans->getSnapToken();
+            $order->snap_token = $snapToken;
+            $order->order_project_id_midtrans = 'proyek-' . $id;
+            $order->save();
+
+            // show a success message
+            \Alert::success(trans('backpack::crud.insert_success'))->flash();
+
+            // save the redirect choice for next time
+            $this->crud->setSaveAction();
+
+            $item = $orderProject;
+            $this->data['entry'] = $this->crud->entry = $item;
+
+            DB::commit();
+
+            return $this->crud->performSaveAction($item->getKey());
+        } catch (Execption $e) {
+            if ($e->getCode() == 404) {
+                \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
+                return $this->redirectStoreCrud(['message' => ('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode())]);
+            }
+
+            DB::rollBack();
         }
-
-        if(empty($project)) {
-            \Alert::error(trans("The selected project is invalid."))->flash();
-            return redirect()->back();
-        }
-
-        $orderProject = OrderProject::create([
-            'sponsor_id' => $request->sponsor_id,
-            'project_id' => $request->project_id,
-            'price'   => $request->price,
-            'payment_status' => 1,
-            'created_at'    => Carbon::now(),
-
-        ]);
-
-        $id = $orderProject->order_project_id;
-
-        $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$id)
-        ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
-        ->join('project_master as pm','pm.project_id','=','order_project.project_id')
-        ->select(
-            'order_project.*', 
-            'pm.title',
-            'sm.full_name',
-            'sm.email',
-            'sm.no_hp'
-            )
-        ->get();
-
-        $order = OrderProject::where('order_project_id',$id)->first();                        
-        $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder,$id);
-        $snapToken = $midtrans->getSnapToken();
-        $order->snap_token = $snapToken;
-        $order->order_project_id_midtrans = 'proyek-'.$id;
-        $order->save();
-        
-        // show a success message
-        \Alert::success(trans('backpack::crud.insert_success'))->flash();
-
-        // save the redirect choice for next time
-        $this->crud->setSaveAction();
-
-        //return $this->crud->performSaveAction($item->getKey());
-        return redirect()->back();
     }
 
-    public function project(){
+    public function project()
+    {
 
         $getproject = ProjectMaster::get();
         $collection = collect($getproject);
         $project = $collection->pluck('title', 'project_id') ? $collection->pluck('title', 'project_id') : 0 / null;
         return $project;
     }
-    public function sponsor(){
+    public function sponsor()
+    {
 
         $getsponsor = Sponsor::get();
         $collection = collect($getsponsor);
@@ -247,122 +272,127 @@ class DataOrderProjectCrudController extends CrudController
         return $sponsor;
     }
 
-    function validateRepeatableFields($products){
-    foreach ($products as $group) {
-        Validator::make((array)$group, [
-            'price' => 'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
-        ])->validate();
+    function validateRepeatableFields($products)
+    {
+        foreach ($products as $group) {
+            Validator::make((array)$group, [
+                'price' => 'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
+            ])->validate();
+        }
     }
-}
 
     public function edit($id)
-    {       
+    {
         $getStatus = OrderProject::where('order_project_id', $id)->firstOrFail();
-           
+
         $getStatusMidtrans = $getStatus->order_project_id_midtrans;
-        
-        try{        
+        DB::beginTransaction();
+
+        try {
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-            
-            if($decoderespon['transaction_status']){
-    
+
+            if ($decoderespon['transaction_status']) {
+
                 \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
-                return redirect()->back();   
+                return redirect()->back();
             }
-            
-        }catch(Exception $e){
-            if($e->getCode() == 404) {
+
+            $this->crud->hasAccessOrFail('update');
+            // get entry ID from Request (makes sure its the last ID for nested resources)
+            $id = $this->crud->getCurrentEntryId() ?? $id;
+            $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
+            // get the info for that entry
+            $this->data['entry'] = $this->crud->getEntry($id);
+            $this->data['crud'] = $this->crud;
+            $this->data['saveAction'] = $this->crud->getSaveAction();
+            $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
+
+            $this->data['id'] = $id;
+            DB::commit();
+
+            // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+            return view($this->crud->getEditView(), $this->data);
+        } catch (Exception $e) {
+            if ($e->getCode() == 404) {
                 \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
                 return redirect()->back();
             }
+            DB::rollBack();
         }
-
-        $this->crud->hasAccessOrFail('update');
-    // get entry ID from Request (makes sure its the last ID for nested resources)
-        $id = $this->crud->getCurrentEntryId() ?? $id;
-        $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
-    // get the info for that entry
-        $this->data['entry'] = $this->crud->getEntry($id);
-        $this->data['crud'] = $this->crud;
-        $this->data['saveAction'] = $this->crud->getSaveAction();
-        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit').' '.$this->crud->entity_name;
-
-        $this->data['id'] = $id;
-
-    // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
-        return view($this->crud->getEditView(), $this->data);
     }
     public function update()
     {
         $this->crud->hasAccessOrFail('update');
+        $redirectUrl = $this->crud->route;
 
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-        
+
         $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
         $project = ProjectMaster::where('project_id', $request->project_id)->first();
 
-        if(empty($sponsor)) {
+        if (empty($sponsor)) {
             \Alert::error(trans("The selected sponsor is invalid."))->flash();
-            return redirect()->back();
+            return \Redirect::to($redirectUrl);
         }
 
-        if(empty($project)) {
+        if (empty($project)) {
             \Alert::error(trans("The selected project is invalid."))->flash();
-            return redirect()->back();
+            return \Redirect::to($redirectUrl);
         }
 
-        
+
         $getStatus = OrderProject::where('order_project_id', $request->order_project_id)->firstOrFail();
-           
+
         $getStatusMidtrans = $getStatus->order_project_id_midtrans;
-        
+
         DB::beginTransaction();
 
-        try{        
+        try {
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-            
-            if($decoderespon['transaction_status']){
-    
+
+            if ($decoderespon['transaction_status']) {
+
                 \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
-                return redirect()->back();   
+                return \Redirect::to($redirectUrl);
             }
 
-            $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-                            $this->crud->getStrippedSaveRequest());
+            $item = $this->crud->update(
+                $request->get($this->crud->model->getKeyName()),
+                $this->crud->getStrippedSaveRequest()
+            );
             $this->data['entry'] = $this->crud->entry = $item;
+
+            $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id', $item->order_project_id)
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
+                ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
+                ->get();
+
+            $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
+
+            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, "proyek-" . $request->order_project_id . "-" . Carbon::now());
+            $snapToken = $midtrans->getSnapToken();
+            $order->snap_token = $snapToken;
+            $order->price = $item->price;
+            $order->save();
 
             // show a success message
             \Alert::success(trans('backpack::crud.update_success'))->flash();
 
             // save the redirect choice for next time
-
-            
-            $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$item->order_project_id)
-            ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
-            ->join('project_master as pm','pm.project_id','=','order_project.project_id')
-            ->get();
-        
-            $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
-        
-            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, "proyek-" . $request->order_project_id . "-" . Carbon::now());
-            $snapToken = $midtrans->getSnapToken();
-            $order->snap_token = $snapToken;
-            $order->price =$item->price;
-            $order->save();
-
             $this->crud->setSaveAction();
+
             DB::commit();
 
             return $this->crud->performSaveAction($item->getKey());
-            
-        }catch(Exception $e){
-            DB::rollBack();
-            if($e->getCode() == 404) {
+        } catch (Exception $e) {
+            if ($e->getCode() == 404) {
                 \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
-                return redirect()->back();
+                return \Redirect::to($redirectUrl);
             }
+
+            DB::rollBack();
         }
     }
 }
