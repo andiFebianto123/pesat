@@ -7,6 +7,8 @@ use App\Models\ChildMaster;
 use App\Models\DataDetailOrder;
 use App\Models\DataOrder;
 use App\Models\OrderProject;
+use App\Models\ProjectMaster;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -15,16 +17,10 @@ class CancelOrderController extends Controller
     //
     public function index($id)
     {
-
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
         $cekDatas = DataOrder::where('order_id', $id)->first();
-        
+
         $getOrderIdMidtrans = $cekDatas->order_id_midtrans;
-        
+
 
         $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get('child_id');
         DB::beginTransaction();
@@ -36,7 +32,6 @@ class CancelOrderController extends Controller
                 DB::commit();
                 \Alert::add('error', 'Tidak bisa cancel order, karena sudah ada pembayaran')->flash();
                 return back()->withMessage(['message' => 'Tidak bisa cancel order, karena sudah ada pembayaran']);
-
             } else {
 
                 try {
@@ -55,14 +50,12 @@ class CancelOrderController extends Controller
                         $child->is_sponsored = 0;
                         $child->current_order_id = null;
                         $child->save();
-
                     }
 
                     DB::commit();
 
                     \Alert::add('success', 'Transaksi berhasil dibatalkan')->flash();
                     return back()->withMessage(['message' => 'Transaksi berhasil dibatalkan']);
-
                 } catch (Exception $e) {
 
                     if ($e->getCode() == 404) {
@@ -77,25 +70,21 @@ class CancelOrderController extends Controller
                             $child->is_sponsored = 0;
                             $child->current_order_id = null;
                             $child->save();
-
                         }
 
                         DB::commit();
 
                         \Alert::add('success', 'Order berhasil dibatalkan')->flash();
                         return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
-
                     } elseif ($e->getCode() == 412) {
 
                         DB::commit();
                         \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
                         return back()->withMessage(['message' => 'Status transaksi sudah tidak bisa dirubah']);
-
                     } else {
                         throw $e;
                     }
                 }
-
             }
         } else {
             DB::commit();
@@ -103,72 +92,67 @@ class CancelOrderController extends Controller
             \Alert::add('error', 'Data order tidak ada')->flash();
             return back()->withMessage(['message' => 'Data order tidak ada']);
         }
-
     }
     public function projectcancelorder($id)
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
         $projectOrder = OrderProject::where('order_project_id', $id)->first();
+
+        if (empty($projectOrder)) {
+            \Alert::add('error', 'Order proyek tidak ditemukan')->flash();
+            return back()->withMessage(['message' => 'Order proyek tidak ditemukan']);
+        }
+
+        $getProjectId = $projectOrder->project_id;
 
         DB::beginTransaction();
 
-        if ($projectOrder !== null) {
+        try {
+            $orderId =  $projectOrder->order_project_id_midtrans;
+            \Midtrans\Transaction::cancel($orderId);
 
-            if ($projectOrder->payment_status == 2) {
+            $projectOrder->payment_status = 3;
+            $projectOrder->status_midtrans = 'cancel';
+            $projectOrder->save();
 
-                DB::commit();
+            $totalPrice = OrderProject::where('project_id', $getProjectId)
+                ->where('payment_status', 2)
+                ->groupBy('project_id')
+                ->sum('price');
+            
+            $project = ProjectMaster::where('project_id', $getProjectId)->first();
 
-                \Alert::add('error', 'Tidak bisa cancel order, karena sudah ada pembayaran')->flash();
-                return back()->withMessage(['message' => 'Tidak bisa cancel order, karena sudah ada pembayaran']);
+            $amount = $project->amount;
+            $enddate = Carbon::parse($project->end_date)->startOfDay();
+            $now = Carbon::now();
 
-            } else {
-
-                try {
-                    $orderId =  "proyek-" . $id;
-                    \Midtrans\Transaction::cancel($orderId);
-
-                    $projectOrder->payment_status = 3;
-                    $projectOrder->status_midtrans = 'cancel';
-                    $projectOrder->save();
-
-                    DB::commit();
-
-                    \Alert::add('success', 'Order berhasil dibatalkan')->flash();
-                    return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
-                } catch (Exception $e) {
-
-                    if ($e->getCode() == 404) {
-                        $projectOrder->payment_status = 3;
-                        $projectOrder->save();
-
-                        DB::commit();
-                        \Alert::add('success', 'Order berhasil dibatalkan')->flash();
-                        return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
-
-                    } elseif ($e->getCode() == 412) {
-
-                        DB::commit();
-                        \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
-                        return back()->withMessage(['message' => 'Status transaksi sudah tidak bisa dirubah']);
-
-                    } else {
-                        throw $e;
-                    }
-
-                }
-
+            if (($enddate != null && $now > $enddate) || $totalPrice >= $amount) {
+                $project->is_closed = true;
+                $project->save();
             }
-        } else {
 
             DB::commit();
 
-            \Alert::add('error', 'Data order tidak ada')->flash();
-            return back()->withMessage(['message' => 'Data order tidak ada']);
-        }
+            \Alert::add('success', 'Order berhasil dibatalkan')->flash();
+            return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
+        } catch (Exception $e) {
 
+            if ($e->getCode() == 404) {
+                $projectOrder->payment_status = 3;
+                $projectOrder->save();
+
+                DB::commit();
+                \Alert::add('success', 'Order berhasil dibatalkan')->flash();
+                return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
+            } elseif ($e->getCode() == 412) {
+
+                DB::commit();
+                \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
+                return back()->withMessage(['message' => 'Status transaksi sudah tidak bisa dirubah']);
+            } else {
+                DB::rollBack();
+                \Alert::add('error', 'Gagal melakukan perubahan status order proyek di Midtrans' . $e->getCode())->flash();
+                return back()->withMessage(['message' => ('Gagal melakukan perubahan status order proyek di Midtrans' . $e->getCode())]);
+            }
+        }
     }
 }
