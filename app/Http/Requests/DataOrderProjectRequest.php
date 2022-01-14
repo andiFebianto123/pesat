@@ -27,7 +27,8 @@ class DataOrderProjectRequest extends FormRequest
     {
         return [
             'sponsor_id' =>  'required|regex:/^[0-9]+$/',
-            'price' =>  'required|integer|min:1|regex:/^-?[0-9]+(?:\.[0-9]{1,2})?$/',
+            'price' =>  'required|integer|min:1',
+            'project_id' => 'required|regex:/^[0-9]+$/'
         ];
     }
 
