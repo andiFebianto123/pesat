@@ -179,7 +179,20 @@ class DataOrderProjectCrudController extends CrudController
 
         $request = $this->crud->validateRequest();
 
-        $id = DB::table('order_project')->insertGetId([
+        $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
+        $project = ProjectMaster::where('project_id', $request->project_id)->first();
+
+        if(empty($sponsor)) {
+            \Alert::error(trans("The selected sponsor is invalid."))->flash();
+            return redirect()->back();
+        }
+
+        if(empty($project)) {
+            \Alert::error(trans("The selected project is invalid."))->flash();
+            return redirect()->back();
+        }
+
+        $orderProject = OrderProject::create([
             'sponsor_id' => $request->sponsor_id,
             'project_id' => $request->project_id,
             'price'   => $request->price,
@@ -187,6 +200,9 @@ class DataOrderProjectCrudController extends CrudController
             'created_at'    => Carbon::now(),
 
         ]);
+
+        $id = $orderProject->order_project_id;
+
         $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$id)
         ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
         ->join('project_master as pm','pm.project_id','=','order_project.project_id')
@@ -264,7 +280,7 @@ class DataOrderProjectCrudController extends CrudController
         
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
             
-            if($decoderespon->transaction_status){
+            if($decoderespon['transaction_status']){
     
                 \Alert::error(trans('Tidak bisa ubah data, no order sudah terdaftar di payment gateway'))->flash();
                 return redirect()->back();
