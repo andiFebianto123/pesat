@@ -299,32 +299,70 @@ class DataOrderProjectCrudController extends CrudController
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-     
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-                            $this->crud->getStrippedSaveRequest());
-        $this->data['entry'] = $this->crud->entry = $item;
+        
+        $sponsor = Sponsor::where('sponsor_id', $request->sponsor_id)->first();
+        $project = ProjectMaster::where('project_id', $request->project_id)->first();
 
-        // show a success message
-        \Alert::success(trans('backpack::crud.update_success'))->flash();
+        if(empty($sponsor)) {
+            \Alert::error(trans("The selected sponsor is invalid."))->flash();
+            return redirect()->back();
+        }
 
-        // save the redirect choice for next time
+        if(empty($project)) {
+            \Alert::error(trans("The selected project is invalid."))->flash();
+            return redirect()->back();
+        }
 
         
-        $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$item->order_project_id)
-        ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
-        ->join('project_master as pm','pm.project_id','=','order_project.project_id')
-        ->get();
+        $getStatus = OrderProject::where('order_project_id', $request->order_project_id)->firstOrFail();
+           
+        $getStatusMidtrans = $getStatus->order_project_id_midtrans;
+        
+        DB::beginTransaction();
+
+        try{        
+            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+            
+            if($decoderespon['transaction_status']){
     
-        $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
-      
-        $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $request->order_project_id);
-        $snapToken = $midtrans->getSnapToken();
-        $order->snap_token = $snapToken;
-        $order->price =$item->price;
-        $order->save();
+                \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
+                return redirect()->back();   
+            }
 
-        $this->crud->setSaveAction();
+            $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
+                            $this->crud->getStrippedSaveRequest());
+            $this->data['entry'] = $this->crud->entry = $item;
 
-        return $this->crud->performSaveAction($item->getKey());
+            // show a success message
+            \Alert::success(trans('backpack::crud.update_success'))->flash();
+
+            // save the redirect choice for next time
+
+            
+            $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id',$item->order_project_id)
+            ->join('sponsor_master as sm','sm.sponsor_id','=','order_project.sponsor_id')
+            ->join('project_master as pm','pm.project_id','=','order_project.project_id')
+            ->get();
+        
+            $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
+        
+            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, "proyek-" . $request->order_project_id . "-" . Carbon::now());
+            $snapToken = $midtrans->getSnapToken();
+            $order->snap_token = $snapToken;
+            $order->price =$item->price;
+            $order->save();
+
+            $this->crud->setSaveAction();
+            DB::commit();
+
+            return $this->crud->performSaveAction($item->getKey());
+            
+        }catch(Exception $e){
+            DB::rollBack();
+            if($e->getCode() == 404) {
+                \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
+                return redirect()->back();
+            }
+        }
     }
 }
