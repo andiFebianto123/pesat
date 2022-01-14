@@ -202,7 +202,7 @@ class DataOrderProjectCrudController extends CrudController
             }
             if (count($error) != 0) {
                 DB::rollback();
-                return $this->redirectStoreCrud(['message' => $error]);
+                return $this->redirectStoreCrud($error);
             }
 
 
@@ -249,11 +249,8 @@ class DataOrderProjectCrudController extends CrudController
 
             return $this->crud->performSaveAction($item->getKey());
         } catch (Execption $e) {
-            if ($e->getCode() == 404) {
-                return $this->redirectStoreCrud(['message' => ('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode())]);
-            }
-
             DB::rollBack();
+            throw $e;
         }
     }
 
@@ -285,42 +282,37 @@ class DataOrderProjectCrudController extends CrudController
 
     public function edit($id)
     {
+        $this->crud->hasAccessOrFail('update');
+
         $getStatus = OrderProject::where('order_project_id', $id)->firstOrFail();
 
         $getStatusMidtrans = $getStatus->order_project_id_midtrans;
-        DB::beginTransaction();
 
         try {
             $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
 
-            if ($decoderespon['transaction_status']) {
-
-                \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
-                return redirect()->back();
-            }
-
-            $this->crud->hasAccessOrFail('update');
-            // get entry ID from Request (makes sure its the last ID for nested resources)
-            $id = $this->crud->getCurrentEntryId() ?? $id;
-            $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
-            // get the info for that entry
-            $this->data['entry'] = $this->crud->getEntry($id);
-            $this->data['crud'] = $this->crud;
-            $this->data['saveAction'] = $this->crud->getSaveAction();
-            $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
-
-            $this->data['id'] = $id;
-            DB::commit();
-
-            // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
-            return view($this->crud->getEditView(), $this->data);
+            \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
+            return redirect(url($this->crud->route));
         } catch (Exception $e) {
-            if ($e->getCode() == 404) {
+            if ($e->getCode() != 404) {
                 \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
-                return redirect()->back();
+                return redirect(url($this->crud->route));
             }
-            DB::rollBack();
         }
+
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+        $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->crud->getSaveAction();
+        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
+
+        $this->data['id'] = $id;
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view($this->crud->getEditView(), $this->data);
     }
     public function update($id, Request $request)
     {
@@ -346,18 +338,26 @@ class DataOrderProjectCrudController extends CrudController
             }
             if (count($error) != 0) {
                 DB::rollback();
-                return $this->redirectUpdateCrud($id, ['message' => $error]);
+                return $this->redirectUpdateCrud($id, $error);
             }
 
             $getStatus = OrderProject::where('order_project_id', $request->order_project_id)->firstOrFail();
 
             $getStatusMidtrans = $getStatus->order_project_id_midtrans;
 
-            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-
-            if ($decoderespon['transaction_status']) {
-                return $this->redirectUpdateCrud($id, ['message' => ['Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans']]);
+            try {
+                $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+                \Alert::error(trans('Tidak dapat melakukan perubahan data karena order proyek telah terdaftar di Midtrans'))->flash();
+                DB::rollBack();
+                return redirect(url($this->crud->route));
+            } catch (Execption $e) {
+                if ($e->getCode() != 404) {
+                    \Alert::error(trans('Gagal mendapatkan status order proyek dari Midtrans. ' . $e->getCode()))->flash();
+                    DB::rollBack();
+                    return redirect(url($this->crud->route));
+                }
             }
+
 
             $item = $this->crud->update(
                 $request->get($this->crud->model->getKeyName()),
@@ -372,10 +372,12 @@ class DataOrderProjectCrudController extends CrudController
 
             $order = OrderProject::where('order_project_id', $item->order_project_id)->first();
 
-            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, "proyek-" . $request->order_project_id . "-" . Carbon::now());
+            $orderIdMidtrans = "proyek-" . $request->order_project_id . "-" . Carbon::now()->timestamp;
+            $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $orderIdMidtrans);
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
             $order->price = $item->price;
+            $order->order_project_id_midtrans = $orderIdMidtrans;
             $order->save();
 
             // show a success message
@@ -388,11 +390,8 @@ class DataOrderProjectCrudController extends CrudController
 
             return $this->crud->performSaveAction($item->getKey());
         } catch (Exception $e) {
-            if ($e->getCode() == 404) {
-                return $this->redirectUpdateCrud($id, ['message' => ['Gagal mendapatkan status order proyek dari Midtrans']]);
-            }
-
             DB::rollBack();
+            throw $e;
         }
     }
 }
