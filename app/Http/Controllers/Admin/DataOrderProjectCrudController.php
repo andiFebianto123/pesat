@@ -212,8 +212,6 @@ class DataOrderProjectCrudController extends CrudController
                 'project_id' => $request->project_id,
                 'price'   => $request->price,
                 'payment_status' => 1,
-                'created_at'    => Carbon::now(),
-
             ]);
 
             $id = $orderProject->order_project_id;
