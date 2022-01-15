@@ -27,12 +27,12 @@
       </td>
       <td>{{$projectorder->price}}</td>
       <td>
-      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}">
-        <button class="btn btn-outline-info" type="submit">Detail</button>
+      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}" class="btn btn-outline-info">
+        Detail
       </a>
 @if($projectorder->payment_status==1)
-      <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}">
-        <button class="btn btn-outline-info" type="submit">Pay</button>
+      <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-outline-info">
+        Pay
       </a>
 @endif
       </td>
