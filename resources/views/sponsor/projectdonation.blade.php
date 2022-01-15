@@ -22,7 +22,7 @@
         @elseif($projectorder->payment_status==2)
         {{"suskes"}}
         @else
-        {{"kadaluarsa"}}
+        {{"batal"}}
       @endif
       </td>
       <td>{{$projectorder->price}}</td>

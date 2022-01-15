@@ -60,8 +60,8 @@ class DataOrderProjectCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'Cek_Status', 'last');
-        $this->crud->addButtonFromModelFunction('line', 'cancel', 'cancelOrder', 'last');
+        $this->crud->addButtonFromModelFunction('line', 'cekstatus', 'cekStatus');
+        $this->crud->addButtonFromModelFunction('line', 'cancel', 'cancelOrder');
         $this->crud->addColumns([
 
             [
@@ -94,7 +94,10 @@ class DataOrderProjectCrudController extends CrudController
                 'label' => 'Status Pembayaran',
                 'type' => 'radio',
                 'options' => [1 => 'Menungggu Pembayaran', 2 => 'Sukses', 3 => 'Batal'],
-
+            ],
+            [
+                'name' => 'status_midtrans',
+                'label' => 'Status Midtrans',
             ],
         ]);
 

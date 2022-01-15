@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HistoryStatusPayment extends Model
+class ProjectHistoryStatusPayment extends Model
 {
     use HasFactory;
-    protected $table = 'history_status_payment';
+    protected $table = 'project_history_status_payment';
     protected $primaryKey = 'history_id';
     protected $fillable = ['detail_history', 'status', 'status_midtrans', 'user_id'];
 }

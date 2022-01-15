@@ -25,7 +25,7 @@
                                         @elseif ($order->payment_status == 2)
                                             Sudah Dibayar
                                         @else
-                                            Kadaluarsa
+                                            Batal
                                         @endif
                                     </b></td>
                             </tr>
