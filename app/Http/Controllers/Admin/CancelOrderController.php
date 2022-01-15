@@ -143,8 +143,8 @@ class CancelOrderController extends Controller
 
             DB::commit();
 
-            \Alert::add('success', 'Order proyek berhasil dibatalkan')->flash();
-            return back()->withMessage(['message' => 'Order proyek berhasil dibatalkan']);
+            \Alert::add('success', 'Order proyek berhasil dibatalkan.')->flash();
+            return redirect(backpack_url('data-order-project'));
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
