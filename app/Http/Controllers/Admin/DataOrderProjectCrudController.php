@@ -237,6 +237,8 @@ class DataOrderProjectCrudController extends CrudController
             $orderProject->order_project_id_midtrans = 'proyek-' . $id;
             $orderProject->save();
 
+            DB::commit();
+
             // show a success message
             \Alert::success(trans('backpack::crud.insert_success'))->flash();
 
@@ -245,8 +247,6 @@ class DataOrderProjectCrudController extends CrudController
 
             $item = $orderProject;
             $this->data['entry'] = $this->crud->entry = $item;
-
-            DB::commit();
 
             return $this->crud->performSaveAction($item->getKey());
         } catch (Exception $e) {
@@ -376,13 +376,13 @@ class DataOrderProjectCrudController extends CrudController
             $this->data['entry']->order_project_id_midtrans = $orderIdMidtrans;
             $this->data['entry']->save();
 
+            DB::commit();
+
             // show a success message
             \Alert::success(trans('backpack::crud.update_success'))->flash();
 
             // save the redirect choice for next time
             $this->crud->setSaveAction();
-
-            DB::commit();
 
             return $this->crud->performSaveAction($item->getKey());
         } catch (Exception $e) {
