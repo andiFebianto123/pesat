@@ -1,5 +1,10 @@
 @extends('sidebar')
 @section('content')
+@if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+@endif
 <table class="table">
   <thead>
     <tr>

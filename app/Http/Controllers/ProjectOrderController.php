@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Exception;
 
 class ProjectOrderController extends Controller
 {
@@ -24,7 +25,7 @@ class ProjectOrderController extends Controller
             return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
         } else {
             DB::beginTransaction();
-            
+
             try {
 
                 $idsponsor = $user->sponsor_id;
@@ -61,18 +62,58 @@ class ProjectOrderController extends Controller
 
                 DB::commit();
 
-                return  Redirect::route('orderprojectcheckout', array('snap_token' => $snapToken, 'code' => $OrderId));
+                return  Redirect::route('orderprojectcheckout', array('code' => $OrderId));
             } catch (Execption $e) {
                 DB::rollBack();
                 throw $e;
             }
         }
     }
-    public function orderproject($snapToken, $code)
+    public function orderproject($code)
     {
-        $data['order'] = OrderProject::where('order_project_id', $code)->first();
-        $data['snapToken'] = $snapToken;
+        $orderProject = OrderProject::where('order_project_id', $code)->first();
+        if ($orderProject == null) {
+            return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan']);
+        }
+        $data['order'] = $orderProject;
+        $data['snapToken'] = $orderProject->snap_token;
+        $data['error'] = '';
+        $getStatusMidtrans = $orderProject->order_project_id_midtrans;
 
-        return view('projectshowpayment', $data);
+        DB::beginTransaction();
+        try {
+            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+
+            $response = json_encode($decoderespon);
+            $transaction = $decoderespon['transaction_status'];
+            $type = $decoderespon['payment_type'];
+
+            if ($transaction == 'expire') {
+                $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id', $orderProject->order_project_id)
+                    ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
+                    ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
+                    ->get();
+
+                $code = $orderProject->order_project_id . "-" . Carbon::now()->timestamp;
+                $orderIdMidtrans = "proyek-" . $code;
+                $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $code);
+                $snapToken = $midtrans->getSnapToken();
+                $Snaptokenorder->snap_token = $snapToken;
+                $Snaptokenorder->order_project_id_midtrans = $orderIdMidtrans;
+                $Snaptokenorder->save();
+
+                DB::commit();
+            }
+
+            return view('projectshowpayment', $data);
+        } catch (Exception $e) {
+            if ($e->getCode() != 404) {
+                DB::rollBack();
+                $data['error'] = "Gagal mendapatkan status order proyek dari Midtrans. ["  . $e->getCode() . "]";
+                $data['error_status'] = $e->getCode();
+            }
+
+            return view('projectshowpayment', $data);
+        }
     }
 }
