@@ -120,3 +120,17 @@ width: 100%;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   }
+
+  .navigation nav {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+  @media (min-width: 992px){
+    .navigation nav {
+        padding-bottom: 30px;
+    }
+    #navbarTogglerDemo03 ul {
+        padding-left: 32%;
+    }
+  }

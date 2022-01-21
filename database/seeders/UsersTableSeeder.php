@@ -14,7 +14,7 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        //
+        
         DB::table('users')->insert(
             [
                 'name'       => 'superadmin',
@@ -37,5 +37,16 @@ class UsersTableSeeder extends Seeder
             ],
            
         );
+        // DB::table('users')->insert(
+        //     [
+        //         'name'       => 'admin',
+        //         'email'      => 'admin_ps@gmail.com',
+        //         'password'   => bcrypt('qwerty'),
+        //         'full_name'  => 'Andi febianto',
+        //         'no_hp'      => '08984036667',
+        //         'user_role_id'=> 1,
+        //     ],
+           
+        // );
     }
 }
