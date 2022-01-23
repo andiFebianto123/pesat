@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'daily'),
 
     /*
     |--------------------------------------------------------------------------
@@ -101,10 +101,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'logstatusmidtrans'=>[
-
-            'driver' => 'single',
+        'logstatusmidtrans' => [
+            'driver' => 'daily',
             'path' => storage_path('logs/midtranslog.log'),
+            'level' => 'info',
+        ],
+        
+        'notificationmidtrans' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/notificationmidtranslog.log'),
             'level' => 'info',
         ],
     ],

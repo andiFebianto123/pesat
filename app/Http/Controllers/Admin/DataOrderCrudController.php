@@ -535,7 +535,7 @@ class DataOrderCrudController extends CrudController
                 'sponsor_id' => $sponsorid,
                 'payment_status' => 1,
                 'total_price' => 0,
-
+                'created_at' => Carbon::now()
             ]);
 
             foreach ($uniquedata as $key => $data) {

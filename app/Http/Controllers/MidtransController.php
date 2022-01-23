@@ -2,423 +2,202 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChildMaster;
-use App\Models\DataDetailOrder;
+use Exception;
+use Carbon\Carbon;
 use App\Models\DataOrder;
-use App\Models\OrderHd;
+use App\Models\ChildMaster;
 use App\Models\OrderProject;
 use App\Models\ProjectMaster;
-use Exception;
+use App\Models\DataDetailOrder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\HistoryStatusPayment;
+use App\Models\ProjectHistoryStatusPayment;
 
 class MidtransController extends Controller
 {
     //
     public function notification()
     {
-        DB::beginTransaction();
-
-        try{
-
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
-        $notif = new \Midtrans\Notification();
-
-        $transaction = $notif->transaction_status;
-        $type = $notif->payment_type;
-        $order_id = $notif->order_id;
-        $fraud = $notif->fraud_status;
-
-        $arraynotif = json_encode($notif->getResponse());
-
-        $explodeId = explode('-',$order_id);
-        
-        $cekType = $explodeId[0];
-        
-        $orderId = $explodeId[1];
-
-
-        $getProjectId = OrderProject::where('order_project_id',$orderId)->first();
-       
-        $cekDetailOrder = DataDetailOrder::where('order_id', $orderId)->get();   
-    
-        if ($transaction == 'capture') {
-            // For credit card transaction, we need to check whether transaction is challenge by FDS or not
-
-                if ($cekType == 'proyek') {
-
-                    $projectId    = $getProjectId->project_id;
-                    $amount       = $getProjectId->amount;
-                    
-                    DB::table('project_history_status_payment')->insert([
-                        'detail_history' => $arraynotif,
-                        'status'        =>2,
-                        'status_midtrans' => $transaction,
-        
-                    ]);
-    
-
-                    OrderProject::where('order_project_id', $orderId)
-                        ->update(['status_midtrans' => $transaction,
-                            'payment_status' => 2,
-                            'payment_type' => $type,
-                        ]);
-
-                    $totalPrice = OrderProject::where('project_id', $projectId)
-                        ->where('payment_status', 2)
-                        ->groupBy('project_id')
-                        ->selectRaw('sum(price) as sum_price')
-                        ->pluck('sum_price')
-                        ->first();
-                    
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->last_amount = $totalPrice;
-                    $lastamount->save();
-
-                    if($totalPrice >= $amount){
-                        $lastamount = ProjectMaster::find($projectId);
-                        $lastamount->is_closed = 1;
-                        $lastamount->save();
-
-                    }
-                    
-
-                } else {
-
-                    DB::table('history_status_payment')->insert([
-                        'detail_history' => $arraynotif,
-                        'status'          =>2,
-                        'status_midtrans' => $transaction,
-                    ]);
-
-                    DataOrder::where('order_id', $orderId)
-                        ->update([
-                            'status_midtrans' => $transaction,
-                            'payment_status' => 2,
-                            'payment_type' => $type,
-                        ]);
-                }
-                echo "(capture) Transaction order_id: " . $order_id . " successfully captured using " . $type;
-
-
-        } else if ($transaction == 'settlement') {
-            // TODO set payment status in merchant's database to 'Settlement'
-
-            if ($cekType == 'proyek') {
-
-                $projectId    = $getProjectId->project_id;
-                $amount       = $getProjectId->amount;
-
-                DB::table('project_history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'        =>2,
-                    'status_midtrans' => $transaction,
-    
-                ]);
-
-                OrderProject::where('order_project_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 2,
-                        'payment_type' => $type,
-                    ]);
-                
-                $totalPrice = OrderProject::where('project_id', $projectId)
-                    ->where('payment_status', 2)
-                    ->groupBy('project_id')
-                    ->selectRaw('sum(price) as sum_price')
-                    ->pluck('sum_price')
-                    ->first();
-                
-                $lastamount = ProjectMaster::find($projectId);
-                $lastamount->last_amount = $totalPrice;
-                $lastamount->save();
-
-                if($totalPrice >= $amount){
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->is_closed = 1;
-                    $lastamount->save();
-
-                }
-
-            } else {
-
-                DB::table('history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'          =>2,
-                    'status_midtrans' => $transaction,
-                ]);
-
-                DataOrder::where('order_id', $orderId)
-                    ->update([
-                        'status_midtrans' => $transaction,
-                        'payment_status' => 2,
-                        'payment_type' => $type,
-                    ]);
-            }
-
-            echo "(settlement)" . $cekType . " Transaction order_id: " . $order_id . " successfully transfered using " . $type;
-        } else if ($transaction == 'pending') {
-
-         
-
-            if ($cekType == 'proyek') {
-
-                $projectId    = $getProjectId->project_id;
-                $amount       = $getProjectId->amount;
-
-                DB::table('project_history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'        =>1,
-                    'status_midtrans' => $transaction,
-    
-                ]);
-
-                OrderProject::where('order_project_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 1,
-                        'payment_type' => $type,
-                    ]);
-
-                $totalPrice = OrderProject::where('project_id', $projectId)
-                    ->where('payment_status', 2)
-                    ->groupBy('project_id')
-                    ->selectRaw('sum(price) as sum_price')
-                    ->pluck('sum_price')
-                    ->first();
-                
-                $lastamount = ProjectMaster::find($projectId);
-                $lastamount->last_amount = $totalPrice;
-                $lastamount->save();
-
-                if($totalPrice >= $amount){
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->is_closed = 1;
-                    $lastamount->save();
-
-                }
-
-            } else {
-
-                DB::table('history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'          =>1,
-                    'status_midtrans' => $transaction,
-                ]);
-
-                DataOrder::where('order_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 1,
-                        'payment_type' => $type,
-                    ]);
-            }
-            // TODO set payment status in merchant's database to 'Pending'
-            echo "(pending) Waiting customer to finish transaction order_id: " . $order_id . " using " . $type;
-
-        } else if ($transaction == 'deny') {
-
-            if ($cekType == 'proyek') {
-
-                $projectId    = $getProjectId->project_id;
-                $amount       = $getProjectId->amount;
-                
-                //update child_master (is_sponsored & current_order_id)
-                DB::table('project_history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'        =>3,
-                    'status_midtrans' => $transaction,
-    
-                ]);
-
-                OrderProject::where('order_project_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
-                        'payment_type' => $type,
-                    ]);
-                $totalPrice = OrderProject::where('project_id', $projectId)
-                    ->where('payment_status', 2)
-                    ->groupBy('project_id')
-                    ->selectRaw('sum(price) as sum_price')
-                    ->pluck('sum_price')
-                    ->first();
-                
-                $lastamount = ProjectMaster::find($projectId);
-                $lastamount->last_amount = $totalPrice;
-                $lastamount->save();
-
-                if($totalPrice >= $amount){
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->is_closed = 1;
-                    $lastamount->save();
-
-                }
-            } else {
-
-             //   $getChildId    = $cekDetailOrder->child_id;
-
-                DB::table('history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'          =>3,
-                    'status_midtrans' => $transaction,
-                ]);
-                DataOrder::where('order_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
-                        'payment_type' => $type,
-
-                    ]);
-                
-                    foreach ($cekDetailOrder as $key => $detailOrder) {
-                        
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        $child->is_sponsored = 0;
-                        $child->current_order_id = null;
-                        $child->save();
-
-                    }
-                    
-            }
-            // TODO set payment status in merchant's database to 'Denied'
-            echo "(deny) Payment using " . $type . " for transaction order_id: " . $order_id . " is denied.";
-        } else if ($transaction == 'expire') {
-
-
-            if ($cekType == 'proyek') {
-
-                $projectId    = $getProjectId->project_id;
-                $amount       = $getProjectId->amount;
-
-                DB::table('project_history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'        =>3,
-                    'status_midtrans' => $transaction,
-    
-                ]);
-                OrderProject::where('order_project_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
-                        'payment_type' => $type,
-                    ]);
-
-                $totalPrice = OrderProject::where('project_id', $projectId)
-                    ->where('payment_status', 2)
-                    ->groupBy('project_id')
-                    ->selectRaw('sum(price) as sum_price')
-                    ->pluck('sum_price')
-                    ->first();
-                
-                $lastamount = ProjectMaster::find($projectId);
-                $lastamount->last_amount = $totalPrice;
-                $lastamount->save();
-
-                if($totalPrice >= $amount){
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->is_closed = 1;
-                    $lastamount->save();
-
-                }
-
-            } else {
-
-                DB::table('history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status_midtrans' => $transaction,
-                ]);
-                DataOrder::where('order_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_type' => $type,
-                    ]);
-                
-                    foreach ($cekDetailOrder as $key => $detailOrder) {
-                        
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        $child->is_sponsored = 0;
-                        $child->current_order_id = null;
-                        $child->save();
-
-                    }
-
-            }
-            // TODO set payment status in merchant's database to 'expire'
-            echo "(expire) Payment using " . $type . " for transaction order_id: " . $order_id . " is expired.";
-        } else if ($transaction == 'cancel') {
-
-            if ($cekType == 'proyek') {
-
-                $projectId    = $getProjectId->project_id;
-                $amount       = $getProjectId->amount;
-
-                DB::table('project_history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'        =>3,
-                    'status_midtrans' => $transaction,
-    
-                ]);
-
-                OrderProject::where('order_project_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
-                        'payment_type' => $type,
-                    ]);
-            
-                $totalPrice = OrderProject::where('project_id', $projectId)
-                    ->where('payment_status', 2)
-                    ->groupBy('project_id')
-                    ->selectRaw('sum(price) as sum_price')
-                    ->pluck('sum_price')
-                    ->first();
-                
-                $lastamount = ProjectMaster::find($projectId);
-                $lastamount->last_amount = $totalPrice;
-                $lastamount->save();
-
-                if($totalPrice >= $amount){
-                    $lastamount = ProjectMaster::find($projectId);
-                    $lastamount->is_closed = 1;
-                    $lastamount->save();
-
-                }
-
-            } else {
-
-                DB::table('history_status_payment')->insert([
-                    'detail_history' => $arraynotif,
-                    'status'         => 3,
-                    'status_midtrans'=> $transaction,
-                ]);
-                
-                DataOrder::where('order_id', $orderId)
-                    ->update(['status_midtrans' => $transaction,
-                        'payment_status' => 3,
-                        'payment_type' => $type,
-                    ]);
-
-                foreach ($cekDetailOrder as $key => $detailOrder) {
-                        
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        $child->is_sponsored = 0;
-                        $child->current_order_id = null;
-                        $child->save();
-
-                    }
-            }
-            // TODO set payment status in merchant's database to 'Denied'
-            echo "(cancel) Payment using " . $type . " for transaction order_id: " . $order_id . " is canceled.";
+        try {
+            $notif = new \Midtrans\Notification();
+        } catch (Exception $e) {
+            Log::channel('notificationmidtrans')->error($e);
+            return;
         }
 
-        DB::commit();
+        $order_id = $notif->order_id;
 
-        return response()->json('');
+        $explodeId = explode('-', $order_id);
 
-    }catch(Exception $e){
-        
-        DB::rollBack(); 
-        throw $e;
-    
- }
-}
-    
+        $cekType = $explodeId[0] ?? '';
+
+        if ($cekType == 'proyek') {
+            $this->handleStatusProyek($notif);
+        } else if ($cekType == 'anak') {
+            $this->handleStatusAnak($notif);
+        } else {
+            Log::channel('notificationmidtrans')->info(json_encode($notif->getResponse()));
+        }
+
+        return response()->json(['message' => 'Success.']);
+    }
+
+    private function handleStatusProyek($decoderespon)
+    {
+        DB::beginTransaction();
+        try {
+            $response = json_encode($decoderespon->getResponse());
+            $transaction = $decoderespon->transaction_status;
+            $type = $decoderespon->payment_type;
+            $order_id_midtrans = $decoderespon->order_id;
+
+            $explodeId = explode('-', $order_id_midtrans);
+
+            $order_id = $explodeId[1] ?? '';
+
+            $paymentStatus = null;
+
+            if ($transaction == 'capture' || $transaction == 'settlement') {
+                $paymentStatus = 2;
+            } else if ($transaction == 'pending' || $transaction == 'expire') {
+                $paymentStatus = 1;
+            } else if ($transaction == 'deny' || $transaction == 'cancel') {
+                $paymentStatus = 3;
+            } else {
+                Log::channel('notificationmidtrans')->info('Order proyek ID Midtrans : ' . $order_id_midtrans);
+                Log::channel('notificationmidtrans')->error('Status Midtrans : ' . $transaction . ' tidak dapat diproses sistem.');
+            }
+
+            if ($paymentStatus != null) {
+                ProjectHistoryStatusPayment::create([
+                    'detail_history' => $response,
+                    'status' => $paymentStatus,
+                    'user_id' => null,
+                    'status_midtrans' => $transaction,
+                ]);
+
+                $orderProject = OrderProject::where('order_project_id', $order_id)->first();
+                if ($orderProject == null) {
+                    Log::channel('notificationmidtrans')->info('Order proyek ID Midtrans : ' . $order_id_midtrans);
+                    Log::channel('notificationmidtrans')->error('Order proyek yang dimaksud tidak ditemukan.');
+                } else if ($orderProject->order_project_id_midtrans != $order_id_midtrans) {
+                    Log::channel('notificationmidtrans')->info('Order proyek ID Midtrans : ' . $order_id_midtrans);
+                    Log::channel('notificationmidtrans')->error('Order proyek ID Midtrans tidak sama dengan database (' . $orderProject->order_project_id_midtrans . ').');
+                } else {
+                    $orderProject->status_midtrans = $transaction;
+                    $orderProject->payment_status = $paymentStatus;
+                    $orderProject->payment_type = $type;
+                    $orderProject->save();
+
+                    $getProjectId = $orderProject->project_id;
+                    $totalPrice = OrderProject::where('project_id', $getProjectId)
+                        ->where('payment_status', 2)
+                        ->groupBy('project_id')
+                        ->sharedLock()
+                        ->sum('price');
+
+                    $project = ProjectMaster::where('project_id', $getProjectId)->first();
+
+                    $amount = $project->amount;
+                    $enddate = null;
+                    if ($project->end_date != null) {
+                        $enddate = Carbon::parse($project->end_date)->startOfDay();
+                    }
+                    $now = Carbon::now()->startOfDay();
+
+                    $project->last_amount = $totalPrice;
+                    $project->is_closed = ($enddate != null && $now > $enddate) || $totalPrice >= $amount;
+                    $project->save();
+                }
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('notificationmidtrans')->info('Order proyek ID Midtrans : ' . $order_id_midtrans);
+            Log::channel('notificationmidtrans')->error($e);
+        }
+    }
+
+    private function handleStatusAnak($decoderespon)
+    {
+        DB::beginTransaction();
+        try {
+            $response = json_encode($decoderespon->getResponse());
+            $transaction = $decoderespon->transaction_status;
+            $type = $decoderespon->payment_type;
+            $order_id_midtrans = $decoderespon->order_id;
+
+            $explodeId = explode('-', $order_id_midtrans);
+
+            $order_id = $explodeId[1] ?? '';
+
+            $paymentStatus = null;
+
+            if ($transaction == 'capture' || $transaction == 'settlement') {
+                $paymentStatus = 2;
+            } else if ($transaction == 'pending' || $transaction == 'expire') {
+                $paymentStatus = 1;
+            } else if ($transaction == 'deny' || $transaction == 'cancel') {
+                $paymentStatus = 3;
+            } else {
+                Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);
+                Log::channel('notificationmidtrans')->error('Status Midtrans : ' . $transaction . ' tidak dapat diproses sistem.');
+            }
+
+            if ($paymentStatus != null) {
+                HistoryStatusPayment::create([
+                    'detail_history' => $response,
+                    'status' => $paymentStatus,
+                    'user_id' => null,
+                    'status_midtrans' => $transaction,
+                ]);
+
+                $order = DataOrder::where('order_id', $order_id)->first();
+                if ($order == null) {
+                    Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);
+                    Log::channel('notificationmidtrans')->error('Order anak yang dimaksud tidak ditemukan.');
+                } else if ($order->order_id_midtrans != $order_id_midtrans) {
+                    Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);
+                    Log::channel('notificationmidtrans')->error('Order anak ID Midtrans tidak sama dengan database (' . $order->order_id_midtrans . ').');
+                } else {
+                    $order->status_midtrans = $transaction;
+                    $order->payment_status = $paymentStatus;
+                    $order->payment_type = $type;
+                    $order->save();
+
+                    $getOrderId = $order->order_id;
+
+                    $detailOrders = DataDetailOrder::where('order_id', $getOrderId)->get();
+                    foreach ($detailOrders as $key => $detailOrder) {
+                        $child = ChildMaster::find($detailOrder->child_id);
+                        if ($child != null && $child->current_order_id == $getOrderId) {
+                            if($paymentStatus == 3){
+                                $child->is_sponsored = 0;
+                                $child->current_order_id = null;
+                                $child->is_paid = 0;
+                                $child->save();
+                            }
+                            else if($paymentStatus == 2){
+                                $child->is_sponsored = 1;
+                                $child->is_paid = 1;
+                                $child->save();
+                            }
+                            else if($paymentStatus == 1){
+                                $child->is_sponsored = 1;
+                                $child->is_paid = 0;
+                                $child->save();
+                            }
+                        }
+                    }
+                }
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);
+            Log::channel('notificationmidtrans')->error($e);
+        }
+    }
 
 }
