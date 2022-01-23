@@ -25,22 +25,29 @@
         </section>
             Copyright © 2017 PESAT. All rights reserved. | Syarat & Ketentuan   
     </footer>
-    <script src="{{asset('assets/js/bootstrap.bundle.js')}}"></script>
     <script src="{{asset('assets/js/bootstrap.bundle.min.js')}}"></script>
-    <script src="{{asset('assets/js/bootstrap.js')}}"></script>
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script> 
-    <script src="{{asset('assets/js/popper.min.js')}}"></script>
-    <script src="{{asset('assets/js/cdnbootstrap.min.js')}}"></script>
+    <script src="{{asset('assets/js/custom/jquery.min.js')}}"></script>
+    <!-- <script src="{{asset('assets/js/bootstrap.js')}}"></script> -->
+    <!-- <script src="{{asset('assets/js/popper.min.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap.min.js')}}"></script>  -->
+    <!-- <script src="{{asset('assets/js/cdnbootstrap.min.js')}}"></script> -->
     <script src="{{asset('assets/js/custom/custom.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap-datepicker.min.js')}}"></script>
 
 
     <script type="text/javascript">
         $(function() {
             $('#datepicker').datepicker({format: 'yyyy-mm-dd'});
+            $('#menuTrigger').click(function(e){
+                e.preventDefault();
+                if($('#navbarSupportedContent').hasClass('show')){
+                    $('#navbarSupportedContent').removeClass("show");
+                }else{
+                    $('#navbarSupportedContent').addClass("show");
+                }
+            });
         });
     </script>
-
-
 </body>
 
 </html>
