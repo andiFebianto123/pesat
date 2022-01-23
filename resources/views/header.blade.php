@@ -5,10 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PESAT</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap.min.css') }}">
-    <!-- <link rel="stylesheet" href={{ asset('assets/css/bootstrap/bootstrap.css') }}> -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom/styleku.css') }}">
-    <!-- <link rel="stylesheet" href={{ asset('assets/font-awesome/css/font-awesome.css') }}> -->
     <link rel="stylesheet" href="{{ asset('assets/font-awesome/css/font-awesome.min.css') }}">
 <style>
   .logo {

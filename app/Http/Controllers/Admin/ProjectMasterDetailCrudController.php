@@ -98,7 +98,7 @@ class ProjectMasterDetailCrudController extends CrudController
                 'type' => 'link',
                 'wrapper' => [
                     'href' => function ( $crud,$column,$entry,$related_key ) {
-                     return  '/pesat/public/storage/'.$entry->image_detail;
+                     return  asset('storage' . $entry->image_detail);
                    },
                    
                 'target' => '__blank'

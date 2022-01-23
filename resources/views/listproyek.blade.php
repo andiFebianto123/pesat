@@ -12,6 +12,11 @@
                 Terima kasih untuk ikut ambil bagian dalam pelayanan ini
             </p>
         </div>
+        @if ($message = Session::get('error'))
+            <div class="alert alert-danger" role="alert">
+                <strong>{{$message}}</strong>
+            </div>
+        @endif
         <form id="form-filter" action="{{url('/list-proyek')}}" method="GET" >
         
         {!! csrf_field() !!}
