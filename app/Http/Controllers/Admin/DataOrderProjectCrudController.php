@@ -297,6 +297,11 @@ class DataOrderProjectCrudController extends CrudController
             }
         }
 
+        if($getStatus->payment_status == 3){
+            \Alert::error('Tidak dapat melakukan perubahan data karena order proyek telah dibatalkan.')->flash();
+            return redirect(url($this->crud->route));
+        }
+
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
         $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
@@ -355,6 +360,11 @@ class DataOrderProjectCrudController extends CrudController
                 }
             }
 
+            if($getStatus->payment_status == 3){
+                DB::rollBack();
+                \Alert::error('Tidak dapat melakukan perubahan data karena order proyek telah dibatalkan.')->flash();
+                return redirect(url($this->crud->route));
+            }
 
             $item = $this->crud->update(
                 $request->get($this->crud->model->getKeyName()),

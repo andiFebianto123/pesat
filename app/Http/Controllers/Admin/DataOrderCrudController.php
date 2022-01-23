@@ -389,28 +389,34 @@ class DataOrderCrudController extends CrudController
 
     function edit($id)
     {
+        $this->crud->hasAccessOrFail('update');
+
         $getStatus = DataOrder::where('order_id', $id)->firstOrFail();
-        $getStatusPayment = $getStatus->payment_status;
+
+        $getStatusMidtrans = $getStatus->order_id_midtrans;
+
+        try {
+            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+            \Alert::error(trans('Tidak dapat melakukan perubahan data karena order anak telah terdaftar di Midtrans.'))->flash();
+            return redirect(url($this->crud->route));
+        } catch (Exception $e) {
+            if ($e->getCode() != 404) {
+                \Alert::error(trans("Gagal mendapatkan status order anak dari Midtrans. ["  . $e->getCode() . "]"))->flash();
+                return redirect(url($this->crud->route));
+            }
+        }
+
+        if($getStatus->payment_status == 3){
+            DB::rollBack();
+            \Alert::error('Tidak dapat melakukan perubahan data karena order anak telah dibatalkan.')->flash();
+            return redirect(url($this->crud->route));
+        }
+
         $getSponsor = Sponsor::where('sponsor_id', $getStatus->sponsor_id)->first();
         $getEmail = $getSponsor->email;
         $getNoWa = $getSponsor->no_hp;
         $getAddress = $getSponsor->address;
 
-        $getStatusMidtrans = $getStatus->order_id_midtrans;
-
-        try {
-
-            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-            \Alert::error(trans('Tidak dapat melakukan perubahan data karena order anak telah terdaftar di Midtrans'))->flash();
-            return redirect($this->crud->route);
-        } catch (Exception $e) {
-            if ($e->getCode() != 404) {
-                \Alert::error(trans("Gagal mendapatkan status order anak dari Midtrans. ["  . $e->getCode() . "]"))->flash();
-                return redirect($this->crud->route);
-            }
-        }
-
-        $this->crud->hasAccessOrFail('update');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
 
