@@ -33,11 +33,19 @@ class DataOrderCrudController extends CrudController
     //use Backpack\CRUD\app\Library\Widget;
     //   use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     //   use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-  //  use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
-  use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {create as traitcreate;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {edit as traitedit;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
+    //  use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        create as traitcreate;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitstore;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        edit as traitedit;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        update as traitupdate;
+    }
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -48,10 +56,9 @@ class DataOrderCrudController extends CrudController
         CRUD::setModel(\App\Models\DataOrder::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/data-order');
         CRUD::setEntityNameStrings('data order', 'data orders');
-
     }
 
-// alternatively, use a fluent syntax to define each widget attribute
+    // alternatively, use a fluent syntax to define each widget attribute
 
     /**
      * Define what happens when the List operation is loaded.
@@ -137,8 +144,8 @@ class DataOrderCrudController extends CrudController
                         'type' => 'select2_from_array',
                         'allows_null' => false,
                         'options' => [],
-                        'attributes'=>[
-                            'disabled'=>true
+                        'attributes' => [
+                            'disabled' => true
                         ],
                         'wrapperAttributes' => [
                             'class' => 'form-group col-md-6',
@@ -146,11 +153,11 @@ class DataOrderCrudController extends CrudController
                     ],
                     [
                         'name' => 'price',
-                        'label'=> 'Biaya / Bulan',
+                        'label' => 'Biaya / Bulan',
                         'type' => 'text',
-                        'prefix'=> 'Rp. ',
-                        'attributes'=>[
-                            'disabled'=>true
+                        'prefix' => 'Rp. ',
+                        'attributes' => [
+                            'disabled' => true
                         ],
                         'wrapperAttributes' => [
                             'class' => 'form-group col-md-6',
@@ -207,15 +214,15 @@ class DataOrderCrudController extends CrudController
                 'name' => 'totalprice',
                 'label' => "Total Price",
                 'type' => 'text_for_order',
-                'prefix'=> 'Rp.',
-                'default'=> 0,
+                'prefix' => 'Rp.',
+                'default' => 0,
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
-                'attributes'=>[
-                    'disabled'=>true,
+                'attributes' => [
+                    'disabled' => true,
                     'id' => 'totalprice'
-                  ]
+                ]
 
 
             ],
@@ -249,20 +256,20 @@ class DataOrderCrudController extends CrudController
             'name' => 'order_id',
             'type' => 'text',
             'label' => 'No Order',
-            'attributes'=>[
-                'disabled'=>true
+            'attributes' => [
+                'disabled' => true
             ],
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-            ],        
+            ],
         ];
 
-        $email =[
+        $email = [
             'name' => 'email',
             'label' => 'Email',
-            'attributes'=>[
-                'disabled'=>true
-            ],            
+            'attributes' => [
+                'disabled' => true
+            ],
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -271,8 +278,8 @@ class DataOrderCrudController extends CrudController
             'name' => 'no_hp',
             'type' => 'text',
             'label' => 'No Wa',
-            'attributes'=>[
-                'disabled'=>true
+            'attributes' => [
+                'disabled' => true
             ],
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
@@ -283,8 +290,8 @@ class DataOrderCrudController extends CrudController
             'name' => 'address',
             'type' => 'text',
             'label' => 'Alamat',
-            'attributes'=>[
-                'disabled'=>true
+            'attributes' => [
+                'disabled' => true
             ],
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
@@ -310,22 +317,22 @@ class DataOrderCrudController extends CrudController
                     'attribute' => 'full_name',
                     'options' => [],
                     'allows_null' => false,
-                    'attributes'=>[
-                        'disabled'=>true
+                    'attributes' => [
+                        'disabled' => true
                     ],
-                      'wrapperAttributes' => [
+                    'wrapperAttributes' => [
                         'class' => 'form-group col-md-6',
                     ],
 
                 ],
                 [
                     'name' => 'child_id',
-                    'label'=> 'Biaya / Bulan',
-                    'type' =>  'select_from_array',//'text',
-                    'attribute'=>'price',
-                    'prefix'=> 'Rp. ',
-                    'attributes'=>[
-                        'disabled'=>true
+                    'label' => 'Biaya / Bulan',
+                    'type' =>  'select_from_array', //'text',
+                    'attribute' => 'price',
+                    'prefix' => 'Rp. ',
+                    'attributes' => [
+                        'disabled' => true
                     ],
                     'wrapperAttributes' => [
                         'class' => 'form-group col-md-6',
@@ -358,63 +365,51 @@ class DataOrderCrudController extends CrudController
 
         ];
 
-        $totalPrice =[
+        $totalPrice = [
             'name' => 'totalprice',
             'label' => "Total Price",
             'type' => 'text',
-            'prefix'=> 'Rp.',
-            'default'=>$this->sumprice($this->crud->getCurrentEntryId()),
+            'prefix' => 'Rp.',
+            'default' => $this->sumprice($this->crud->getCurrentEntryId()),
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
-            'attributes'=>[
-                'disabled'=>true,
+            'attributes' => [
+                'disabled' => true,
                 'id' => 'totalprice'
-              ]
+            ]
 
 
-            ];
+        ];
 
         $this->crud->addFields([
-            $sponsor, $orderid,$email,$nowa,$address,$dataorder,$space,$totalPrice
+            $sponsor, $orderid, $email, $nowa, $address, $dataorder, $space, $totalPrice
         ]);
     }
 
     function edit($id)
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
-        $getStatus = DataOrder::where('order_id', $id)->first();
+        $getStatus = DataOrder::where('order_id', $id)->firstOrFail();
         $getStatusPayment = $getStatus->payment_status;
-        $getSponsor = Sponsor::where('sponsor_id',$getStatus->sponsor_id)->first();
+        $getSponsor = Sponsor::where('sponsor_id', $getStatus->sponsor_id)->first();
         $getEmail = $getSponsor->email;
         $getNoWa = $getSponsor->no_hp;
         $getAddress = $getSponsor->address;
 
         $getStatusMidtrans = $getStatus->order_id_midtrans;
 
-        try{
+        try {
 
-
-        $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-        if($decoderespon->transaction_status){
-
-            \Alert::error(trans('Tidak bisa ubah data, no order sudah terdaftar di payment gateway'))->flash();
-            return redirect()->back();
-
+            $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+            \Alert::error(trans('Tidak dapat melakukan perubahan data karena order anak telah terdaftar di Midtrans'))->flash();
+            return redirect($this->crud->route);
+        } catch (Exception $e) {
+            if ($e->getCode() != 404) {
+                \Alert::error(trans("Gagal mendapatkan status order anak dari Midtrans. ["  . $e->getCode() . "]"))->flash();
+                return redirect($this->crud->route);
+            }
         }
-    }catch(Exception $e){
 
-    }
-
-        if ($getStatusPayment == 2) {
-
-            \Alert::error(trans('Tidak bisa ubah data, karena sudah ada pembayaran'))->flash();
-            return redirect()->back();
-        }
         $this->crud->hasAccessOrFail('update');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
@@ -422,21 +417,21 @@ class DataOrderCrudController extends CrudController
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
             ->get();
-        
+
 
         $orderDt = json_encode($getOrderDt);
-       
+
         $child = $getOrderDt->pluck('child_id');
 
         $fields = $this->crud->getUpdateFields();
 
-        $childs = $this->child($child,true);
+        $childs = $this->child($child, true);
         $childPrice = $this->childprice($child);
-        $priceChilds = $childs->pluck('price','child_id');
+        $priceChilds = $childs->pluck('price', 'child_id');
 
 
-        $fields['dataorder']['fields'][2]['options']=$childPrice;
-        
+        $fields['dataorder']['fields'][2]['options'] = $childPrice;
+
         $fields['email']['value'] = $getEmail;
         $fields['no_hp']['value'] = $getNoWa;
         $fields['address']['value'] = $getAddress;
@@ -446,19 +441,17 @@ class DataOrderCrudController extends CrudController
 
         $this->data['entry'] = $this->crud->getEntry($id);
         $this->data['crud'] = $this->crud;
-     
+
         $this->data['saveAction'] = $this->crud->getSaveAction();
         $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
-    
+
         $this->data['id'] = $id;
 
         $this->data['childs'] = $childs;
-        $this->data['childForPrice']= $childPrice;
+        $this->data['childForPrice'] = $childPrice;
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
-
-
-}
+    }
 
     function create()
     {
@@ -466,11 +459,11 @@ class DataOrderCrudController extends CrudController
 
         $fields = $this->crud->getCreateFields();
 
-        $childs = $this->child(null,null);
+        $childs = $this->child(null, null);
 
-        $optionChilds= $childs->pluck('full_name','child_id');
+        $optionChilds = $childs->pluck('full_name', 'child_id');
 
-        $priceChilds = $childs->pluck('price','child_id');
+        $priceChilds = $childs->pluck('price', 'child_id');
 
         $fields['testimonials']['fields'][1]['options'] = $optionChilds;
         $this->crud->setOperationSetting('fields', $fields);
@@ -478,12 +471,12 @@ class DataOrderCrudController extends CrudController
         // prepare the fields you need to show
         $this->data['crud'] = $this->crud;
         $this->data['saveAction'] = $this->crud->getSaveAction();
-        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.add').' '.$this->crud->entity_name;
+        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.add') . ' ' . $this->crud->entity_name;
         $this->data['childs'] = $optionChilds;
         $this->data['childForPrice']  = $priceChilds;
-        
-        
-    // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getCreateView(), $this->data);
     }
 
@@ -506,9 +499,9 @@ class DataOrderCrudController extends CrudController
 
         $uniquedata = [];
 
-        if (JSON_ERROR_NONE !== json_last_error() || !is_array($datas) || count($datas) == 0){
+        if (JSON_ERROR_NONE !== json_last_error() || !is_array($datas) || count($datas) == 0) {
 
-            return $this->redirectStoreCrud(['message' => 'Detail order tidak boleh kosong']);            
+            return $this->redirectStoreCrud(['message' => 'Detail order tidak boleh kosong']);
         }
         foreach ($datas as $key => $orderDecode) {
 
@@ -517,17 +510,14 @@ class DataOrderCrudController extends CrudController
                 $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
             } elseif ($child->is_sponsored == 1) {
                 $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
-
             } else {
                 $childs[$child->child_id] = $child;
                 $uniquedata[$child->child_id] = $orderDecode;
             }
             if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
                 $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
-
             }
             $index++;
-
         }
         if (count($error) != 0) {
 
@@ -573,11 +563,10 @@ class DataOrderCrudController extends CrudController
                     )
                     ->get();
 
-                 
-                $child->is_sponsored = 1;
-                $child->current_order_id = $id;    
-                $child->save();
 
+                $child->is_sponsored = 1;
+                $child->current_order_id = $id;
+                $child->save();
             }
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $id)
@@ -589,7 +578,7 @@ class DataOrderCrudController extends CrudController
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $id);
             $snapToken = $midtrans->getSnapToken();
             $order->snap_token = $snapToken;
-            $order->order_id_midtrans = 'anak-'.$id;
+            $order->order_id_midtrans = 'anak-' . $id;
             $order->total_price = $getTotalPrice;
             $order->save();
             DB::commit();
@@ -601,7 +590,6 @@ class DataOrderCrudController extends CrudController
             DB::rollBack();
             throw $e;
         }
-
     }
 
     function update()
@@ -620,41 +608,35 @@ class DataOrderCrudController extends CrudController
 
             \Alert::error('Data order tidak ditemukan')->flash();
             return redirect($this->crud->route);
-
         } elseif ($cekStatusPayment->payment_status == 2) {
-            
+
             \Alert::error('Data order sudah dibayar')->flash();
             return redirect($this->crud->route);
-        
-        }elseif(JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0){
+        } elseif (JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0) {
 
-            return $this->redirectUpdateCrud($request->order_id, ['message' => 'Detail order tidak boleh kosong']);            
+            return $this->redirectUpdateCrud($request->order_id, ['message' => 'Detail order tidak boleh kosong']);
         }
 
         $childs = [];
         $error = [];
         $index = 1;
         $intOrderId = (int)$request->order_id;
-      
+
         foreach ($orderDecodes as $key => $orderDecode) {
             $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
 
             if ($child == null) {
                 $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-            }  elseif($child->is_sponsored == 1 && $child->current_order_id != $intOrderId){
-                $error[] = 'Detail order ke '.$index.' : Anak sudah disponsori';
-
-            }
-            else {
+            } elseif ($child->is_sponsored == 1 && $child->current_order_id != $intOrderId) {
+                $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
+            } else {
 
                 $childs[$child->child_id] = $child;
-
             }
             if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
                 $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
-
             }
-        $index++;
+            $index++;
         }
         if (count($error) != 0) {
 
@@ -693,7 +675,6 @@ class DataOrderCrudController extends CrudController
                 $orderdt->save();
 
                 $orderdetailid[] = $orderdt->order_dt_id;
-
             }
 
             $getDeletedOrder = DataDetailOrder::where('order_id', $request->order_id)
@@ -706,7 +687,6 @@ class DataOrderCrudController extends CrudController
                 $child->save();
 
                 $datadeleted->delete();
-
             }
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $request->order_id)
@@ -716,7 +696,7 @@ class DataOrderCrudController extends CrudController
 
             $orderHd = DataOrder::where('order_id', $request->order_id)->first();
             $orderHd->sponsor_id = $request->sponsor_id;
-           // $orderHd->payment_status = $request->payment_status;
+            // $orderHd->payment_status = $request->payment_status;
             $orderHd->total_price = $getTotalPrice;
             $orderHd->save();
             DB::commit();
@@ -727,24 +707,24 @@ class DataOrderCrudController extends CrudController
             // save the redirect choice for next time
 
             $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $request->order_id)
-            ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
-            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-            ->select(
-                'order_hd.*',
-                'odt.*',
-                'cm.full_name',
-                'sm.full_name as sponsor_name',
-                'sm.email',
-                'sm.no_hp'
-            )
-            ->get();
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+                ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+                ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+                ->select(
+                    'order_hd.*',
+                    'odt.*',
+                    'cm.full_name',
+                    'sm.full_name as sponsor_name',
+                    'sm.email',
+                    'sm.no_hp'
+                )
+                ->get();
 
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
-            ->where('order_id', $request->order_id)
-            ->selectRaw('sum(price) as sum_price')
-            ->pluck('sum_price')
-            ->first();
+                ->where('order_id', $request->order_id)
+                ->selectRaw('sum(price) as sum_price')
+                ->pluck('sum_price')
+                ->first();
 
             $order = DataOrder::where('order_id', $request->order_id)->first();
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $request->order_id);
@@ -760,7 +740,6 @@ class DataOrderCrudController extends CrudController
             DB::rollBack();
             throw $e;
         }
-
     }
 
     function destroy($id)
@@ -776,11 +755,10 @@ class DataOrderCrudController extends CrudController
             return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
         } else {
             return $this->crud->delete($id);
-
         }
     }
 
-    function child($child,$isPluck)
+    function child($child, $isPluck)
     {
 
         $getchild = ChildMaster::where('is_sponsored', 0)
@@ -789,13 +767,12 @@ class DataOrderCrudController extends CrudController
             })
             ->get();
 
- if($isPluck ==true){
-    return $getchild->pluck('full_name', 'child_id');
- }else{
+        if ($isPluck == true) {
+            return $getchild->pluck('full_name', 'child_id');
+        } else {
 
-    return $getchild;//->pluck('full_name', 'child_id');
- }
-
+            return $getchild; //->pluck('full_name', 'child_id');
+        }
     }
 
     function childprice($child)
@@ -807,19 +784,19 @@ class DataOrderCrudController extends CrudController
             })
             ->get();
 
-    return $getchild->pluck('price', 'child_id');
- 
+        return $getchild->pluck('price', 'child_id');
     }
-    
-    function sumprice($id){
-       
-                $getTempTotal = DataDetailOrder::where('order_id', $id)
-                                    ->groupBy('order_dt.order_id')
-                                    ->selectRaw('sum(price) as sum_price')
-                                    ->pluck('sum_price')
-                                    ->first();
-                                 //   dd($getTempTotal);
-                return $getTempTotal;//->pluck('order_id','sumprice');
+
+    function sumprice($id)
+    {
+
+        $getTempTotal = DataDetailOrder::where('order_id', $id)
+            ->groupBy('order_dt.order_id')
+            ->selectRaw('sum(price) as sum_price')
+            ->pluck('sum_price')
+            ->first();
+        //   dd($getTempTotal);
+        return $getTempTotal; //->pluck('order_id','sumprice');
     }
     function sponsor()
     {

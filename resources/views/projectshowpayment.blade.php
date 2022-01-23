@@ -1,6 +1,11 @@
 @include('header')
 
 <div class="container pb-5 pt-5">
+    @if ($message = $error)
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+    @endif
         <div class="row">
             <div class="col-12 col-md-8">
                 <div class="card shadow">
@@ -43,13 +48,13 @@
                         <h5>Pembayaran</h5>
                     </div>
                     <div class="card-body">
-                  
+                  @if(!$error)
                     @if ($order->payment_status == 1)
                             <button class="btn btn-primary" id="pay-button">Bayar Sekarang</button>
                         @else
                             Pembayaran berhasil
                         @endif
-                        
+                  @endif
                     </div>
                 </div>
             </div>
