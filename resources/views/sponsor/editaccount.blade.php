@@ -30,19 +30,19 @@
 </br>
 <!-- <label class="form-label"><strong>Tanggal Lahir</strong></label> -->
 <!-- <input type="text" name="dateofbirth" class="form-control" value="{{$profile->date_of_birth}}"> -->
-<label for="date" class="form-label"><strong>Tanggal Lahir</strong></label>
-<div class="row form-group">
-                
-                    <div class="input-group date" id="datepicker">
-                        <input type="text" class="form-control" name="dateofbirth" value="{{$profile->date_of_birth}}">
-                        <span class="input-group-append">
-                            <span class="input-group-text bg-white d-block">
-                                <i class="fa fa-calendar"></i>
-                            </span>
-                        </span>
-                    </div>
+<div class="mb-3">
+        <label><strong>Tanggal Lahir </strong></label>    
+        <div class="row form-group">
+            <div class="input-group date" id="datepicker">
+                <input type="text" class="form-control" placeholder="Tanggal Lahir" name="dateofbirth" value="{{$profile->date_of_birth}}">
+                <div class="input-group-append">
                 </div>
-</br>
+                <span class="input-group-text">
+                    <i class="fa fa-calendar"></i>
+                </span>
+            </div>
+        </div>
+    </div>
 <label class="form-label"><strong>Alamat</strong></label>
 <input type="text" name="address" class="form-control" value="{{$profile->address}}">
 </br>

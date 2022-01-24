@@ -72,14 +72,28 @@
                         </tr>
                 </tbody>
             </table>
+            <div>
+                <label
+                    style="font-family: priva,Arial,sans-serif;
+                    font-weight: 300; 
+                    color: #686c8b;
+                    font-size: 22px;"
+                >Raised Percent: 0%</label>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
             </br>
             @if($projects->is_closed == false)
             <div class="row">
-                <div class='col-8'>
-                    <input type="number" name="total" class="form-control" required>
+                <div class='col'>
+                    <div class="wrapper-inline-proyek">
+                        <span>Rp</span>
+                        <input type="number" name="total" class="form-control" style="width: 140px;" required>
+                    </div>
                 </div>
-                <div class='col-4'>
-                <button type="submit" class="btn btn-primary" style="margin-left:80px">Donation</button>
+                <div class='col'>
+                    <button type="submit" class="btn btn-primary" style="margin-left:-60px">Donation</button>
                 </div>
             </div>
             @endif

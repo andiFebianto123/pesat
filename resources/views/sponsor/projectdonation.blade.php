@@ -25,14 +25,14 @@
         {{"kadaluarsa"}}
       @endif
       </td>
-      <td>{{$projectorder->price}}</td>
+      <td>Rp{{ number_format($projectorder->price, 2, ',', '.') }}</td>
       <td>
-      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}">
-        <button class="btn btn-outline-info" type="submit">Detail</button>
+      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+        Detail
       </a>
 @if($projectorder->payment_status==1)
-      <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}">
-        <button class="btn btn-outline-info" type="submit">Pay</button>
+      <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+        Pay
       </a>
 @endif
       </td>

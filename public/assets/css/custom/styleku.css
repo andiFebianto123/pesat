@@ -134,3 +134,18 @@ width: 100%;
         padding-left: 32%;
     }
   }
+
+  .wrapper-inline-proyek{
+    font-size: 22px;
+    font-family: priva,Arial,sans-serif;
+    color: #000;
+  }
+
+  .wrapper-inline-proyek span{
+      float:left;
+      margin-right: 12px;
+  }
+
+  .wrapper-inline-proyek input {
+      border: 2px solid black;
+  }

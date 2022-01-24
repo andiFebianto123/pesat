@@ -5,7 +5,7 @@
 <div class="col-7">
 </br>
 <div class="bs-callout bs-callout-primary">
-        <h2>Akun Saya</h2>
+        <h2>{{$title}}</h2>
     </div>
 </div>
 </div>
@@ -18,10 +18,10 @@
                     <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
                     </a>
                     <a href="{{url('child-donation')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-                    <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Child Donation</span>
+                    <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>List Anak</span>
                     </a>
                     <a href="{{url('project-donation')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-                    <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Project Donation</span>
+                    <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>List Proyek</span>
                     </a>
                     <a href="{{url('edit-account')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
                     <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Edit Account</span>
@@ -42,7 +42,7 @@
 
     <div class="col-2">
     </div>
-    <div class="col-7">
+    <div class="col">
     </br>
     @yield('content')
     </div>

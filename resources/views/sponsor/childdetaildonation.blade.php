@@ -24,35 +24,35 @@
     <tr>
       <th scope="col">Donasi</th>
       <th scope="col">Total</th>
-      <th scope="col">action</th>
+      <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
   @foreach($orders as $key => $order)
     <tr>
       <td>{{$order->child_name."- 1 bulan x ".$order->monthly_subscription}}</td>
-      <td>{{$order->price_dt}}</td>
+      <td>Rp{{ number_format($order->price_dt, 2, ',', '.') }}</td>
       <td>
       <a href="{{url('list-dlp/'.$order->child_id)}}">
-        <button class="btn btn-outline-info" type="submit">List DLP</button>
+        <button class="btn btn-sm btn-primary" type="submit">List DLP</button>
         </a>
       </td>
     </tr>
 @endforeach
     <tr>
-        <th>Payment Method</th>
+        <th>Metode Pembayaran</th>
         <th>{{$order->payment_type}}</th>
     </tr>
     <tr>
         <th>Total</th>
-        <th>{{$order->total_price}}</th>
+        <th>Rp{{ number_format($order->total_price, 2, ',', '.') }}</th>
     </tr>
   </tbody>
 </table>
 </br>
 
 
-<h5 class="card-title">Billing Address</h5>
+<h5 class="card-title">Detail Kontak Sponsor</h5>
 
 <div class="card" style="background:#f8f8f8">
   <div class="card-body">

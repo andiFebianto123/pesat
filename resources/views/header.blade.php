@@ -62,7 +62,7 @@
           </a>
           @else
           <a href="{{url('my-account')}}" style="text-decoration:none;color: inherit;">
-              <button class="btn btn-outline-primary" type="submit">Akun Saya</button>
+              <button class="btn btn-primary" type="submit">Akun Saya</button>
           </a>&nbsp
           @endif
     </div>

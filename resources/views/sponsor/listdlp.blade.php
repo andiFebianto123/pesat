@@ -13,13 +13,16 @@
     @foreach($dlp as $key => $listdlp)
     <tr>
       <th scope="row">{{$key+1}}</th>
-      <td><a href="{{url('storage/'.$listdlp->file_dlp)}}">File pdf</a></td>
-      <td>{{date('d-m-Y', strtotime($listdlp->created_at))}}</td>
       <td>
-      <a href="{{url('storage/'.$listdlp->file_dlp)}}" download>
-        <button class="btn btn-outline-info" type="submit">Download</button>
-      </a>
-      
+        <a href="{{url('storage/'.$listdlp->file_dlp)}}" target="_blank">File pdf</a>
+      </td>
+      <td>
+        <span>{{date('d-m-Y', strtotime($listdlp->created_at))}}</span>
+      </td>
+      <td>
+        <a href="{{url('storage/'.$listdlp->file_dlp)}}" download>
+          <button class="btn btn-sm btn-primary" type="submit">Download</button>
+        </a>
       </td>
     </tr>
     @endforeach

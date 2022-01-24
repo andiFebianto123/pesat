@@ -23,6 +23,7 @@ class MyAccountController extends Controller
         $getUserId = $user->sponsor_id;
         $getuser = Sponsor::where('sponsor_id', $getUserId)->first();
         $data["user"] =  $getuser;
+        $data['title'] = "Dashboard";
         return view('sponsor.dashboard',$data);
     }
 
@@ -34,6 +35,7 @@ class MyAccountController extends Controller
         $getOrder = DataOrder::where('sponsor_id', $getUserId)
             ->orderBy('order_id','desc')->paginate(5);
         $data['orders'] = $getOrder;
+        $data['title'] = "List Anak";
 
         return view('sponsor.childdonation', $data);
     }
@@ -45,6 +47,7 @@ class MyAccountController extends Controller
         $getprojectorder    = OrderProject::where('sponsor_id',$getUserId)
                                 ->orderBy('order_project_id','desc')->paginate(5);
         $data['projectorders']   = $getprojectorder;
+        $data['title'] = "List Proyek";
         return view('sponsor.projectdonation',$data);
     }
     public function editaccount()
@@ -56,6 +59,7 @@ class MyAccountController extends Controller
             ->first();
 
         $data['profile'] = $getuser;
+        $data['title'] = "Edit Account";
 
         return view('sponsor.editaccount',$data);
     }
@@ -199,6 +203,7 @@ class MyAccountController extends Controller
         $orderhd = DataOrder::where('order_id',$id)->first();
         $data['orders'] = $orders;
         $data['orderhd']= $orderhd;
+        $data['title'] = "Detail Donasi";
 
 
         return view('sponsor.childdetaildonation',$data);
@@ -212,6 +217,7 @@ class MyAccountController extends Controller
                         ->first();
 
         $data['orders'] = $orderproject;
+        $data['title'] = "Detail Proyek Donasi";
         return view('sponsor.projectdetaildonation',$data); 
     }
 
@@ -230,6 +236,7 @@ class MyAccountController extends Controller
                             ->orderBy('dl.dlp_id','desc')->paginate(5);
 
     $data['dlp'] = $downloaddlp;
+    $data['title'] = "List DLP";
 
     return view('sponsor.listdlp',$data);
     }
