@@ -19,77 +19,71 @@ class CancelOrderController extends Controller
     {
         $cekDatas = DataOrder::where('order_id', $id)->first();
 
+        if (empty($cekDatas)) {
+            \Alert::add('error', 'Order anak tidak ditemukan.')->flash();
+            return redirect(backpack_url('data-order'));
+        }
+
         $getOrderIdMidtrans = $cekDatas->order_id_midtrans;
 
         $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get('child_id');
         DB::beginTransaction();
 
-        if ($cekDatas !== null) {
+        try {
 
-            if ($cekDatas->payment_status == 2) {
+            //$orderId = $id . "-anak";
+            \Midtrans\Transaction::cancel($getOrderIdMidtrans);
 
-                DB::commit();
-                \Alert::add('error', 'Tidak bisa cancel order, karena sudah ada pembayaran')->flash();
-                return back()->withMessage(['message' => 'Tidak bisa cancel order, karena sudah ada pembayaran']);
-            } else {
+            $orderHd = DataOrder::find($id);
+            $orderHd->payment_status = 3;
+            $orderHd->status_midtrans = 'cancel';
+            $orderHd->save();
 
-                try {
+            foreach ($cekDetailOrder as $key => $detailOrder) {
 
-                    //$orderId = $id . "-anak";
-                    \Midtrans\Transaction::cancel($getOrderIdMidtrans);
-
-                    $orderHd = DataOrder::find($id);
-                    $orderHd->payment_status = 3;
-                    $orderHd->status_midtrans = 'cancel';
-                    $orderHd->save();
-
-                    foreach ($cekDetailOrder as $key => $detailOrder) {
-
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        $child->is_sponsored = 0;
-                        $child->current_order_id = null;
-                        $child->save();
-                    }
-
-                    DB::commit();
-
-                    \Alert::add('success', 'Transaksi berhasil dibatalkan')->flash();
-                    return back()->withMessage(['message' => 'Transaksi berhasil dibatalkan']);
-                } catch (Exception $e) {
-
-                    if ($e->getCode() == 404) {
-
-                        $orderHd = DataOrder::find($id);
-                        $orderHd->payment_status = 3;
-                        $orderHd->save();
-
-                        foreach ($cekDetailOrder as $key => $detailOrder) {
-
-                            $child = ChildMaster::find($detailOrder->child_id);
-                            $child->is_sponsored = 0;
-                            $child->current_order_id = null;
-                            $child->save();
-                        }
-
-                        DB::commit();
-
-                        \Alert::add('success', 'Order berhasil dibatalkan')->flash();
-                        return back()->withMessage(['message' => 'Order berhasil dibatalkan']);
-                    } elseif ($e->getCode() == 412) {
-
-                        DB::commit();
-                        \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
-                        return back()->withMessage(['message' => 'Status transaksi sudah tidak bisa dirubah']);
-                    } else {
-                        throw $e;
-                    }
+                $child = ChildMaster::find($detailOrder->child_id);
+                $child->is_sponsored = 0;
+                $child->is_paid = 0;
+                if ($child->current_order_id == $id) {
+                    $child->current_order_id = null;
                 }
+                $child->save();
             }
-        } else {
+
             DB::commit();
 
-            \Alert::add('error', 'Data order tidak ada')->flash();
-            return back()->withMessage(['message' => 'Data order tidak ada']);
+            \Alert::add('success', 'Order anak berhasil dibatalkan')->flash();
+            return redirect(backpack_url('data-order'));
+        } catch (Exception $e) {
+
+            if ($e->getCode() == 404) {
+
+                $orderHd = DataOrder::find($id);
+                $orderHd->payment_status = 3;
+                $orderHd->save();
+
+                foreach ($cekDetailOrder as $key => $detailOrder) {
+
+                    $child = ChildMaster::find($detailOrder->child_id);
+                    $child->is_sponsored = 0;
+                    $child->current_order_id = null;
+                    $child->save();
+                }
+
+                DB::commit();
+
+                \Alert::add('success', 'Order berhasil dibatalkan')->flash();
+                return redirect(backpack_url('data-order'));
+            } elseif ($e->getCode() == 412) {
+
+                DB::commit();
+                \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
+                return redirect(backpack_url('data-order'));
+            } else {
+                DB::rollBack();
+                \Alert::add('error', "Gagal melakukan perubahan status order anak di Midtrans. [" . $e->getCode() . "]")->flash();
+                return redirect(backpack_url('data-order'));
+            }
         }
     }
     public function projectcancelorder($id)
@@ -108,7 +102,6 @@ class CancelOrderController extends Controller
             try {
                 $orderId = $projectOrder->order_project_id_midtrans;
                 \Midtrans\Transaction::cancel($orderId);
-
             } catch (Exception $e) {
                 if ($e->getCode() != 404) {
                     DB::rollBack();
@@ -132,7 +125,7 @@ class CancelOrderController extends Controller
 
             $amount = $project->amount;
             $enddate = null;
-            if($project->end_date != null){
+            if ($project->end_date != null) {
                 $enddate = Carbon::parse($project->end_date)->startOfDay();
             }
             $now = Carbon::now()->startOfDay();
