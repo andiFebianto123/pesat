@@ -57,6 +57,6 @@ class DataSponsor extends Model
     */
     public function EditUser($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/users/'.$this->id.'/edit').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-edit"></i>Edit</a>';
+        return '<a class="btn btn-sm btn-link" href="'.url('admin/users/'.$this->id.'/edit').'" id="'.$this->child_id.'" "><i class="la la-edit"></i>Edit</a>';
     }
 }

@@ -1,5 +1,10 @@
 @extends('sidebar')
 @section('content')
+@if ($message = Session::get('error'))
+        <div class="alert alert-danger" role="alert">
+            <strong>{{$message}}</strong>
+        </div>
+@endif
 <table class="table">
   <thead>
     <tr>
@@ -22,7 +27,7 @@
         @elseif($projectorder->payment_status==2)
         {{"suskes"}}
         @else
-        {{"kadaluarsa"}}
+        {{"batal"}}
       @endif
       </td>
       <td>Rp{{ number_format($projectorder->price, 2, ',', '.') }}</td>
@@ -30,11 +35,11 @@
       <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
         Detail
       </a>
-@if($projectorder->payment_status==1)
-      <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
-        Pay
-      </a>
-@endif
+      @if($projectorder->payment_status==1)
+          <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+            Pay  
+          </a>
+      @endif
       </td>
     </tr>
     @endforeach

@@ -63,12 +63,15 @@ class DataOrderProject extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function Cek_Status(){
-      return '<a class="btn btn-sm btn-link" href="'.backpack_url('cek-status/'.$this->order_project_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_project_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
+    public function cekStatus(){
+      return '<a class="btn btn-sm btn-link" href="'.backpack_url('cek-status/'.$this->order_project_id).'" id="'.$this->order_project_id.'" "><i class="la la-ticket"></i> Cek Status</a>';
      
     }
     public function cancelOrder(){
-      return '<a class="btn btn-sm btn-link" href="'.backpack_url('project-cancel-order/'.$this->order_project_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_project_id.'" "><i class="fa fa-search"></i> Cancel</a>';
+      if($this->payment_status == 3){
+        return;
+      }
+      return '<a class="btn btn-sm btn-link" href="'.backpack_url('project-cancel-order/'.$this->order_project_id).'" id="'.$this->order_project_id.'" "><i class="la la-close"></i> Cancel</a>';
      
     }
 }

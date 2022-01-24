@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware'=>['auth']],function(){
 	Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
 	Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
-	Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
+	Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation')->name('projectdonation');
 	Route::get('/edit-account','App\Http\Controllers\Sponsor\MyAccountController@editaccount');
 	Route::get('/child-donation-detail/{id}','App\Http\Controllers\Sponsor\MyAccountController@childdetaildonation');
 	Route::get('/list-dlp/{id}','App\Http\Controllers\Sponsor\MyAccountController@listdlp');
@@ -27,8 +27,8 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
 	Route::post('/order', 'App\Http\Controllers\OrderController@index');
 	Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
-	Route::post('/project-order', 'App\Http\Controllers\ProjectOrderController@index');
-	Route::get('/project-order/{snap_token}/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
+	Route::post('/project-order/{id}', 'App\Http\Controllers\ProjectOrderController@index');
+	Route::get('/project-order/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
 	
 });
 

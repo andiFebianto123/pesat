@@ -98,16 +98,16 @@ class DataOrder extends Model
     */
     public function sponsoredchild($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/detail-sponsor/'.$this->order_id.'/detail').'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->child_id.'" "><i class="la la-file"></i> Sponsored Child</a>';
+        return '<a class="btn btn-sm btn-link" href="'.url('admin/detail-sponsor/'.$this->order_id.'/detail').'" id="'.$this->child_id.'" "><i class="la la-file"></i> Sponsored Child</a>';
     }
 
     public function Cek_Status(){
-        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cek-status/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
+        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cek-status/'.$this->order_id).'" id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cek Status</a>';
        
       }
 
       public function cancelOrder(){
-        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cancel-order/'.$this->order_id).'" data-toggle="tooltip" title="Just a demo custom button." id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cancel</a>';
+        return '<a class="btn btn-sm btn-link" href="'.backpack_url('child-cancel-order/'.$this->order_id).'" id="'.$this->order_id.'" "><i class="fa fa-search"></i> Cancel</a>';
        
       }
     
