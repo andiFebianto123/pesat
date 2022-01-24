@@ -1,5 +1,10 @@
 @extends('sidebar')
 @section('content')
+@if ($message = Session::get('error'))
+    <div class="alert alert-danger" role="alert">
+        <strong>{{$message}}</strong>
+    </div>
+@endif
 <table class="table">
   <thead>
     <tr>
@@ -31,7 +36,7 @@
         <button class="btn btn-outline-info" type="submit">Detail</button>
       </a>
       @if($order->payment_status==1)
-      <a href="{{url('order/'.$order->snap_token.'/'.$order->order_id)}}">
+      <a href="{{url('order/'.$order->order_id)}}">
         <button class="btn btn-outline-info" type="submit">Pay</button>
       </a>
       @endif

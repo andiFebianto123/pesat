@@ -134,9 +134,9 @@ class CekStatusController extends Controller
                 return back()->withMessage(['message' => 'Proses pembayaran sudah sukses']);
             } else {
 
-                $transaction = $decoderespon['transaction_status'];
-                $type = $decoderespon['payment_type'];
-                $order_id = $decoderespon['order_id'];
+                $transaction = $decoderespon->transaction_status;
+                $type = $decoderespon->payment_type;
+                $order_id = $decoderespon->order_id;
 
                 if ($transaction == 'capture') {
                     // For credit card transaction, we need to check whether transaction is challenge by FDS or not

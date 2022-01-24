@@ -740,12 +740,14 @@ class DataOrderCrudController extends CrudController
                     'order_hd.*',
                     'odt.*',
                     'cm.full_name',
+                    'cm.child_id',
                     'sm.full_name as sponsor_name',
                     'sm.email',
                     'sm.no_hp'
                 )
                 ->get();
 
+            $childId = $Snaptokenorder[0]->child_id;
             $orderHd = DataOrder::where('order_id', $request->order_id)->first();
             $orderHd->sponsor_id = $request->sponsor_id;
             // $orderHd->payment_status = $request->payment_status;
@@ -754,7 +756,7 @@ class DataOrderCrudController extends CrudController
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $code);
             $snapToken = $midtrans->getSnapToken();
             $orderHd->snap_token = $snapToken;
-            $orderHd->order_id_midtrans = "anak-" . $code;
+            $orderHd->order_id_midtrans = "anak-" . $childId . '-' . Carbon::now()->timestamp;
             $orderHd->save();
 
             DB::commit();

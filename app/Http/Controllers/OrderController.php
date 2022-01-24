@@ -88,7 +88,6 @@ class OrderController extends Controller
                 $order->total_price = $getTotalPrice;
                 $order->save();
                 DB::commit();
-    
 
                 //update is_sponsored
 
@@ -104,19 +103,19 @@ class OrderController extends Controller
             return redirect()->back()->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain']);
         }
     }
-    public function orderdonation($snapToken, $code)
+    public function orderdonation($code)
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
+        $order = DataOrder::where('order_id', $code)->first();
+        if (empty($order)) {
+            return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan']);
+        }
 
         try {
+            $data['error'] = '';
 
             $decoderespon = \Midtrans\Transaction::status('anak-' . $code);
 
-            if ($decoderespon['transaction_status'] == 'expire') {
+            if ($decoderespon->transaction_status == 'expire') {
 
                 $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $code)
                     ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
@@ -132,20 +131,22 @@ class OrderController extends Controller
                     )
                     ->get();
 
-                $dates = new DateTime();
-                $timestamp = $dates->getTimestamp();
-
-                $order = DataOrder::where('order_id', $code)->first();
+                $childId = $Snaptokenorder[0]->child_id;
                 $midtrans = new UpdateSnapTokenServiceForExpiredTransaction($Snaptokenorder, $code);
                 $snapToken = $midtrans->getSnapToken();
                 $order->snap_token = $snapToken;
-                $order->order_id_midtrans = 'anak-' . $code . '-' . $timestamp;
+                $order->order_id_midtrans = 'anak-' . $childId . '-' . Carbon::now()->timestamp;
                 $order->save();
             }
         } catch (Exception $e) {
+            if ($e->getCode() != 404) {
+                $data['error'] = "Gagal mendapatkan status order dari Midtrans. [" . $e->getCode() . "]";
+                $data['error_status'] = $e->getCode();
+            }
         }
-        $data['order'] = DataOrder::where('order_id', $code)->first();
-        $data['snapToken'] = $snapToken;
+
+        $data['order'] = $order;
+        $data['snapToken'] =  $order->snap_token;
 
         return view('showpayment', $data);
     }
