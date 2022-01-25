@@ -126,11 +126,26 @@ width: 100%;
     padding-bottom: 12px;
 }
 
-  @media (min-width: 992px){
+  /* @media (min-width: 992px){
     .navigation nav {
         padding-bottom: 30px;
     }
     #navbarTogglerDemo03 ul {
         padding-left: 32%;
     }
+  } */
+
+  .wrapper-inline-proyek{
+    font-size: 22px;
+    font-family: priva,Arial,sans-serif;
+    color: #000;
+  }
+
+  .wrapper-inline-proyek span{
+      float:left;
+      margin-right: 12px;
+  }
+
+  .wrapper-inline-proyek input {
+      border: 2px solid black;
   }

@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="{{ asset('assets/font-awesome/css/font-awesome.min.css') }}">
 <style>
   .logo {
+    position: absolute;
+    left: 50%;
+    top:16px;
     background: #fff;
     width: 90px;
     height: 90px;
@@ -17,6 +20,7 @@
     -webkit-box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
     box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 4px 5px rgb(0 0 0 / 50%);
     padding-top: 10px;
+    margin-left: -45px;
 }
 .logo__img{
     display: block;
@@ -30,7 +34,7 @@
 </style>
 </head>
 <body>
-<div class="navigation">
+<div class="navigation position-relative">
 <nav class="navbar navbar-expand-lg navbar-light bg-white">
   <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,18 +64,14 @@
           </a>
           @else
           <a href="{{url('my-account')}}" style="text-decoration:none;color: inherit;">
-              <button class="btn btn-outline-primary" type="submit">Akun Saya</button>
+              <button class="btn btn-primary" type="submit">Akun Saya</button>
           </a>&nbsp
           @endif
     </div>
   </div>
 </nav>
-<div class="rootLogo" style="height: 0px;position:relative;display:block; background-color: red; ">
-      <center style="margin-top: -30px;">
-      <div class="logo">
-        <a href="#"><img class ="logo__img" src="{{asset('images/logopesat.png')}}" alt="Logo"></a>
-      </div>
-      </center>
+<div class="logo">
+  <a href="{{url('/')}}"><img class ="logo__img" src="{{asset('images/logopesat.png')}}" alt="Logo"></a>
 </div>
 </div>
 <div style="height: 40px; display:block;"></div>

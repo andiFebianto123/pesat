@@ -72,19 +72,46 @@
                         </tr>
                 </tbody>
             </table>
+            <div>
+                @php
+                    $progress = 0;
+                    if($project->last_amount >= $project->amount){
+                        $progress = 100;
+                    }
+                    else{
+                        $progress = round(($project->amount == 0 ? 0 : ($project->last_amount / $project->amount)), 2);
+                    }
+                @endphp
+                <label
+                    style="font-family: priva,Arial,sans-serif;
+                    font-weight: 300; 
+                    color: #686c8b;
+                    font-size: 22px;"
+                >Raised Percent: {{$progress}}%</label>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{$progress}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
             </br>
             @if($project->is_closed == false)
             <div class="row">
                 <div class="col-8 form-group">
-                    <input type="number" name="donation" class="form-control {{$errors->has('donation') ? 'is-invalid' : ''}}" required>
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="wrapper-inline-proyek">
+                                <span>Rp.</span>
+                                <input type="number" style="width: 120px;" name="donation" class="form-control {{$errors->has('donation') ? 'is-invalid' : ''}}" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary" id="btn-donation">Donation</button>
+                        </div>
+                    </div>
                     @if ($errors->has('donation'))
                     @foreach ($errors->get('donation') as $message)
                         <div class="invalid-feedback d-block">{{$message}}</div>
                     @endforeach
                     @endif
-                </div>
-                <div class="col-4">
-                <button type="submit" class="btn btn-primary" id="btn-donation">Donation</button>
                 </div>
             </div>
             @endif

@@ -25,7 +25,7 @@ if($orders->payment_status == 1){
  
     <tr>
       <td>{{$orders->title}}</td>
-      <td>{{$orders->price}}</td>
+      <td>Rp{{ number_format($orders->price, 2, ',', '.') }}</td>
     </tr>
    <tr>
         <th>Payment Method</th>
@@ -33,7 +33,7 @@ if($orders->payment_status == 1){
     </tr>
     <tr>
         <th>Total</th>
-        <th>{{$orders->price}}</th>
+        <th>Rp{{ number_format($orders->price, 2, ',', '.') }}</th>
     </tr>
   </tbody>
 </table>

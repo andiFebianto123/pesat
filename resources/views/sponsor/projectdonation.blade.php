@@ -30,16 +30,16 @@
         {{"batal"}}
       @endif
       </td>
-      <td>{{$projectorder->price}}</td>
+      <td>Rp{{ number_format($projectorder->price, 2, ',', '.') }}</td>
       <td>
-      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}" class="btn btn-outline-info">
+      <a href="{{url('project-donation-detail/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
         Detail
       </a>
-@if($projectorder->payment_status==1)
-      <a href="{{url('project-order/' . $projectorder->order_project_id)}}" class="btn btn-outline-info">
-        Pay
-      </a>
-@endif
+      @if($projectorder->payment_status==1)
+          <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+            Pay  
+          </a>
+      @endif
       </td>
     </tr>
     @endforeach
