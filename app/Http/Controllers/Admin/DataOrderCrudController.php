@@ -630,6 +630,10 @@ class DataOrderCrudController extends CrudController
 
                 \Alert::error('Data order sudah dibayar')->flash();
                 return redirect($this->crud->route);
+            } elseif ($cekStatusPayment->payment_status == 3) {
+
+                \Alert::error('Tidak dapat melakukan perubahan data karena order anak telah dibatalkan')->flash();
+                return redirect($this->crud->route);
             } elseif (JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0) {
 
                 return $this->redirectUpdateCrud($request->order_id, ['message' => 'Detail order tidak boleh kosong']);
