@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\ChildMaster;
-use App\Models\DataOrder;
+use Carbon\Carbon;
 use App\Models\OrderHd;
 use App\Models\Sponsor;
+use App\Models\DataOrder;
+use App\Models\ChildMaster;
+use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
     //
     public function index()
     {
-        $start= date("Y-n-j", strtotime("first day of this month"));
-        $end=date("Y-n-j", strtotime("last day of this month"));
+        $now = Carbon::now();
+        $start = $now->copy()->startOfMonth();
+        $end = $now->copy()->endOfMonth();
 
         $sponsoredchild = DataOrder::where('payment_status', 2)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
