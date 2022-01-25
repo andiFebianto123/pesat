@@ -47,7 +47,7 @@ class SponsorLoginController extends DefaultLoginController
         ],$remember_me)) {
             return redirect()->intended(url('my-account'));
         } else {
-            return redirect()->back()->with(['error' => 'Email atau password yang anda masukan salah.']);
+            return redirect()->back()->with(['error' => 'Email atau password yang Anda masukan salah.']);
         }
     }
     

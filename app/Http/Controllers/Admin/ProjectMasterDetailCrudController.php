@@ -60,7 +60,7 @@ class ProjectMasterDetailCrudController extends CrudController
         $cekdata =  $cekdata->first();
         if($cekdata == null){
             DB::rollback();
-            abort(404, trans('Data Tidak Ditemukan'));
+            abort(404, trans('Proyek tidak ditemukan.'));
         }
         return $cekdata;
     }

@@ -80,7 +80,7 @@ class ProjectOrderController extends Controller
             $orderProject = OrderProject::where('order_project_id', $code)->first();
             if ($orderProject == null) {
                 DB::rollBack();
-                return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan']);
+                return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
             }
 
             $data['error'] = '';

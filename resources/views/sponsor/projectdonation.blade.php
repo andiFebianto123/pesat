@@ -36,7 +36,7 @@
         Detail
       </a>
       @if($projectorder->payment_status==1)
-          <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+          <a href="{{url('project-order/' . $projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
             Pay  
           </a>
       @endif

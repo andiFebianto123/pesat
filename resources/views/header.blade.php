@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PESAT</title>
+    <title>{{isset($title) ? ($title . ' :: ') : ''}}PESAT</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom/styleku.css') }}">

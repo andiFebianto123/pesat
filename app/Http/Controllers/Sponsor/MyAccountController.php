@@ -50,12 +50,7 @@ class MyAccountController extends Controller
     public function editaccount()
     {
         $user = auth()->user();
-        $getUserId = $user->sponsor_id;
-
-        $getuser = Sponsor::where('sponsor_id', $getUserId)
-            ->first();
-
-        $data['profile'] = $getuser;
+        $data['profile'] = $user;
         $data['title'] = "Edit Account";
 
         return view('sponsor.editaccount', $data);
@@ -100,7 +95,7 @@ class MyAccountController extends Controller
 
         $sponsor->save();
 
-        return redirect()->back()->with(['success' => 'Data Berhasil Di Update !!']);
+        return redirect()->back()->with(['success' => 'Data Berhasil Di Update.']);
 
     }
 
@@ -129,10 +124,10 @@ class MyAccountController extends Controller
             $getUser->password = bcrypt($generatepass);
             $getUser->save();
 
-            return redirect()->back()->with(['success' => 'Password berhasil direset, silahkan cek email anda !!']);
+            return redirect()->back()->with(['success' => 'Password berhasil direset, silahkan cek email Anda.']);
 
         } else {
-            return redirect()->back()->with(['error' => 'Email yang anda masukan tidak terdaftar !!']);
+            return redirect()->back()->with(['error' => 'Email yang Anda masukan tidak terdaftar.']);
         }
 
     }
@@ -183,13 +178,16 @@ class MyAccountController extends Controller
         $insertsponsor->church_member_of = $request->memberofchurch;
         $insertsponsor->save();
 
-        return redirect()->back()->with(['success' => 'Akun berhasil dibuat , silahkan login !!']);
+        return redirect()->back()->with(['success' => 'Akun berhasil dibuat, silahkan login.']);
 
     }
 
     public function childdetaildonation($id)
     {
-
+        $orderhd = DataOrder::where('order_id', $id)->first();
+        if($orderhd == null){
+            return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
+        }
         $orders = DataOrder::where('order_hd.order_id', $id)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
@@ -199,7 +197,6 @@ class MyAccountController extends Controller
                 'sm.sponsor_id', 'cm.child_id', 'sm.full_name as sponsor_name', 'sm.address as sponsor_address', 'sm.no_hp', 'sm.email'
             )
             ->get();
-        $orderhd = DataOrder::where('order_id', $id)->first();
         $data['orders'] = $orders;
         $data['orderhd'] = $orderhd;
         $data['title'] = "Detail Donasi";
@@ -214,7 +211,9 @@ class MyAccountController extends Controller
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
             ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
             ->first();
-
+        if($orderproject == null){
+            return redirect(url('project-donation'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
+        }
         $data['orders'] = $orderproject;
         $data['title'] = "Detail Proyek Donasi";
         return view('sponsor.projectdetaildonation', $data);
@@ -235,6 +234,7 @@ class MyAccountController extends Controller
         //                     ->orderBy('dl.dlp_id','desc')->paginate(5);
         $downloaddlp = ChildMaster::where('child_master.child_id', $id)
             ->join('dlp as dl', 'dl.child_id', '=', 'child_master.child_id')
+            ->whereNull('dl.deleted_at')
             ->select('.child_master.child_id', 'full_name', 'dl.file_dlp', 'dl.created_at')
             ->paginate(5);
         $data['dlp'] = $downloaddlp;

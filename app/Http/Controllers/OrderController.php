@@ -107,7 +107,7 @@ class OrderController extends Controller
     {
         $order = DataOrder::where('order_id', $code)->first();
         if (empty($order)) {
-            return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan']);
+            return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
         }
 
         try {
