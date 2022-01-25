@@ -1,19 +1,17 @@
 <?php
 
 namespace App\Console\Commands;
+
 use PDF;
-use App\Http\Controllers\ReminderOrder;
-use App\Mail\ReminderNewOrder;
-use App\Models\DataDetailOrder;
-use App\Models\DataOrder;
-use App\Models\OrderDt;
-use App\Models\OrderHd;
-use App\Services\Midtrans\CreateSnapTokenService;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use App\Models\DataOrder;
+use App\Models\ChildMaster;
+use App\Models\DataDetailOrder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Services\Midtrans\CreateSnapTokenService;
 
 class CreateChildOrder extends Command
 {
@@ -39,7 +37,7 @@ class CreateChildOrder extends Command
      */
     public function __construct()
     {
-       
+
         parent::__construct();
     }
 
@@ -51,244 +49,130 @@ class CreateChildOrder extends Command
     public function handle()
     {
         DB::beginTransaction();
-        try{
-    
-        $now=Carbon::now();
-        $dateafteronemont= $now->copy()->addMonthsNoOverflow(1);
-        $orders = DB::table('order_hd')
-        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
-        ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
-        ->join('child_master as cm','cm.child_id','=','odt.child_id')
-        ->where('odt.has_child',0)
-        ->where('odt.monthly_subscription','!=',1)
-        ->where('odt.end_order_date','<=',$dateafteronemont)
-        ->where('payment_status',2)
-        ->where('order_hd.deleted_at',null)
-        ->where('odt.deleted_at',null)
-        ->addSelect(
-                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
-                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.monthly_subscription','odt.start_order_date','odt.end_order_date',
-                    'sm.sponsor_id','sm.full_name as sponsor_name','sm.email','sm.address as sponsor_address','sm.no_hp','cm.child_id','cm.full_name as child_name',
-                    'cm.registration_number','cm.gender','cm.date_of_birth','cm.class','cm.school','cm.school_year'
+        try {
 
-        )
-        ->get();
+            $now = Carbon::now();
+            $dateafteronemont = $now->copy()->addMonthsNoOverflow(1);
+            $orders = DataDetailOrder::join('order_hd', 'order_hd.order_id', '=', 'order_dt.order_id')
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+                ->join('child_master as cm', 'cm.child_id', '=', 'order_dt.child_id')
+                ->where('order_dt.has_child', 0)
+                ->where('order_dt.monthly_subscription', '!=', 1)
+                ->where('order_dt.end_order_date', '<=', $dateafteronemont)
+                ->where('payment_status', 2)
+                ->where('order_hd.deleted_at', null)
+                ->addSelect(
+                    'order_dt.has_child',
+                    'order_hd.order_id', 'order_hd.parent_order_id', 'order_hd.order_no', 'order_hd.total_price', 'order_hd.payment_status',
+                    'order_dt.order_dt_id', 'order_dt.parent_order_dt_id', 'order_dt.price', 'order_dt.monthly_subscription', 'order_dt.start_order_date', 'order_dt.end_order_date',
+                    'sm.sponsor_id', 'sm.full_name as sponsor_name', 'sm.email', 'sm.address as sponsor_address', 'sm.no_hp', 'cm.child_id', 'cm.full_name as child_name',
+                    'cm.registration_number', 'cm.gender', 'cm.date_of_birth', 'cm.class', 'cm.school', 'cm.school_year'
+                )
+                ->get();
+            $this->handleCreateChildOrder($orders);
 
-        if(count($orders) > 0){
+            $dateafteroneweek = $now->copy()->addDay(7);
+            $orders = DataDetailOrder::join('order_hd', 'order_hd.order_id', '=', 'order_dt.order_id')
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+                ->join('child_master as cm', 'cm.child_id', '=', 'order_dt.child_id')
+                ->where('order_dt.has_child', 0)
+                ->where('order_dt.monthly_subscription', '=', 1)
+                ->where('order_dt.end_order_date', '<=', $dateafteroneweek)
+                ->where('payment_status', 2)
+                ->where('order_hd.deleted_at', null)
+                ->addSelect(
+                    'order_dt.has_child',
+                    'order_hd.order_id', 'order_hd.parent_order_id', 'order_hd.order_no', 'order_hd.total_price', 'order_hd.payment_status',
+                    'order_dt.order_dt_id', 'order_dt.parent_order_dt_id', 'order_dt.price', 'order_dt.monthly_subscription', 'order_dt.start_order_date', 'order_dt.end_order_date',
+                    'sm.sponsor_id', 'sm.full_name as sponsor_name', 'sm.email', 'sm.address as sponsor_address', 'sm.no_hp', 'cm.child_id', 'cm.full_name as child_name',
+                    'cm.registration_number', 'cm.gender', 'cm.date_of_birth', 'cm.class', 'cm.school', 'cm.school_year'
+                )
+                ->get();
+            $this->handleCreateChildOrder($orders);
 
-            $totalPrice= 0;
-            foreach($orders as $key =>$orderPrice){
-        
-                $totalPrice += $orderPrice->price * $orderPrice->monthly_subscription;
-        
-            }
-          
-            $getOrderId = $orders->first();
-            $parentOrderId = $getOrderId->order_id;
-            $parentSponsorId = $getOrderId->sponsor_id;
-            
-
-            $lastorderId = DB::table('order_hd')->insertGetId(
-                [ 'parent_order_id' => $parentSponsorId,
-                  'sponsor_id'      => $parentSponsorId,
-                  'total_price'     => $totalPrice,
-                  'payment_status'  => 1,
-                  'created_at'      => Carbon::now()
-                ]
-            );
-
-            foreach($orders as $key =>$order){
-    
-
-//                    update has_child
-                    DataDetailOrder::where('order_id', $order->order_id)
-                            ->where('child_id', $order->child_id)
-                            ->update(['has_child' => 1]);
-        
-                    $newstartdate=Carbon::parse($order->end_order_date);
-                    $insertorderdt = new DataDetailOrder();
-                    $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
-                    $insertorderdt->child_id             = $order->child_id;
-                    $insertorderdt->order_id             = $lastorderId;
-                    $insertorderdt->price                = $order->price;
-                    $insertorderdt->monthly_subscription = $order->monthly_subscription;
-                    $insertorderdt->start_order_date     = $newstartdate;
-                    $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
-                    
-                    $insertorderdt->save();
-
-                    
-
-                    $datenow = Carbon::now();
-                    $formatdatenow = date('Y-m-d', strtotime($datenow));
-                 
-                    $data["email"] = $order->email;
-                    $data["title"] = "Reminder for Your Subscription";
-                    $data["body"] = "This is Demo";
-                    $data["sponsor_name"] = $order->sponsor_name;
-                    $data["order_id"] = $order->order_id;
-                    $data["sponsor_address"] = $order->sponsor_address;
-                    $data["no_hp"] = $order->no_hp;
-                    $data["child_name"]=$order->child_name;
-                    $data["monthly_subscription"]=$order->monthly_subscription;
-                    $data["price"]  = $order->price;
-                    $data["total_price"]  = $order->total_price;
-                    $data["date_now"]   = $formatdatenow;
-         
-                    $pdf = PDF::loadView('Email.NewOrder', $data);
-                     
-                    Mail::send('Email.BodyNewOrder', $data, function($message)use($data, $pdf) {
-                   $message->to($data["email"], $data["email"])
-                           ->subject($data["title"])
-                           ->attachData($pdf->output(), $data["order_id"]."_".$data["sponsor_name"].".pdf");
-                           
-               });
-            
-                }
-                $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $lastorderId)
-                    ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
-                    ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-                    ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-                    ->select(
-                        'order_hd.*',
-                        'odt.*',
-                        'cm.full_name',
-                        'sm.full_name as sponsor_name',
-                        'sm.email',
-                        'sm.no_hp'
-                    )
-                    ->get();
-                
-                  //     dd($lastorderId);
-                    $orderForToken = DataOrder::where('order_id', $lastorderId)->first();
-              //      dd($orderForToken);
-                    $midtrans = new CreateSnapTokenService($Snaptokenorder, $lastorderId);
-                    $snapToken = $midtrans->getSnapToken();
-                 
-                    $orderForToken->snap_token = $snapToken;
-                    $orderForToken->order_id_midtrans = 'anak-'.$lastorderId;
-                    $orderForToken->save();
-                    DB::commit();
-
-            }
-        $now=Carbon::now();
-        $dateafteroneweek= $now->copy()->addDay(7);
-        $orders1month = DB::table('order_hd')
-        ->Join('order_dt as odt', 'order_hd.order_id', '=', 'odt.order_id')
-        ->join('sponsor_master as sm','sm.sponsor_id','=','order_hd.sponsor_id')
-        ->join('child_master as cm','cm.child_id','=','odt.child_id')
-        ->where('odt.has_child',0)
-        ->where('odt.end_order_date','<=',$dateafteroneweek)
-        ->where('payment_status',2)
-        ->where('odt.monthly_subscription',1)
-        ->where('order_hd.deleted_at',null)
-        ->where('odt.deleted_at',null)
-        ->addSelect(
-                    'order_hd.order_id','order_hd.parent_order_id','order_hd.order_no','order_hd.total_price','order_hd.payment_status',
-                    'odt.order_dt_id','odt.parent_order_dt_id','odt.price','odt.price','odt.monthly_subscription','odt.start_order_date',
-                    'odt.end_order_date','sm.sponsor_id','sm.full_name as sponsor_name','sm.address as sponsor_address','sm.email','sm.no_hp',
-                    'cm.child_id','cm.full_name as child_name','cm.registration_number','cm.registration_number','cm.gender','cm.date_of_birth',
-                    'cm.class','cm.school','cm.school_year' 
-        )
-
-        ->get();
-    
-        
-    if(count($orders1month)>0){
-
-        $totalPrice= 0;
-    foreach($orders1month as $key =>$orderPrice){
-
-        $totalPrice += $orderPrice->price * $orderPrice->monthly_subscription;
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('cron')->info('ERROR CRON JOB CreateChildOrder');
+            Log::channel('cron')->error($e);
+        }
 
     }
 
-    $getOrderId = $orders1month->first();
- //   dd($getOrderId);
-    $parentOrderId = $getOrderId->order_id;
-    $parentSponsorId = $getOrderId->sponsor_id;
+    private function handleCreateChildOrder($orders){
+        foreach($orders as $order){
+            $sponsorid = $order->sponsor_id;
+            $totalPrice = $order->price;
+            $dataOrder = DataOrder::create([
+                'parent_order_id' => $order->order_id,
+                'sponsor_id' => $sponsorid,
+                'payment_status' => 1,
+                'total_price' => $totalPrice,
+            ]);
 
-        $lastorderId = DB::table('order_hd')->insertGetId(
-            [ 'parent_order_id' => $parentOrderId,
-              'sponsor_id'      => $parentSponsorId,
-              'total_price'     => $totalPrice,
-              'payment_status'  => 1,
-              'created_at'      => Carbon::now()
-            ]
-            
-        );
+            $startOrderdate = Carbon::parse($order->end_order_date);
 
-        foreach($orders1month as $key =>$order){
+            $detailOrder = new DataDetailOrder();
+            $detailOrder->parent_order_dt_id = $order->order_dt_id;
+            $detailOrder->order_id = $dataOrder->order_id;
+            $detailOrder->child_id = $order->child_id;
+            $detailOrder->price = $totalPrice;
+            $detailOrder->monthly_subscription = $order->monthly_subscription;
+            $detailOrder->start_order_date = $startOrderdate;
+            $detailOrder->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
+            $detailOrder->save();
 
-            DataDetailOrder::where('order_id', $order->order_id)
-                     ->where('child_id', $order->child_id)
-                     ->update(['has_child' => 1]);
+            $child = ChildMaster::find($order->child_id);
+            $child->is_sponsored = 1;
+            $child->current_order_id = $dataOrder->order_id;
+            $child->is_paid = 0;
+            $child->save();
 
-            $newstartdate=Carbon::parse($order->end_order_date);
-            $insertorderdt = new DataDetailOrder();
-            $insertorderdt->parent_order_dt_id   = $order->order_dt_id;
-            $insertorderdt->child_id             = $order->child_id;
-            $insertorderdt->order_id             = $lastorderId;
-            $insertorderdt->price                = $order->price;
-            $insertorderdt->monthly_subscription = $order->monthly_subscription;
-            $insertorderdt->start_order_date     = $newstartdate;
-            $insertorderdt->end_order_date       = $newstartdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
-            
-            $insertorderdt->save();
+            $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $dataOrder->order_id)
+            ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->select(
+                'order_hd.*',
+                'odt.*',
+                'cm.full_name',
+                'sm.full_name as sponsor_name',
+                'sm.email',
+                'sm.no_hp'
+            )
+            ->get();
 
-            $datenow = Carbon::now();
-            $formatdatenow = date('Y-m-d', strtotime($datenow));
+            $midtrans = new CreateSnapTokenService($Snaptokenorder, $dataOrder->order_id);
+            $snapToken = $midtrans->getSnapToken();
+            $dataOrder->snap_token = $snapToken;
+            $dataOrder->order_id_midtrans = 'anak-' . $dataOrder->order_id;
+            $dataOrder->total_price = $totalPrice;
+            $dataOrder->save();
 
-            $data["email"]       = $order->email;
-            $data["title"]       = "Reminder for Your Subscription";
-            $data["body"]        = "This is Demo";
-            $data["sponsor_name"]= $order->sponsor_name;
-            $data["sponsor_address"]= $order->sponsor_address;
-            $data["no_hp"]      = $order->no_hp;
-            $data["order_id"]      = $order->order_id;
-            $data["child_name"]=$order->child_name;
+            $data["email"] = $order->email;
+            $data["title"] = "Reminder for Your Subscription";
+            $data["body"] = "This is Demo";
+            $data["sponsor_name"] = $order->sponsor_name;
+            $data["order_id"] = $dataOrder->order_id;
+            $data["sponsor_address"] = $order->sponsor_address;
+            $data["no_hp"] = $order->no_hp;
+            $data["child_name"] = $order->child_name;
             $data["monthly_subscription"] = $order->monthly_subscription;
-            $data["price"] = $order->price;
-            $data["total_price"] = $order->total_price;
-            $data["date_now"]   = $formatdatenow;
-             
-            Mail::send('Email.BodyNewOrder', $data, function($message)use($data) {
-           $message->to($data["email"], $data["email"])
-                   ->subject($data["title"]);
-       });
-     
+            $data["price"] = $totalPrice;
+            $data["total_price"] = $totalPrice;
+            $data["date_now"] = $startOrderdate->format('Y-m-d');
+
+            $pdf = PDF::loadView('Email.NewOrder', $data);
+
+            Mail::send('Email.BodyNewOrder', $data, function ($message) use ($data, $pdf) {
+                $message->to($data["email"], $data["email"])
+                    ->subject($data["title"])
+                    ->attachData($pdf->output(), $data["order_id"] . "_" . $data["sponsor_name"] . ".pdf");
+            });
+
+            $order->has_child = 1;
+            $order->save();
+        }
     }
-    $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $lastorderId)
-    ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
-    ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-    ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-    ->select(
-        'order_hd.*',
-        'odt.*',
-        'cm.full_name',
-        'sm.full_name as sponsor_name',
-        'sm.email',
-        'sm.no_hp'
-    )
-    ->get();
-
-    $orderForToken = DataOrder::where('order_id', $lastorderId)->first();
-    $midtrans = new CreateSnapTokenService($Snaptokenorder, $lastorderId);
-    $snapToken = $midtrans->getSnapToken();
-
-    $orderForToken->snap_token = $snapToken;
-    $orderForToken->order_id_midtrans = 'anak-'.$lastorderId;
-    $orderForToken->save();
- 
-    DB::commit();
-    }
-}catch(Exception $e){
-    DB::rollBack();
-
-    throw $e;
-}
-
-
-     }
 
 }

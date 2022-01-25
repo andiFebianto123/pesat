@@ -61,7 +61,9 @@ class DataOrder extends Model
 
 
 
-
+    public function orderdetails(){
+        return $this->hasMany(DataDetailOrder::class,'order_id','order_id');
+    }
 
     public function orderdt()
     {

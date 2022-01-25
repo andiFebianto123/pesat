@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Exception;
+use Carbon\Carbon;
+use App\Models\DataOrder;
 use App\Models\ChildMaster;
 use App\Models\DataDetailOrder;
-use App\Models\DataOrder;
-use App\Models\OrderDt;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CekPaidorNot extends Command
 {
@@ -44,65 +44,48 @@ class CekPaidorNot extends Command
      */
     public function handle()
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
-        $now = Carbon::now();
-        $nowAdd2Days = $now->copy()->addDay(-2);
-
-        $newDateFormat = date("Y-m-d", strtotime($nowAdd2Days));
-
-        $datasOrder = DataDetailOrder::where('start_order_date','<=',$newDateFormat)
-                    ->join('order_hd as ohd','ohd.order_id','=','order_dt.order_id')
-                    ->where('ohd.payment_status',1)
-                    ->distinct()
-                    ->get('ohd.order_id');
-                
-        $datasChild = DataDetailOrder::where('start_order_date',$newDateFormat)
-                    ->get('child_id');
-     
         DB::beginTransaction();
-        try{
+        try {
+            $now = Carbon::now()->startOfDay();
+            $nowAdd2Days = $now->copy()->addDay(-2);
 
-        foreach($datasOrder as $key => $datas){
+            $dataOrders = DataOrder::whereHas('orderdetails', function ($query) use ($nowAdd2Days) {
+                $query->where('start_order_date', '<', $nowAdd2Days->format('Y-m-d'));
+            })->where('payment_status', 1)->get();
+            foreach ($dataOrders as $datasOrder) {
+                
+                $cancelSuccess = false;
+                try {
+                    \Midtrans\Transaction::cancel($datasOrder->order_id_midtrans);
+                    $cancelSuccess = true;
+                } catch (Exception $e) {
+                    if ($e->getCode() == 404) {
+                        $cancelSuccess = true;
+                    }
+                }
 
-            $orderHd = DataOrder::find($datas)->first();
-           
-            $orderHd->payment_status = 3;
-          
-            $orderHd->save();
-
-          
-            \Midtrans\Transaction::cancel($orderHd->order_id_midtrans);     
-            DB::commit();    
-      
-        }        
-    }catch(Exception $e){
-      
-
-         if($e->getCode() !== 404){
-
-            $errorMessage = array('order_id' => $orderHd->order_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
-
-            \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
-
-            DB::rollBack();
-           
-        }else{
-           
+                if ($cancelSuccess) {
+                    $datasOrder->payment_status = 3;
+                    $datasOrder->status_midtrans = 'cancel';
+                    $datasOrder->save();
+                    $cekDetailOrder = DataDetailOrder::where('order_id', $datasOrder->order_id)->get();
+                    foreach ($cekDetailOrder as $key => $detailOrder) {
+                        $child = ChildMaster::find($detailOrder->child_id);
+                        if ($child != null && $child->current_order_id == $datasOrder->order_id) {
+                            $child->is_sponsored = 0;
+                            $child->current_order_id = null;
+                            $child->is_paid = 0;
+                            $child->save();
+                        }
+                    }
+                    // TO DO : SEND EMAIL CANCEL
+                }
+            }
             DB::commit();
-
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('cron')->info('ERROR CRON JOB CekPaidorNot');
+            Log::channel('cron')->error($e);
         }
-    }   
-        foreach($datasChild as $key => $datachild){
-
-            $childmaster = ChildMaster::find($datachild)->first();
-            $childmaster->is_sponsored = 0;
-            $childmaster->current_order_id = null;
-            $childmaster->save();
-        }        
-       // return Command::SUCCESS;
     }
 }

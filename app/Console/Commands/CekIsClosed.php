@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\OrderProject;
-use App\Models\ProjectMaster;
+use Exception;
 use Carbon\Carbon;
+use App\Models\ProjectMaster;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CekIsClosed extends Command
 {
@@ -40,43 +42,28 @@ class CekIsClosed extends Command
      */
     public function handle()
     {
- 
-        $datasOrder = ProjectMaster::where('is_closed',0)
-                        ->get();
 
-            foreach($datasOrder as $key => $data){
-
-
-
-                    $orderProject = OrderProject::where('project_id',$data->project_id)
-                        ->where('payment_status',2)
-                        ->groupBy('project_id')
-                        ->selectRaw('sum(price) as sum_price')
-                        ->pluck('sum_price');
-              
-                    $amount = intval($data->amount);
-                    $totalPrice = intval($orderProject[0]);
-
-                    $now = Carbon::now();
-            if($data->end_date !== null){
-
-                if($totalPrice >= $amount || $now > $data->end_date){// 
-
-                    $projectMaster = ProjectMaster::find($data->project_id);
-                    $projectMaster->is_closed = 1;
-                    $projectMaster->save();
-
+        DB::beginTransaction();
+        try {
+            $now = Carbon::now()->startOfDay();
+            $datasOrder = ProjectMaster::where('is_closed', 0)->get();
+            foreach ($datasOrder as $key => $data) {
+                $amount = $data->amount;
+                $lastAmount = $data->last_amount;
+                $enddate = $data->end_date;
+                if ($enddate != null) {
+                    $enddate = Carbon::parse($enddate)->startOfDay();
+                }
+                if (($enddate != null & $now > $enddate) || $lastAmount >= $amount) {
+                    $data->is_closed = 1;
+                    $data->save();
+                }
             }
-        }else{
-                if($totalPrice >= $amount){// 
-
-                    $projectMaster = ProjectMaster::find($data->project_id);
-                    $projectMaster->is_closed = 1;
-                    $projectMaster->save();
-
-            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('cron')->info('ERROR CRON JOB CekIsClosed');
+            Log::channel('cron')->error($e);
         }
-    }
-
     }
 }
