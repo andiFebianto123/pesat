@@ -87,15 +87,22 @@
             @if($project->is_closed == false)
             <div class="row">
                 <div class="col-8 form-group">
-                    <input type="number" name="donation" class="form-control {{$errors->has('donation') ? 'is-invalid' : ''}}" required>
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="wrapper-inline-proyek">
+                                <span>Rp.</span>
+                                <input type="number" style="width: 120px;" name="donation" class="form-control {{$errors->has('donation') ? 'is-invalid' : ''}}" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary" id="btn-donation">Donation</button>
+                        </div>
+                    </div>
                     @if ($errors->has('donation'))
                     @foreach ($errors->get('donation') as $message)
                         <div class="invalid-feedback d-block">{{$message}}</div>
                     @endforeach
                     @endif
-                </div>
-                <div class="col-4">
-                    <button type="submit" class="btn btn-primary" id="btn-donation">Donation</button>
                 </div>
             </div>
             @endif
