@@ -24,6 +24,7 @@ class CekStatusController extends Controller
             $orderProject = OrderProject::where('order_project_id', $id)->first();
 
             if (empty($orderProject)) {
+                DB::rollback();
                 \Alert::add('error', 'Order proyek yang dimaksud tidak ditemukan.')->flash();
                 return redirect(backpack_url('data-order-project'));
             }
