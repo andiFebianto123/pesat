@@ -48,6 +48,10 @@ class CreateSnapTokenForProjectService extends Midtrans
                 'first_name' => $this->order[0]->full_name,
                 'email' => $this->order[0]->email,
                 'phone' => $this->order[0]->no_hp,
+            ],
+            "expiry" => [
+                "unit" => "day",
+                "duration" => 2
             ]
         ];
  

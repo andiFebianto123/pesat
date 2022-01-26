@@ -53,18 +53,33 @@ class CekPaidorNotForProject extends Command
                 ->get();
             foreach ($datasOrder as $key => $data) {
                 $cancelSuccess = false;
+                $updateStatusMidtrans = false;
                 try {
                     \Midtrans\Transaction::cancel($data->order_project_id_midtrans);
                     $cancelSuccess = true;
+                    $updateStatusMidtrans = true;
                 } catch (Exception $e) {
                     if ($e->getCode() == 404) {
                         $cancelSuccess = true;
+                    }
+                    else if($e->getCode() == 412){
+                        try{
+                            $decoderespon = \Midtrans\Transaction::status($data->order_project_id_midtrans);
+                            if($decoderespon->transaction_status == 'expire'){
+                                $cancelSuccess = true;
+                            }
+                        }
+                        catch(Exception $e){
+
+                        }
                     }
                 }
 
                 if ($cancelSuccess) {
                     $data->payment_status = 3;
-                    $data->status_midtrans = 'cancel';
+                    if($updateStatusMidtrans){
+                        $data->status_midtrans = 'cancel';
+                    }
                     $data->save();
 
                     $getProjectId = $data->project_id;

@@ -6,7 +6,7 @@
     </div>
 @endif
 <div class="table-responsive">
-  <table class="table">
+  <table class="table text-nowrap">
     <thead>
       <tr>
         <th scope="col">Order</th>

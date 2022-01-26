@@ -59,7 +59,12 @@ class CekStatusController extends Controller
                 $paymentStatus = 2;
             }
             else if($transaction == 'pending' || $transaction == 'expire'){
-                $paymentStatus = 1;
+                if($transaction == 'expire'){
+                    $paymentStatus = $orderProject->payment_status;
+                }
+                else{
+                    $paymentStatus = 1;
+                }
             }
             else if($transaction == 'deny' || $transaction == 'cancel'){
                 $paymentStatus = 3;

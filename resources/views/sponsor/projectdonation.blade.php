@@ -5,7 +5,8 @@
             <strong>{{$message}}</strong>
         </div>
 @endif
-<table class="table">
+<div class="table-responsive">
+<table class="table text-nowrap">
   <thead>
     <tr>
       <th scope="col">Order</th>
@@ -45,4 +46,8 @@
     @endforeach
   </tbody>
 </table>
+</div>
+<div class="d-flex justify-content-center">
+    {!! $projectorders->links() !!}
+</div>
 @endsection

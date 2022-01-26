@@ -99,11 +99,30 @@ class CancelOrderController extends Controller
                 return redirect(backpack_url('data-order-project'));
             }
 
+            $now = Carbon::now()->startOfDay();
+            $nowSub2Days = $now->copy()->addDay(-2);
+
+            $createdAt = Carbon::parse($projectOrder->created_at)->startOfDay();
+
+            $updateStatusMidtrans = false;
             try {
                 $orderId = $projectOrder->order_project_id_midtrans;
                 \Midtrans\Transaction::cancel($orderId);
+                $updateStatusMidtrans = true;
             } catch (Exception $e) {
-                if ($e->getCode() != 404) {
+                $cancelSuccess = false;
+                if($e->getCode() == 412 && $nowSub2Days > $createdAt){
+                    try{
+                        $decoderespon = \Midtrans\Transaction::status($orderId);
+                        if($decoderespon->transaction_status == 'expire'){
+                            $cancelSuccess = true;
+                        }
+                    }
+                    catch(Exception $e){
+
+                    }
+                }
+                if ($e->getCode() != 404 && !$cancelSuccess) {
                     DB::rollBack();
                     \Alert::add('error', 'Gagal melakukan perubahan status order proyek di Midtrans. [' . $e->getCode() . ']')->flash();
                     return redirect(backpack_url('data-order-project'));
@@ -111,7 +130,9 @@ class CancelOrderController extends Controller
             }
 
             $projectOrder->payment_status = 3;
-            $projectOrder->status_midtrans = 'cancel';
+            if($updateStatusMidtrans){
+                $projectOrder->status_midtrans = 'cancel';
+            }
             $projectOrder->save();
 
             $getProjectId = $projectOrder->project_id;

@@ -53,20 +53,34 @@ class CekPaidorNot extends Command
                 $query->where('start_order_date', '<', $nowAdd2Days->format('Y-m-d'));
             })->where('payment_status', 1)->get();
             foreach ($dataOrders as $datasOrder) {
-                
                 $cancelSuccess = false;
+                $updateStatusMidtrans = false;
                 try {
                     \Midtrans\Transaction::cancel($datasOrder->order_id_midtrans);
                     $cancelSuccess = true;
+                    $updateStatusMidtrans = true;
                 } catch (Exception $e) {
                     if ($e->getCode() == 404) {
                         $cancelSuccess = true;
+                    }
+                    else if($e->getCode() == 412){
+                        try{
+                            $decoderespon = \Midtrans\Transaction::status($datasOrder->order_id_midtrans);
+                            if($decoderespon->transaction_status == 'expire'){
+                                $cancelSuccess = true;
+                            }
+                        }
+                        catch(Exception $e){
+
+                        }
                     }
                 }
 
                 if ($cancelSuccess) {
                     $datasOrder->payment_status = 3;
-                    $datasOrder->status_midtrans = 'cancel';
+                    if($updateStatusMidtrans){
+                        $datasOrder->status_midtrans = 'cancel';
+                    }
                     $datasOrder->save();
                     $cekDetailOrder = DataDetailOrder::where('order_id', $datasOrder->order_id)->get();
                     foreach ($cekDetailOrder as $key => $detailOrder) {

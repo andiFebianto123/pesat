@@ -33,6 +33,10 @@ class CreateSnapTokenService extends Midtrans
                 'first_name' => $this->order[0]->sponsor_name,
                 'email' => $this->order[0]->email,
                 'phone' => $this->order[0]->no_hp,
+            ],
+            "expiry" => [
+                "unit" => "day",
+                "duration" => 2
             ]
         ];
 
