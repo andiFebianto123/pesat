@@ -1,35 +1,57 @@
 @extends(backpack_view('blank'))
+
+@section('header')
+	<section class="container-fluid">
+	  <h2>
+           <span class="text-capitalize">Import Anak</span>
+	  </h2>
+	</section>
+@endsection
+
 @section('content')
+<!-- <h1>Import Anak</h1> -->
+<div class="row">
+        <div class="col-md-8 bold-labels">
+            <div class="card">
+                <div class="card-body">
+                        <form action="{{ backpack_url('import') }}" method="POST" enctype="multipart/form-data">
+                        @if($message = Session::get('success'))
+                                <div class="col- 5 alert alert-success" role="alert">
+                                {{$message}}
+                                </div>
+                        @endif
 
-</br></br>
-<h1>Import Anak</h1>
-
-</br>
-
-
-<form action="{{ backpack_url('import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-@if($message = Session::get('success'))
-        <div class="col- 5 alert alert-success" role="alert">
-        {{$message}}
+                        @if($message = Session::get('error'))
+                                <div class="col-5 alert alert-danger" role="alert">
+                                {{$message}}
+                                </div>
+                        @endif
+                        {{ csrf_field() }}
+                        <div class="form-group">
+                                <label for="formFile" class="form-label">File Anak</label>
+                                <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="formFile" name="file">
+                                <label class="custom-file-label" id="label-file-input" for="formFile">Choose file</label>
+                                </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                        </form>
+                </div>
+            </div>
         </div>
-@endif
-
-@if($message = Session::get('error'))
-        <div class="col-5 alert alert-danger" role="alert">
-            {{$message}}
-        </div>
-@endif
-
-<div class="col-4">
-        <input class="form-control" type="file" name = "file" id="formFile">
 </div>
-    &nbsp
-<div class="col-4">
-        <button type="submit" class="btn btn-primary mb-3">Submit</button>
-</div>
+@endsection
 
-</form>
-
+@section('after_scripts')
+        <script>
+                $(function(){
+                        var fileInput = $('#formFile');
+                        var inputLabel = $('#label-file-input');
+                        fileInput.change(function() {
+                                var path = $(this).val();
+                                var path = path.replace("C:\\fakepath\\", "");
+                                inputLabel.html(path);
+                        });
+                });
+        </script>
 @endsection

@@ -37,7 +37,7 @@ Route::group([
     Route::get('/project-cancel-order/{id}', [CancelOrderController::class,'projectcancelorder']);
 
     Route::get('/import-anak', [ImportChildController::class, 'index']);
-    Route::post('import', [ImportChildController::class, 'import'])->name('import');
+    Route::post('/import', [ImportChildController::class, 'import'])->name('import');
 
     Route::get('/import-sponsor', [ImportSponsorController::class, 'index']);
     Route::post('importsponsor', [ImportSponsorController::class, 'importsponsor']);
