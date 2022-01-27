@@ -328,6 +328,7 @@ class ChildMasterCrudController extends CrudController
             'crop' => true, // set to true to allow cropping, false to disable
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
             'prefix' => '/storage/',
+            'hint' => 'Rekomendasi ukuran gambar 600 x 600 px'
         ];
 
         $fileprofile = [
@@ -589,6 +590,7 @@ class ChildMasterCrudController extends CrudController
             'crop' => true, // set to true to allow cropping, false to disable
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
             'prefix' => '/storage/',
+            'hint' => 'Rekomendasi ukuran gambar 600 x 600 px'
         ];
 
         $fileprofile = [
