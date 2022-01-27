@@ -1,9 +1,9 @@
 @include('header')
 
 <div class="container pb-5 pt-5">
-    @if ($message = $error)
+    @if ($error)
         <div class="alert alert-danger" role="alert">
-            <strong>{{$message}}</strong>
+            <strong>{{$error}}</strong>
         </div>
     @endif
         <div class="row">

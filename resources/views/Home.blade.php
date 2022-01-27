@@ -12,10 +12,9 @@
         </br>       
         <div class="row">
     
-            <div class="col-4">
+            <div class="col-md-4 mb-3">
                 <a href="{{url('list-child')}}" style="text-decoration:none;color: inherit;">
-                        <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
-
+                        <div class="card">
                             <img class="card-img-top" src="{{asset('images/donasianak.jpg')}}" alt="Card image cap">
                             <div class="card-body">
                                 <h5 class="card-title">Sponsor Anak</h5>
@@ -24,10 +23,9 @@
                 </a>
             </div>
 
-            <div class="col-4">
+            <div class="col-md-4 mb-3">
                 <a href="{{url('list-proyek')}}" style="text-decoration:none;color: inherit;">
-                        <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
-
+                        <div class="card">
                             <img class="card-img-top" src="{{asset('images/sponsorproyek.jpg')}}" alt="Card image cap">
                             <div class="card-body">
                                 <h5 class="card-title">Sponsor Proyek</h5>
@@ -36,15 +34,14 @@
                 </a>
             </div>
 
-            <div class="col-4">
+            <div class="col-md-4 mb-3">
                 <a href="{{url('donate-goods')}}" style="text-decoration:none;color: inherit;">
-                        <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
-
-                            <img class="card-img-top" src="{{asset('images/barang.jpg')}}" alt="Card image cap">
-                            <div class="card-body">
-                                <h5 class="card-title">Sponsor Barang</h5>
-                            </div>
+                    <div class="card">
+                        <img class="card-img-top" src="{{asset('images/barang.jpg')}}" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Sponsor Barang</h5>
                         </div>
+                    </div>
                 </a>
             </div>
        

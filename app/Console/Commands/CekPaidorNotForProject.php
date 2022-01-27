@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\OrderProject;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use App\Models\OrderProject;
+use App\Models\ProjectMaster;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CekPaidorNotForProject extends Command
 {
@@ -41,52 +43,73 @@ class CekPaidorNotForProject extends Command
      */
     public function handle()
     {
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
-
-        $now = Carbon::now();
-        $nowAdd2Days = $now->copy()->addDay(-2);
-
-
-        $datasOrder = OrderProject::where('created_at','<=',$nowAdd2Days)
-                    ->where('order_project.payment_status',1)
-                    ->get('order_project.order_project_id');
-    
-     
         DB::beginTransaction();
-        try{
+        try {
+            $now = Carbon::now()->startOfDay();
+            $nowAdd2Days = $now->copy()->addDay(-2);
 
-        foreach($datasOrder as $key => $datas){
+            $datasOrder = OrderProject::where('created_at', '<', $nowAdd2Days)
+                ->where('order_project.payment_status', 1)
+                ->get();
+            foreach ($datasOrder as $key => $data) {
+                $cancelSuccess = false;
+                $updateStatusMidtrans = false;
+                try {
+                    \Midtrans\Transaction::cancel($data->order_project_id_midtrans);
+                    $cancelSuccess = true;
+                    $updateStatusMidtrans = true;
+                } catch (Exception $e) {
+                    if ($e->getCode() == 404) {
+                        $cancelSuccess = true;
+                    }
+                    else if($e->getCode() == 412){
+                        try{
+                            $decoderespon = \Midtrans\Transaction::status($data->order_project_id_midtrans);
+                            if($decoderespon->transaction_status == 'expire'){
+                                $cancelSuccess = true;
+                            }
+                        }
+                        catch(Exception $e){
 
-            $orderProject = OrderProject::find($datas)->first();
-           
-            $orderProject->payment_status = 3;
-          
-            $orderProject->save();
-          
-            \Midtrans\Transaction::cancel($orderProject->order_project_id_midtrans);     
-            DB::commit();    
-      
-        }        
-    }catch(Exception $e){
-      
+                        }
+                    }
+                }
 
-         if($e->getCode() !== 404){
+                if ($cancelSuccess) {
+                    $data->payment_status = 3;
+                    if($updateStatusMidtrans){
+                        $data->status_midtrans = 'cancel';
+                    }
+                    $data->save();
 
-            $errorMessage = array('order_project_id' => $orderProject->order_project_id_midtrans, 'ErrorCode' => $e->getCode(),'ErrorMessage'=>$e->getMessage());
+                    $getProjectId = $data->project_id;
+                    $totalPrice = OrderProject::where('project_id', $getProjectId)
+                        ->where('payment_status', 2)
+                        ->groupBy('project_id')
+                        ->sharedLock()
+                        ->sum('price');
 
-            \Log::channel('logstatusmidtrans')->info(json_encode($errorMessage));
+                    $project = ProjectMaster::where('project_id', $getProjectId)->first();
 
-            DB::rollBack();
-           
-        }else{
-           
+                    $amount = $project->amount;
+                    $enddate = null;
+                    if ($project->end_date != null) {
+                        $enddate = Carbon::parse($project->end_date)->startOfDay();
+                    }
+                    $now = Carbon::now()->startOfDay();
+
+                    $project->last_amount = $totalPrice;
+                    $project->is_closed = ($enddate != null && $now > $enddate) || $totalPrice >= $amount;
+                    $project->save();
+
+                    // TO DO : SEND EMAIL CANCEL
+                }
+            }
             DB::commit();
-
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('cron')->info('ERROR CRON JOB CekPaidorNotForProject');
+            Log::channel('cron')->error($e);
         }
-//        return Command::SUCCESS;
     }
-}
 }

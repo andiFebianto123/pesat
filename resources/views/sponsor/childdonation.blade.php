@@ -1,7 +1,12 @@
 @extends('sidebar')
 @section('content')
+@if ($message = Session::get('error'))
+    <div class="alert alert-danger" role="alert">
+        <strong>{{$message}}</strong>
+    </div>
+@endif
 <div class="table-responsive">
-  <table class="table">
+  <table class="table text-nowrap">
     <thead>
       <tr>
         <th scope="col">Order</th>
@@ -30,7 +35,7 @@
           <div>
             <a class="btn btn-sm btn-primary" href="{{url('child-donation-detail/'.$order->order_id)}}" role="button">Detail</a>
             @if ($order->payment_status == 1)
-              <a class="btn btn-sm btn-primary"  href="{{url('order/'.$order->snap_token.'/'.$order->order_id)}}">Pay</a>
+              <a class="btn btn-sm btn-primary"  href="{{url('order/' . $order->order_id)}}">Pay</a>
             @endif
           </div>
         </td>

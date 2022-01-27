@@ -80,7 +80,7 @@ class ProjectOrderController extends Controller
             $orderProject = OrderProject::where('order_project_id', $code)->first();
             if ($orderProject == null) {
                 DB::rollBack();
-                return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan']);
+                return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
             }
 
             $data['error'] = '';
@@ -98,7 +98,11 @@ class ProjectOrderController extends Controller
                 }
             }
 
-            if ($transaction == 'expire') {
+            $now = Carbon::now()->startOfDay();
+            $nowSub2Days = $now->copy()->addDay(-2);
+
+            $createdAt = Carbon::parse($orderProject->created_at)->startOfDay();
+            if ($transaction == 'expire' && $nowSub2Days <= $createdAt) {
                 $Snaptokenorder = DB::table('order_project')->where('order_project.order_project_id', $orderProject->order_project_id)
                     ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
                     ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')

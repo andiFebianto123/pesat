@@ -5,7 +5,8 @@
             <strong>{{$message}}</strong>
         </div>
 @endif
-<table class="table">
+<div class="table-responsive">
+<table class="table text-nowrap">
   <thead>
     <tr>
       <th scope="col">Order</th>
@@ -36,7 +37,7 @@
         Detail
       </a>
       @if($projectorder->payment_status==1)
-          <a href="{{url('project-order/'.$projectorder->snap_token.'/'.$projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
+          <a href="{{url('project-order/' . $projectorder->order_project_id)}}" class="btn btn-sm btn-primary" role="submit">
             Pay  
           </a>
       @endif
@@ -45,4 +46,8 @@
     @endforeach
   </tbody>
 </table>
+</div>
+<div class="d-flex justify-content-center">
+    {!! $projectorders->links() !!}
+</div>
 @endsection

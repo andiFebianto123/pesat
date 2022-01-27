@@ -112,6 +112,12 @@ return [
             'path' => storage_path('logs/notificationmidtranslog.log'),
             'level' => 'info',
         ],
+
+        'cron' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/cron.log'),
+            'level' => 'info',
+        ]
     ],
 
 ];

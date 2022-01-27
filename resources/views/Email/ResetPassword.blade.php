@@ -5,7 +5,7 @@
 </head>
 <body>
 
-	<p>Kami dari tim pesat, melalui email ini kami menginformasikan password baru anda, password baru anda adalah <strong>{{$generatepass}}</strong></p>
+	<p>Kami dari tim {{config('app.name')}}, melalui email ini kami menginformasikan password baru Anda adalah <strong>{{$generatepass}}</strong></p>
 	<footer>
 		<p>Terima Kasih</p>
 	</footer> 

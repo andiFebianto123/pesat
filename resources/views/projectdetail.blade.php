@@ -73,15 +73,24 @@
                 </tbody>
             </table>
             <div>
+                @php
+                    $progress = 0;
+                    if($project->last_amount >= $project->amount){
+                        $progress = 100;
+                    }
+                    else{
+                        $progress = round(($project->amount == 0 ? 0 : ($project->last_amount / $project->amount)), 2);
+                    }
+                @endphp
                 <label
                     style="font-family: priva,Arial,sans-serif;
                     font-weight: 300; 
                     color: #686c8b;
                     font-size: 22px;"
-                >Raised Percent: 0%</label>
+                >Raised Percent: {{$progress}}%</label>
             </div>
             <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar" style="width: {{$progress}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
             </br>
             @if($project->is_closed == false)

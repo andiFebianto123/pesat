@@ -55,7 +55,7 @@ class SendDlp extends Controller
                     \Alert::add('success', 'Email was successfully sent')->flash();
                     return back()->withMessage(['message' => 'email was successfully sent']);
                 } catch (Exception $e) {
-                    report($e);
+                    // report($e);
 
                     Dlp::where('dlp_id', $id)
                         ->update(['deliv_status' => 3]);
@@ -73,9 +73,9 @@ class SendDlp extends Controller
 
             }
         } else {
-            \Alert::add('error', 'Data tidak ditemukan')->flash();
+            \Alert::add('error', 'Data tidak ditemukan.')->flash();
 
-            return back()->withMessage(['message' => 'Data tidak ditemukan']);
+            return back()->withMessage(['message' => 'Data tidak ditemukan.']);
         }
     }
 }
