@@ -34,7 +34,7 @@ class ListProyekController extends Controller
         $project = ProjectMaster::where('project_id', $id)->first();
 
         if (empty($project)) {
-            return redirect(url('list-proyek'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
+            return redirect(url('list-proyek'))->with(['error' => 'Proyek yang dimaksud tidak ditemukan.']);
         } else {
             $imgDetail = ProjectMasterDetail::where('project_id', $id)->get();
             $now = Carbon::now();

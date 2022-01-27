@@ -30,7 +30,7 @@ class ProjectOrderController extends Controller
 
             if ($project->is_closed) {
                 DB::rollback();
-                return redirect()->back()->with(['error' => 'Maaf, Anda sudah tidak dapat melakukan donasi karena status proyek telah ditutup.']);
+                return redirect(url('project-detail/' . $id))->with(['error' => 'Maaf, Anda sudah tidak dapat melakukan donasi karena status proyek telah ditutup.']);
             }
 
             $user = auth()->user();
