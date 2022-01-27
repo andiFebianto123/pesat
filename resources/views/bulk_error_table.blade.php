@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h4 class="modal-title">{{trans('custom.error_import')}}</h4>
+            <h4 class="modal-title">Import Error Message</h4>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -12,8 +12,8 @@
                         cellspacing="0">
                         <thead>
                             <tr>
-                            <th data-orderable="true" id="table-bulk-head-id">{{mb_ucwords(trans('custom.row'))}}</th>
-                            <th data-orderable="true">{{mb_ucwords(trans('custom.description'))}}</th>
+                            <th data-orderable="true" id="table-bulk-head-id">Row</th>
+                            <th data-orderable="true">Description</th>
                             </tr>
                         </thead>
                         <tbody>

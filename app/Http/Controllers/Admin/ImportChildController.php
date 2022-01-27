@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Exception;
 use Prologue\Alerts\Facades\Alert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ImportChildController extends Controller
 {
@@ -44,8 +45,19 @@ class ImportChildController extends Controller
     }
 
     public function import(Request $request){
-        // menangkap file excel
-		$file = $request->file('file');
+
+        $validator = Validator::make($request->all(), [
+            'file' => 'required',
+         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'validator' => true,
+            ], 200);
+        }
+
+        $file = $request->file('file');
 
         // membuat nama file unik
 		$nama_file = rand().$file->getClientOriginalName();
@@ -56,35 +68,58 @@ class ImportChildController extends Controller
         $import = new ChildMasterImport();
         $import->import(public_path('/file_anak/'.$nama_file));
 
-        $dataErrors = [];
+        if(file_exists( public_path('/file_anak/'.$nama_file))) {
+            unlink(public_path('/file_anak/'.$nama_file));
+        }
 
-        foreach ($import->failures() as $failure) {
-            $errors = [
-                'row' => $failure->row(),
-                'attribute' => $failure->attribute(),
-                'errors' => implode('\n', $failure->errors()),
-                // 'values' => $failure->values()
-            ];
-            $dataErrors[] = $errors;
-       }
 
-       if (file_exists( public_path('/file_anak/'.$nama_file))) {
-         unlink(public_path('/file_anak/'.$nama_file));
-       }
+        if(count($import->failures()) > 0){
+            // jika ada error
+            $dataErrors = [];
 
-       if(count($dataErrors) > 0){
-        // jika ada data error
+            $errorPerRow = [];
+            foreach ($import->failures() as $failure) {
+                if(!isset($errorPerRow['row'])){
+                    $errorPerRow['row'] = $failure->row();
+                    $errorPerRow['message'] = [];
+                    $errorPerRow['message'][] = implode('\n', $failure->errors());
+                }else{
+                    if($errorPerRow['row'] == $failure->row()){
+                        $errorPerRow['message'][] = implode('\n', $failure->errors());
+                    }else{
+                        $message = implode("<br/>", $errorPerRow['message']);
+                        $errorPerRow['message'] = $message;
+                        $dataErrors[] = $errorPerRow;
+                        $errorPerRow = [];
+
+                        $errorPerRow['row'] = $failure->row();
+                        $errorPerRow['message'] = [];
+                        $errorPerRow['message'][] = implode('\n', $failure->errors());
+                    }
+                }
+                // $errors = [
+                //     'row' => $failure->row(),
+                //     //'attribute' => $failure->attribute(),
+                //     'message' => implode('\n', $failure->errors()),
+                //     // 'values' => $failure->values()
+                // ];
+            }
+
             return response()->json([
                 'data' => $dataErrors,
                 'status' => false,
                 'message' => 'Ada data yang error ketika di import',
+                'notification' => 'Ada beberapa kesalahan saat import data',
             ], 200);
-       }
+
+        }
 
         return response()->json([
             'status' => true,
             'message' => 'Import Anak telah berhasil dilakukan',
+            'notification' => 'File berhasil di import',
         ], 200);
+
 
     }
 }
