@@ -38,20 +38,22 @@
     <h3>{{$childs->full_name}}</h3>
     <h3>Rp. {{number_format($childs->price, 2, ',', '.')}},-/ Bulan</h3>
     <input type="hidden" name="price" value="{{$childs->price}}" />
+    @if($childs->is_sponsored == false)
     </br>
     <h5>Monthly Subscription</h5>
-        <select id= "select-monthly" class="form-select" ria-label="Default select example" name="monthly_subs">
-                <option selected>-</option>
-                <option value="1">1 Bulan</option>
-                <option value="3">3 Bulan</option>
-                <option value="6">6 Bulan</option>
-                <option value="12">12 Bulan</option>
-        </select>
+    <select id= "select-monthly" class="form-select" ria-label="Default select example" name="monthly_subs">
+            <option selected>-</option>
+            <option value="1">1 Bulan</option>
+            <option value="3">3 Bulan</option>
+            <option value="6">6 Bulan</option>
+            <option value="12">12 Bulan</option>
+    </select>
     </br>
-    @if($childs->is_sponsored == false)
     <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
-    @endif
     </br>
+    @else
+    <p class="mb-0">Status : <span class="text-danger">Tersponsori</span></p>
+    @endif
     </br>
     <p>Tetapkan untuk berkomitmen mensponsori anak minimal 1 tahun</p>
     <hr>

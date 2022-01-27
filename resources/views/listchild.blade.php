@@ -74,7 +74,7 @@
                                     <h5 class="card-title">{{$child->full_name}}</h5>
                                     
                                     @if($child->is_sponsored == true)
-                                    <p style="color:red">Tersponsori</p>
+                                    <p class="text-danger">Tersponsori</p>
                                     @endif
                                     
                             </div>
