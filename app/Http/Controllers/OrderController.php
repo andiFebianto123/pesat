@@ -2,44 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChildMaster;
-use App\Models\DataDetailOrder;
-use App\Models\DataOrder;
-use App\Models\OrderProject;
-use App\Models\ProjectMaster;
-use App\Services\Midtrans\CreateSnapTokenService;
-use App\Services\Midtrans\UpdateSnapTokenServiceForExpiredTransaction;
 use PDF;
-use Carbon\Carbon;
 use DateTime;
 use Exception;
+use Carbon\Carbon;
+use App\Models\DataOrder;
+use App\Models\ChildMaster;
+use App\Models\OrderProject;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ProjectMaster;
+use App\Models\DataDetailOrder;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use App\Services\Midtrans\CreateSnapTokenService;
+use App\Services\Midtrans\UpdateSnapTokenServiceForExpiredTransaction;
 
 class OrderController extends Controller
 {
-    //
-
-    public function index(Request $request)
+ 
+    public function index($id, Request $request)
     {
-        $request->validate(['monthly_subs' => 'required|integer']);
+        $request->validate(['monthly_subscription' => ['required', Rule::in([1,3,6,12])]]);
 
         DB::beginTransaction();
 
         try {
             $user = auth()->user();
-            $id = $request->childid;
             $childmaster = ChildMaster::where('child_id', $id)->first();
-            $totalprice = $request->monthly_subs * $childmaster->price;
+            $totalprice = $request->monthly_subscription * $childmaster->price;
+
+            if($childmaster == null){
+                DB::rollback();
+                return redirect(url('list-child'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
+            }
 
             if ($childmaster->is_sponsored == true) {
-                return redirect()->back()->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain']);
-            }
-            if ($user == null) {
-                return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
+                DB::rollback();
+                return redirect(url('childdetail/' . $id))->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain.']);
             }
 
             $idsponsor = $user->sponsor_id;
@@ -61,7 +63,7 @@ class OrderController extends Controller
             $orders->order_id = $OrderId;
             $orders->child_id = $request->childid;
             $orders->price = $totalprice;
-            $orders->monthly_subscription = $request->monthly_subs;
+            $orders->monthly_subscription = $request->monthly_subscription;
             $orders->start_order_date = $startOrderdate;
             $orders->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($request->monthly_subs);
             $orders->save();
@@ -113,7 +115,7 @@ class OrderController extends Controller
             $order = DataOrder::where('order_id', $id)->first();
             if ($order == null) {
                 DB::rollBack();
-                return redirect()->route('child-donation')->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
+                return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
             }
             $data['error'] = '';
 
@@ -133,7 +135,7 @@ class OrderController extends Controller
             $now = Carbon::now()->startOfDay();
             $nowSub2Days = $now->copy()->addDay(-2);
 
-            $createdAt = Carbon::parse($order->created_at)->startOfDay();
+            $createdAt = Carbon::parse(DataDetailOrder::where('order_id', $id)->first()->start_order_date)->startOfDay();
 
             if ($transaction == 'expire' && $nowSub2Days <= $createdAt) {
 
@@ -153,7 +155,7 @@ class OrderController extends Controller
 
                 $code = $order->order_id . "-" . Carbon::now()->timestamp;
                 $orderIdMidtrans = "anak-" . $code;
-                $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $code);
+                $midtrans = new CreateSnapTokenService($Snaptokenorder, $code);
                 $snapToken = $midtrans->getSnapToken();
                 $order->snap_token = $snapToken;
                 $order->order_id_midtrans = $orderIdMidtrans;

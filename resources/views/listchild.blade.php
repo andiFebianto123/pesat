@@ -13,6 +13,11 @@
                 formulir di bawah ini:
             </p>
         </div>
+        @if ($message = Session::get('error'))
+            <div class="alert alert-danger" role="alert">
+                <strong>{{$message}}</strong>
+            </div>
+        @endif
         <form id="form-filter" action="{{url('/list-child')}}" method="GET" >
    
         {!! csrf_field() !!}

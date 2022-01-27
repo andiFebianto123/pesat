@@ -1,5 +1,5 @@
 @include('header')
-<form id="form-child-detail" action="{{url('order')}}" method="post">
+<form id="form-child-detail" action="{{url('order') . '/' . $childs->child_id}}" method="post">
 {{ csrf_field() }}
 <div class="container">
     <br>
@@ -41,13 +41,18 @@
     @if($childs->is_sponsored == false)
     </br>
     <h5>Monthly Subscription</h5>
-    <select id= "select-monthly" class="form-select" ria-label="Default select example" name="monthly_subs">
+    <select id= "select-monthly" class="form-select form-control {{$errors->has('monthly_subscription') ? 'is-invalid' : ''}}" name="monthly_subscription">
             <option selected>-</option>
             <option value="1">1 Bulan</option>
             <option value="3">3 Bulan</option>
             <option value="6">6 Bulan</option>
             <option value="12">12 Bulan</option>
     </select>
+    @if ($errors->has('monthly_subscription'))
+        @foreach ($errors->get('monthly_subscription') as $message)
+            <div class="invalid-feedback d-block">{{$message}}</div>
+        @endforeach
+    @endif
     </br>
     <button id="bt-monthly" type="submit" class="btn btn-success" disabled='true'>Donation</button>
     </br>
