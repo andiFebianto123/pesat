@@ -25,99 +25,119 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $user = auth()->user();
-        $price = $request->price;
-        $totalprice = $request->monthly_subs * $price;
-        $id = $request->childid;
-        $childmaster = ChildMaster::where('child_id', $id)->first();
+        $request->validate(['monthly_subs' => 'required|integer']);
+
         DB::beginTransaction();
-        if ($childmaster->is_sponsored == false) {
-
-            if ($user == null) {
-                return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
-            } else {
-
-                $idsponsor = $user->sponsor_id;
-
-                // save table order_hd
-                $order = DataOrder::create(
-                    [
-                        'parent_order_id' => null,
-                        'sponsor_id' => $idsponsor,
-                        'total_price' => $totalprice,
-                        'payment_status' => 1,
-                        'created_at' => Carbon::now(),
-                    ]
-                );
-
-                $OrderId = $order->order_id;
-                // save table order_dt
-                $startOrderdate = Carbon::now();
-                $orders = new DataDetailOrder();
-                $orders->order_id = $OrderId;
-                $orders->child_id = $request->childid;
-                $orders->price = $totalprice;
-                $orders->monthly_subscription = $request->monthly_subs;
-                $orders->start_order_date = $startOrderdate;
-                $orders->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($request->monthly_subs);
-                $orders->save();
-
-                $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $OrderId)
-                    ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
-                    ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-                    ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-                    ->select(
-                        'order_hd.*',
-                        'odt.*',
-                        'cm.full_name',
-                        'sm.full_name as sponsor_name',
-                        'sm.email',
-                        'sm.no_hp'
-                    )
-                    ->get();
-
-                $getTotalPrice = DataDetailOrder::groupBy('order_id')
-                    ->where('order_id', $OrderId)
-                    ->sum('price');
-
-                $midtrans = new CreateSnapTokenService($Snaptokenorder, $OrderId);
-                $snapToken = $midtrans->getSnapToken();
-
-                $order->snap_token = $snapToken;
-                $order->order_id_midtrans = 'anak-' . $id;
-                $order->total_price = $getTotalPrice;
-                $order->save();
-                DB::commit();
-
-                //update is_sponsored
-
-                $childUpdate = ChildMaster::where('child_id', $request->childid)->first();
-
-                $childUpdate->is_sponsored = 1;
-                $childUpdate->current_order_id = $OrderId;
-                $childUpdate->save();
-
-                return Redirect::route('ordercheckout', array('snap_token' => $snapToken, 'code' => $OrderId));
-            }
-        } else {
-            return redirect()->back()->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain']);
-        }
-    }
-    public function orderdonation($code)
-    {
-        $order = DataOrder::where('order_id', $code)->first();
-        if (empty($order)) {
-            return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
-        }
 
         try {
+            $user = auth()->user();
+            $id = $request->childid;
+            $childmaster = ChildMaster::where('child_id', $id)->first();
+            $totalprice = $request->monthly_subs * $childmaster->price;
+
+            if ($childmaster->is_sponsored == true) {
+                return redirect()->back()->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain']);
+            }
+            if ($user == null) {
+                return redirect()->back()->with(['error' => 'Silahkan login sebelum melakukan donasi.']);
+            }
+
+            $idsponsor = $user->sponsor_id;
+
+            // save table order_hd
+            $order = DataOrder::create(
+                [
+                    'parent_order_id' => null,
+                    'sponsor_id' => $idsponsor,
+                    'total_price' => $totalprice,
+                    'payment_status' => 1,
+                ]
+            );
+
+            $OrderId = $order->order_id;
+            // save table order_dt
+            $startOrderdate = Carbon::now();
+            $orders = new DataDetailOrder();
+            $orders->order_id = $OrderId;
+            $orders->child_id = $request->childid;
+            $orders->price = $totalprice;
+            $orders->monthly_subscription = $request->monthly_subs;
+            $orders->start_order_date = $startOrderdate;
+            $orders->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($request->monthly_subs);
+            $orders->save();
+
+            $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $OrderId)
+                ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
+                ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+                ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+                ->select(
+                    'order_hd.*',
+                    'odt.*',
+                    'cm.full_name',
+                    'sm.full_name as sponsor_name',
+                    'sm.email',
+                    'sm.no_hp'
+                )
+                ->get();
+
+            $getTotalPrice = DataDetailOrder::groupBy('order_id')
+                ->where('order_id', $OrderId)
+                ->sum('price');
+
+            $midtrans = new CreateSnapTokenService($Snaptokenorder, $OrderId);
+            $snapToken = $midtrans->getSnapToken();
+
+            $order->snap_token = $snapToken;
+            $order->order_id_midtrans = 'anak-' . $order->order_id;
+            $order->total_price = $getTotalPrice;
+            $order->save();
+
+            //update is_sponsored
+
+            $childmaster->is_sponsored = 1;
+            $childmaster->current_order_id = $OrderId;
+            $childmaster->save();
+
+            DB::commit();
+
+            return Redirect::route('ordercheckout', array('id' => $OrderId));
+        } catch (Execption $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+    public function orderdonation($id)
+    {
+        DB::beginTransaction();
+        try {
+            $order = DataOrder::where('order_id', $id)->first();
+            if ($order == null) {
+                DB::rollBack();
+                return redirect()->route('child-donation')->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
+            }
             $data['error'] = '';
 
-            $decoderespon = \Midtrans\Transaction::status('anak-' . $code);
+            $getStatusMidtrans = $order->order_id_midtrans;
+            $transaction = null;
 
-            if ($decoderespon->transaction_status == 'expire') {
+            try {
+                $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
+                $transaction = $decoderespon->transaction_status;
+            } catch (Exception $e) {
+                if ($e->getCode() != 404) {
+                    $data['error'] = "Gagal mendapatkan status order dari Midtrans. [" . $e->getCode() . "]";
+                    $data['error_status'] = $e->getCode();
+                }
+            }
 
-                $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $code)
+            $now = Carbon::now()->startOfDay();
+            $nowSub2Days = $now->copy()->addDay(-2);
+
+            $createdAt = Carbon::parse($order->created_at)->startOfDay();
+
+            if ($transaction == 'expire' && $nowSub2Days <= $createdAt) {
+
+                $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $id)
                     ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
                     ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
                     ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
@@ -131,24 +151,24 @@ class OrderController extends Controller
                     )
                     ->get();
 
-                $childId = $Snaptokenorder[0]->child_id;
-                $midtrans = new UpdateSnapTokenServiceForExpiredTransaction($Snaptokenorder, $code);
+                $code = $order->order_id . "-" . Carbon::now()->timestamp;
+                $orderIdMidtrans = "anak-" . $code;
+                $midtrans = new CreateSnapTokenForProjectService($Snaptokenorder, $code);
                 $snapToken = $midtrans->getSnapToken();
                 $order->snap_token = $snapToken;
-                $order->order_id_midtrans = 'anak-' . $childId . '-' . Carbon::now()->timestamp;
+                $order->order_id_midtrans = $orderIdMidtrans;
                 $order->save();
             }
+            DB::commit();
+
+            $data['order'] = $order;
+            $data['snapToken'] =  $order->snap_token;
+
+            return view('showpayment', $data);
         } catch (Exception $e) {
-            if ($e->getCode() != 404) {
-                $data['error'] = "Gagal mendapatkan status order dari Midtrans. [" . $e->getCode() . "]";
-                $data['error_status'] = $e->getCode();
-            }
+            DB::rollBack();
+            throw $e;
         }
-
-        $data['order'] = $order;
-        $data['snapToken'] =  $order->snap_token;
-
-        return view('showpayment', $data);
     }
 
     public function cekstatus()
