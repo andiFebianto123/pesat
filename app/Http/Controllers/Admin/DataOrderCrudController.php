@@ -509,42 +509,44 @@ class DataOrderCrudController extends CrudController
             $uniquedata = [];
 
             if (JSON_ERROR_NONE !== json_last_error() || !is_array($datas) || count($datas) == 0) {
+                $error[] = ['message' => 'Detail order tidak boleh kosong'];
+            } else {
+                foreach ($datas as $key => $orderDecode) {
 
-                return $this->redirectStoreCrud(['message' => 'Detail order tidak boleh kosong']);
-            }
-            foreach ($datas as $key => $orderDecode) {
-
-                $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
-                if ($child == null) {
-                    $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-                } elseif ($child->is_sponsored == 1) {
-                    $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
-                } else {
-                    $childs[$child->child_id] = $child;
-                    $uniquedata[$child->child_id] = $orderDecode;
+                    $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
+                    if ($child == null) {
+                        $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
+                    } elseif ($child->is_sponsored == 1) {
+                        $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
+                    } else {
+                        $childs[$child->child_id] = $child;
+                        $uniquedata[$child->child_id] = $orderDecode;
+                    }
+                    if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
+                        $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
+                    }
+                    $index++;
                 }
-                if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
-                    $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
-                }
-                $index++;
-            }
-            if (count($error) != 0) {
-
-                return $this->redirectStoreCrud(['message' => $error]);
             }
 
             $getSponsor = Sponsor::where('sponsor_id', $sponsorid)->first();
 
             if (empty($getSponsor)) {
-                $error[] = 'The selected sponsor is invalid';
-                return $this->redirectUpdateCrud($request->order_id, ['message' => $error]);
+                $errors['sponsor_id'] = 'The selected sponsor is invalid';
+            }
+
+            if (count($error) != 0  || count($errors) != 0) {
+                if (count($error) != 0) {
+                    $error = ['message' => $error];
+                }
+
+                return $this->redirectStoreCrud(array_merge($error, $errors));
             }
 
             $dataOrder = DataOrder::create([
                 'sponsor_id' => $sponsorid,
                 'payment_status' => 1,
                 'total_price' => 0,
-                'created_at' => Carbon::now()
             ]);
 
             $id = $dataOrder->order_id;
@@ -626,10 +628,6 @@ class DataOrderCrudController extends CrudController
 
                 \Alert::error('Data order tidak ditemukan')->flash();
                 return redirect($this->crud->route);
-            } elseif ($cekStatusPayment->payment_status == 2) {
-
-                \Alert::error('Data order sudah dibayar')->flash();
-                return redirect($this->crud->route);
             } elseif ($cekStatusPayment->payment_status == 3) {
 
                 \Alert::error('Tidak dapat melakukan perubahan data karena order anak telah dibatalkan')->flash();
@@ -660,16 +658,19 @@ class DataOrderCrudController extends CrudController
                 }
                 $index++;
             }
-            if (count($error) != 0) {
-                DB::rollBack();
-                return $this->redirectUpdateCrud($request->order_id, ['message' => $error]);
-            }
 
             $getSponsor = Sponsor::where('sponsor_id', $cekStatusPayment->sponsor_id)->first();
 
             if (empty($getSponsor)) {
-                $error[] = 'The selected sponsor is invalid';
-                return $this->redirectUpdateCrud($request->order_id, ['message' => $error]);
+                $errors['sponsor_id'] = 'The selected sponsor is invalid';
+            }
+
+            if (count($error) != 0  || count($errors) != 0) {
+                if (count($error) != 0) {
+                    $error = ['message' => $error];
+                }
+
+                return $this->redirectUpdateCrud($request->order_id, array_merge($error, $errors));
             }
 
             $getStatusMidtrans = $cekStatusPayment->order_id_midtrans;
@@ -751,7 +752,6 @@ class DataOrderCrudController extends CrudController
                 )
                 ->get();
 
-            $childId = $Snaptokenorder[0]->child_id;
             $orderHd = DataOrder::where('order_id', $request->order_id)->first();
             $orderHd->sponsor_id = $request->sponsor_id;
             // $orderHd->payment_status = $request->payment_status;
@@ -760,7 +760,7 @@ class DataOrderCrudController extends CrudController
             $midtrans = new CreateSnapTokenService($Snaptokenorder, $code);
             $snapToken = $midtrans->getSnapToken();
             $orderHd->snap_token = $snapToken;
-            $orderHd->order_id_midtrans = "anak-" . $childId . '-' . Carbon::now()->timestamp;
+            $orderHd->order_id_midtrans = "anak-" . $code;
             $orderHd->save();
 
             DB::commit();
