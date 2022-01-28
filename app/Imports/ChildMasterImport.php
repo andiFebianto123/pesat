@@ -190,7 +190,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
                 function($attribute, $value, $onFailure){
                     if($value == 0){
                         // jika tempat lahir tidak ada
-                        $cekKota = City::where('city_name', 'like', '%'.trim($value).'%')->limit(1);
+                        $cekKota = City::where('city_name', trim($value))->limit(1);
                         if(!$cekKota->exists()){
                             // jika ada 
                             $onFailure("{$attribute} is not exists in master city");
@@ -202,7 +202,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'agama' => [
                 'required',
                 function($attribute, $value, $onFailure){
-                    $cekData = Religion::where('religion_name', 'like', '%'.trim($value).'%')->limit(1);
+                    $cekData = Religion::where('religion_name', trim($value))->limit(1);
                     if(!$cekData->exists()){
                         // jika ada 
                         $onFailure("{$attribute} is not exists in master religion");
@@ -213,7 +213,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'kabupaten' => [
                 'required',
                 function($attribute, $value, $onFailure){
-                    $cekData = City::where('city_name', 'like', '%'.trim($value).'%')->limit(1);
+                    $cekData = City::where('city_name', trim($value))->limit(1);
                     if(!$cekData->exists()){
                         // jika ada 
                         $onFailure("{$attribute} is not exists in master city");
@@ -223,7 +223,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'propinsi' => [
                 'required',
                 function($attribute, $value, $onFailure){
-                    $cekData = Province::where('province_name', 'like', '%'.trim($value).'%')->limit(1);
+                    $cekData = Province::where('province_name', trim($value))->limit(1);
                     if(!$cekData->exists()){
                         // jika ada 
                         $onFailure("{$attribute} is not exists in master province");
