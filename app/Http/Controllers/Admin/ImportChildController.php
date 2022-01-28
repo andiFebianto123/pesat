@@ -9,6 +9,7 @@ use Exception;
 use Prologue\Alerts\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ImportChildController extends Controller
 {
@@ -70,14 +71,15 @@ class ImportChildController extends Controller
 		$nama_file = rand().$file->getClientOriginalName();
 
         // upload ke folder file_siswa di dalam folder public
-		$file->move('file_anak',$nama_file);
+        $file->storeAs('public/file_anak', $nama_file);
+		//$file->move('file_anak',$nama_file);
 
 
         $import = new ChildMasterImport();
-        $import->import(public_path('/file_anak/'.$nama_file));
+        $import->import(storage_path('/app/public/file_anak/'.$nama_file));
 
-        if(file_exists( public_path('/file_anak/'.$nama_file))) {
-            unlink(public_path('/file_anak/'.$nama_file));
+        if(file_exists( storage_path('/app/public/file_anak/'.$nama_file))) {
+            unlink(storage_path('/app/public/file_anak/'.$nama_file));
         }
 
         if(count($import->failures()) > 0){
