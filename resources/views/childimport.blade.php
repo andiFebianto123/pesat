@@ -32,7 +32,7 @@
                                 <div class="custom-file">
                                         <input type="file" class="custom-file-input" id="formFile" name="file" >
                                         <label class="custom-file-label" id="label-file-input" for="formFile">Choose file</label>
-                                        <div class="invalid-feedback">File is not required</div>
+                                        <div class="invalid-feedback" id="formFileError"></div>
                                 </div>
                         </div>
                         <input type="submit" class="btn btn-primary btn-sm" value="Submit"/>
@@ -94,6 +94,7 @@
                                                 $(form)[0].reset();
                                                 if(result.validator){
                                                         $('#formFile').addClass('is-invalid');
+                                                        $('#formFileError').html(result.message);
                                                 }else{
 
                                                         $('#formFile').removeClass('is-invalid');
@@ -113,7 +114,7 @@
                                                                 crudBulkMessages.table.draw();
                                                                 $('#modal-error-bulk').modal('show');
                                                                 new Noty({
-                                                                        type: "danger",
+                                                                        type: "warning",
                                                                         text: result.notification,
                                                                 }).show();
                                                                 inputLabel.html('');
@@ -123,7 +124,10 @@
                                         },
                                         error: function (xhr, desc, err)
                                         {
-                                                console.log(err);
+                                                new Noty({
+                                                        type: 'danger',
+                                                        text: err
+                                                }).show();
                                         }
                                 });
                         });                   

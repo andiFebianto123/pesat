@@ -47,13 +47,20 @@ class ImportChildController extends Controller
     public function import(Request $request){
 
         $validator = Validator::make($request->all(), [
-            'file' => 'required',
+            'file' => 'required|mimes:xlsx,xls',
          ]);
 
         if ($validator->fails()) {
+            $errors = $validator->errors();
+            $messageErrors = [];
+            foreach ($errors->all() as $message) {
+                array_push($messageErrors, $message);
+            }
+            $messageErrors = implode('<br/>', $messageErrors);
             return response()->json([
                 'status' => false,
                 'validator' => true,
+                'message' => $messageErrors
             ], 200);
         }
 
@@ -65,13 +72,13 @@ class ImportChildController extends Controller
         // upload ke folder file_siswa di dalam folder public
 		$file->move('file_anak',$nama_file);
 
+
         $import = new ChildMasterImport();
         $import->import(public_path('/file_anak/'.$nama_file));
 
         if(file_exists( public_path('/file_anak/'.$nama_file))) {
             unlink(public_path('/file_anak/'.$nama_file));
         }
-
 
         if(count($import->failures()) > 0){
             // jika ada error
@@ -97,19 +104,14 @@ class ImportChildController extends Controller
                         $errorPerRow['message'][] = implode('\n', $failure->errors());
                     }
                 }
-                // $errors = [
-                //     'row' => $failure->row(),
-                //     //'attribute' => $failure->attribute(),
-                //     'message' => implode('\n', $failure->errors()),
-                //     // 'values' => $failure->values()
-                // ];
+        
             }
 
             return response()->json([
                 'data' => $dataErrors,
                 'status' => false,
                 'message' => 'Ada data yang error ketika di import',
-                'notification' => 'Ada beberapa kesalahan saat import data',
+                'notification' => 'Ada beberapa data tidak valid proses import',
             ], 200);
 
         }
