@@ -79,7 +79,7 @@
                         $progress = 100;
                     }
                     else{
-                        $progress = round(($project->amount == 0 ? 0 : ($project->last_amount / $project->amount)), 2);
+                        $progress = round(($project->amount == 0 ? 0 : ($project->last_amount / $project->amount)) * 100, 2);
                     }
                 @endphp
                 <label

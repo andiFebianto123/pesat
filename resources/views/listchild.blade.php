@@ -13,6 +13,11 @@
                 formulir di bawah ini:
             </p>
         </div>
+        @if ($message = Session::get('error'))
+            <div class="alert alert-danger" role="alert">
+                <strong>{{$message}}</strong>
+            </div>
+        @endif
         <form id="form-filter" action="{{url('/list-child')}}" method="GET" >
    
         {!! csrf_field() !!}
@@ -74,7 +79,7 @@
                                     <h5 class="card-title">{{$child->full_name}}</h5>
                                     
                                     @if($child->is_sponsored == true)
-                                    <p style="color:red">Tersponsori</p>
+                                    <p class="text-danger">Tersponsori</p>
                                     @endif
                                     
                             </div>

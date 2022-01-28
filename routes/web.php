@@ -25,7 +25,7 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::get('/list-dlp/{id}','App\Http\Controllers\Sponsor\MyAccountController@listdlp');
 	Route::get('/project-donation-detail/{id}','App\Http\Controllers\Sponsor\MyAccountController@projectdetaildonation');
 	Route::post('/update-account','App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
-	Route::post('/order', 'App\Http\Controllers\OrderController@index');
+	Route::post('/order/{id}', 'App\Http\Controllers\OrderController@index');
 	Route::get('/order/{id}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 	Route::post('/project-order/{id}', 'App\Http\Controllers\ProjectOrderController@index');
 	Route::get('/project-order/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');

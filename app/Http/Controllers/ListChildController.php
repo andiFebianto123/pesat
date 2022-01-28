@@ -60,7 +60,7 @@ class ListChildController extends Controller
     public function childdetail($id){
         $getChild= ChildMaster::where('child_id',$id)->first();
         if(empty($getChild)){
-            return redirect()->back()->with(['error' => 'Data Anak Yang Dimaksud Tidak Ditemukan.']);
+            return redirect(url('list-child'))->with(['error' => 'Anak yang dimaksud tidak ditemukan.']);
         }else{
         $childdata      = ChildMaster::where('child_id',$id)
                             ->join('city as c1','c1.city_id','child_master.hometown')

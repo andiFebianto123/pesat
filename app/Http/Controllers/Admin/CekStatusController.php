@@ -11,6 +11,7 @@ use App\Models\ProjectMaster;
 use App\Models\DataDetailOrder;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\HistoryStatusPayment;
 use App\Models\ProjectHistoryStatusPayment;
 
 class CekStatusController extends Controller
@@ -120,12 +121,12 @@ class CekStatusController extends Controller
 
             $getStatus = DataOrder::where('order_id', $id)->first();
             if ($getStatus == null) {
+                DB::rollback();
                 \Alert::add('error', 'Order anak yang dimaksud tidak ditemukan.')->flash();
                 return redirect(backpack_url('data-order'));
             }
 
             $getStatusMidtrans = $getStatus->order_id_midtrans;
-            $transaction = $decoderespon = $status =  null;
             $resetOrder = false;
 
             try {
@@ -134,18 +135,15 @@ class CekStatusController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 if ($e->getCode() == '404') {
-                    \Alert::add('error', 'Data pembayaran tidak ditemukan')->flash();
+                    \Alert::add('error', 'Order anak belum terdaftar di Midtrans.')->flash();
                     return redirect(backpack_url('data-order'));
                 } else if ($e->getCode() != '404') {
                     \Alert::add('error', "Gagal mendapatkan status order anak dari Midtrans. ["  . $e->getCode() . "]")->flash();
                     return redirect(backpack_url('data-order'));
-                } else {
-                    throw $e;
                 }
             }
 
             $response = json_encode($decoderespon);
-            $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
 
             $transaction = $decoderespon->transaction_status;
             $type = $decoderespon->payment_type;
@@ -161,34 +159,31 @@ class CekStatusController extends Controller
                 $status = 3;
                 $resetOrder = true;
             } else if ($transaction == 'expire') {
-                $status = 1;
-                $resetOrder = true;
+                $status = $getStatus->payment_status;
             } else if ($transaction == 'cancel') {
                 $status = 3;
                 $resetOrder = true;
             } else {
                 DB::rollBack();
-                \Alert::add('error', 'Status Midtrans : ' . $transaction . ' tidak dapat diproses sistem')->flash();
+                \Alert::add('error', 'Status Midtrans : ' . $transaction . ' tidak dapat diproses sistem.')->flash();
                 return redirect(backpack_url('data-order'));
             }
 
-            DB::table('history_status_payment')->insert([
+            $getStatus->status_midtrans = $transaction;
+            $getStatus->payment_status = $status;
+            $getStatus->payment_type = $type;
+            $getStatus->save();
+
+            HistoryStatusPayment::create([
                 'detail_history' => $response,
                 'status' => $status,
                 'status_midtrans' => $transaction,
                 'user_id' => backpack_user()->id,
             ]);
 
-            DataOrder::where('order_id', $id)
-                ->update([
-                    'status_midtrans' => $transaction,
-                    'payment_status' => $status,
-                    'payment_type' => $type,
-                ]);
-
             if ($resetOrder) {
+                $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
                 foreach ($cekDetailOrder as $key => $detailOrder) {
-
                     $child = ChildMaster::find($detailOrder->child_id);
                     $child->is_sponsored = 0;
                     $child->is_paid = 0;
@@ -198,7 +193,7 @@ class CekStatusController extends Controller
             }
             DB::commit();
 
-            \Alert::add('success', 'Status Pembayaran Berhasil di Perbarui')->flash();
+            \Alert::add('success', 'Status pembayaran berhasil di perbarui.')->flash();
             return redirect(backpack_url('data-order'));
         } catch (Exception $e) {
             DB::rollBack();
