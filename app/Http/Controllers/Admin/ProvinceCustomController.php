@@ -31,22 +31,30 @@ class ProvinceCustomController extends Controller
         
         
         $search_term = $request->input('q');
-        $provinceid= $request->input('province_id');
+        // $provinceid= $request->input('province_id');
+        $form = collect($request->input('form'))->pluck('value', 'name');
+        // dd($form);
+        $options = new City;
+
+        if(! $form['province_id']){
+            return [];
+        }
+
+        if ($form['province_id']) {
+            $options = $options->where('province_id', $form['province_id']);
+        }
 
         if ($search_term)
         {
-        
-            $results = City::where('city_name','like','%'.$search_term.'%')
-                            //where('province_id',$provinceid)
+            $results = $options->where('city_name', 'LIKE', '%'.$search_term.'%')
                             ->paginate(10);
-        
+            // dd($result->paginate(10));
         }
         else
         {   
-            $results = City::paginate(10);//where('province_id',$provinceid)->
+            $results = $options->paginate(10);//where('province_id',$provinceid)->
             
         }
-   
         return $results;
         
     }
