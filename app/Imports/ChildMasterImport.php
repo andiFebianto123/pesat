@@ -125,7 +125,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
 
         if($data['tpt_lahir'] != null){
             // cek tempat lahir terlebih dahulu
-            $cekKota = City::where('city_name', 'like', '%'.trim($data['tpt_lahir']).'%')->limit(1);
+            $cekKota = City::where('city_name', trim($data['tpt_lahir']))->limit(1);
             if($cekKota->exists()){
                 // jika ada 
                 $data['tpt_lahir'] = $cekKota->get()[0]->city_id;
@@ -134,7 +134,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
 
         if($data['agama'] != null){
             // cek agama terlebih dahulu
-            $cekData = Religion::where('religion_name', 'like', '%'.trim($data['agama']).'%')->limit(1);
+            $cekData = Religion::where('religion_name', trim($data['agama']))->limit(1);
             if($cekData->exists()){
                 // jika ada 
                 $data['agama'] = $cekData->get()[0]->religion_id;
@@ -142,7 +142,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
         }
 
         if($data['kabupaten'] != null){
-            $cekData = City::where('city_name', 'like', '%'.trim($data['kabupaten']).'%')->limit(1);
+            $cekData = City::where('city_name', trim($data['kabupaten']))->limit(1);
             if($cekData->exists()){
                 // jika ada 
                 $data['kabupaten'] = $cekData->get()[0]->city_id;
@@ -150,7 +150,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
         }
 
         if($data['propinsi'] != null){
-            $cekData = Province::where('province_name', 'like', '%'.trim($data['propinsi']).'%')->limit(1);
+            $cekData = Province::where('province_name', trim($data['propinsi']))->limit(1);
             if($cekData->exists()){
                 // jika ada 
                 $data['propinsi'] = $cekData->get()[0]->province_id;
