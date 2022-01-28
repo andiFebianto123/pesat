@@ -487,8 +487,8 @@ class ChildMasterCrudController extends CrudController
             'data_source' => url("admin/api/city-select"), // url to controller search function (with /{id} should return model)
             'placeholder' => "Select a City", // placeholder for the select
             'minimum_input_length' => 2, // minimum characters to type before querying results
-            'dependencies'         => ['city_id'], // when a dependency changes, this select2 is reset to null
             'include_all_form_fields' => true,
+            'dependencies' => ['province_id'],
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
