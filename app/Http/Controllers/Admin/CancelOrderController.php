@@ -24,7 +24,7 @@ class CancelOrderController extends Controller
 
             if ($dataOrder == null) {
                 DB::rollback();
-                \Alert::add('error', 'Order anak tidak ditemukan.')->flash();
+                \Alert::add('error', 'Order anak yang dimaksud tidak ditemukan.')->flash();
                 return redirect(backpack_url('data-order'));
             }
 
@@ -32,7 +32,9 @@ class CancelOrderController extends Controller
             $now = Carbon::now()->startOfDay();
             $nowSub2Days = $now->copy()->addDay(-2);
 
-            $createdAt = Carbon::parse($dataOrder->created_at)->startOfDay();
+            $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
+
+            $createdAt = Carbon::parse($cekDetailOrder->first()->start_order_date)->startOfDay();
 
             $updateStatusMidtrans = false;
             try {
@@ -63,8 +65,6 @@ class CancelOrderController extends Controller
             }
             $dataOrder->save();
 
-            $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
-
             foreach ($cekDetailOrder as $key => $detailOrder) {
 
                 $child = ChildMaster::find($detailOrder->child_id);
@@ -78,7 +78,7 @@ class CancelOrderController extends Controller
 
             DB::commit();
 
-            \Alert::add('success', 'Order anak berhasil dibatalkan')->flash();
+            \Alert::add('success', 'Order anak berhasil dibatalkan.')->flash();
             return redirect(backpack_url('data-order'));
         } catch (Exception $e) {
             DB::rollback();
