@@ -303,12 +303,8 @@ class DataDetailOrderCrudController extends CrudController
             ->from(with(new OrderDt())->getTable())
             ->where('deleted_at', null);
         })
-            ->get()
-            ->map
-            ->only(['child_id', 'full_name']);
-        $collection = collect($getchild);
-        $child = $collection->pluck('full_name', 'child_id') ? $collection->pluck('full_name', 'child_id') : 0 / null;
-        return $child;
+            ->get();
+        return $getchild->pluck('full_name', 'child_id');
     }
 
 

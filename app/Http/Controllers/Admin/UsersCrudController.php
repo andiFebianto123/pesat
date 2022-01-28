@@ -608,12 +608,8 @@ class UsersCrudController extends CrudController
 
     function userrole()
     {
-        $getsponsor = UserRole::get()
-            ->map
-            ->only(['user_role_id', 'user_role_name']);
-        $collection = collect($getsponsor);
-        $sponsor = $collection->pluck('user_role_name', 'user_role_id') ? $collection->pluck('user_role_name', 'user_role_id') : 0 / null;
-        return $sponsor;
+        $getsponsor = UserRole::get();
+        return $getsponsor->pluck('user_role_name', 'user_role_id');
     }
 
     function destroy($id)
