@@ -22,6 +22,10 @@
 
 <input type="hidden" name="sponsorid" class="form-control" value="{{$profile->sponsor_id}}">
 
+<label class="form-label"><strong>Nama Panggilan</strong></label>
+<input type="text" name="name" class="form-control" value="{{ $profile->name }}">
+<br/>
+
 <label class="form-label"><strong>Nama</strong></label>
 <input type="text" name="fullname" class="form-control" value="{{$profile->full_name}}">
 </br>

@@ -60,6 +60,7 @@ class MyAccountController extends Controller
 
         $request->validate([
 
+            'name' => 'required|max:255',
             'fullname' => 'required|max:255',
             'hometown' => 'max:255',
             'dateofbirth' => 'required|date|date_format:Y-m-d',
@@ -71,6 +72,7 @@ class MyAccountController extends Controller
         ]);
 
         $id = $request->sponsorid;
+        $panggilan = $request->name;
         $fullname = $request->fullname;
         $hometown = $request->hometown;
         $dateofbirth = date('Y-m-d', strtotime($request->dateofbirth));
@@ -82,6 +84,7 @@ class MyAccountController extends Controller
 
         $sponsor = Sponsor::where('sponsor_id', $id)->first();
 
+        $sponsor->name = $panggilan;
         $sponsor->full_name = $fullname;
         $sponsor->hometown = $hometown;
         $sponsor->date_of_birth = $dateofbirth;
