@@ -117,12 +117,8 @@ class CityCrudController extends CrudController
 
     function province()
     {
-        $province = Province::get()
-            ->map
-            ->only(['province_id', 'province_name']);
-        $collection = collect($province);
-        $province = $collection->pluck('province_name', 'province_id') ? $collection->pluck('province_name', 'province_id') : 0 / null;
-        return $province;
+        $province = Province::get();
+        return $province->pluck('province_name', 'province_id');
     }
     function destroy($id)
     {

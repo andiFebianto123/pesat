@@ -846,8 +846,6 @@ class DataOrderCrudController extends CrudController
     {
 
         $getsponsor = Sponsor::get();
-        $collection = collect($getsponsor);
-        $sponsor = $collection->pluck('full_name', 'sponsor_id') ? $collection->pluck('full_name', 'sponsor_id') : 0 / null;
-        return $sponsor;
+        return $getsponsor->pluck('full_name', 'sponsor_id');
     }
 }

@@ -17,27 +17,53 @@ class CancelOrderController extends Controller
     //
     public function index($id)
     {
-        $cekDatas = DataOrder::where('order_id', $id)->first();
-
-        if (empty($cekDatas)) {
-            \Alert::add('error', 'Order anak tidak ditemukan.')->flash();
-            return redirect(backpack_url('data-order'));
-        }
-
-        $getOrderIdMidtrans = $cekDatas->order_id_midtrans;
-
-        $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get('child_id');
         DB::beginTransaction();
 
         try {
+            $dataOrder = DataOrder::where('order_id', $id)->first();
+
+            if ($dataOrder == null) {
+                DB::rollback();
+                \Alert::add('error', 'Order anak tidak ditemukan.')->flash();
+                return redirect(backpack_url('data-order'));
+            }
 
             //$orderId = $id . "-anak";
-            \Midtrans\Transaction::cancel($getOrderIdMidtrans);
+            $now = Carbon::now()->startOfDay();
+            $nowSub2Days = $now->copy()->addDay(-2);
 
-            $orderHd = DataOrder::find($id);
-            $orderHd->payment_status = 3;
-            $orderHd->status_midtrans = 'cancel';
-            $orderHd->save();
+            $createdAt = Carbon::parse($dataOrder->created_at)->startOfDay();
+
+            $updateStatusMidtrans = false;
+            try {
+                $orderId = $dataOrder->order_id_midtrans;
+                \Midtrans\Transaction::cancel($orderId);
+                $updateStatusMidtrans = true;
+            } catch (Exception $e) {
+                $cancelSuccess = false;
+                if ($e->getCode() == 412 && $nowSub2Days > $createdAt) {
+                    try {
+                        $decoderespon = \Midtrans\Transaction::status($orderId);
+                        if ($decoderespon->transaction_status == 'expire') {
+                            $cancelSuccess = true;
+                        }
+                    } catch (Exception $e) {
+                    }
+                }
+                if ($e->getCode() != 404 && !$cancelSuccess) {
+                    DB::rollBack();
+                    \Alert::add('error', 'Gagal melakukan perubahan status order anak di Midtrans. [' . $e->getCode() . ']')->flash();
+                    return redirect(backpack_url('data-order-project'));
+                }
+            }
+
+            $dataOrder->payment_status = 3;
+            if ($updateStatusMidtrans) {
+                $dataOrder->status_midtrans = 'cancel';
+            }
+            $dataOrder->save();
+
+            $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
 
             foreach ($cekDetailOrder as $key => $detailOrder) {
 
@@ -55,35 +81,8 @@ class CancelOrderController extends Controller
             \Alert::add('success', 'Order anak berhasil dibatalkan')->flash();
             return redirect(backpack_url('data-order'));
         } catch (Exception $e) {
-
-            if ($e->getCode() == 404) {
-
-                $orderHd = DataOrder::find($id);
-                $orderHd->payment_status = 3;
-                $orderHd->save();
-
-                foreach ($cekDetailOrder as $key => $detailOrder) {
-
-                    $child = ChildMaster::find($detailOrder->child_id);
-                    $child->is_sponsored = 0;
-                    $child->current_order_id = null;
-                    $child->save();
-                }
-
-                DB::commit();
-
-                \Alert::add('success', 'Order berhasil dibatalkan')->flash();
-                return redirect(backpack_url('data-order'));
-            } elseif ($e->getCode() == 412) {
-
-                DB::commit();
-                \Alert::add('error', 'Status transaksi sudah tidak bisa dirubah')->flash();
-                return redirect(backpack_url('data-order'));
-            } else {
-                DB::rollBack();
-                \Alert::add('error', "Gagal melakukan perubahan status order anak di Midtrans. [" . $e->getCode() . "]")->flash();
-                return redirect(backpack_url('data-order'));
-            }
+            DB::rollback();
+            throw $e;
         }
     }
     public function projectcancelorder($id)
@@ -111,15 +110,13 @@ class CancelOrderController extends Controller
                 $updateStatusMidtrans = true;
             } catch (Exception $e) {
                 $cancelSuccess = false;
-                if($e->getCode() == 412 && $nowSub2Days > $createdAt){
-                    try{
+                if ($e->getCode() == 412 && $nowSub2Days > $createdAt) {
+                    try {
                         $decoderespon = \Midtrans\Transaction::status($orderId);
-                        if($decoderespon->transaction_status == 'expire'){
+                        if ($decoderespon->transaction_status == 'expire') {
                             $cancelSuccess = true;
                         }
-                    }
-                    catch(Exception $e){
-
+                    } catch (Exception $e) {
                     }
                 }
                 if ($e->getCode() != 404 && !$cancelSuccess) {
@@ -130,7 +127,7 @@ class CancelOrderController extends Controller
             }
 
             $projectOrder->payment_status = 3;
-            if($updateStatusMidtrans){
+            if ($updateStatusMidtrans) {
                 $projectOrder->status_midtrans = 'cancel';
             }
             $projectOrder->save();

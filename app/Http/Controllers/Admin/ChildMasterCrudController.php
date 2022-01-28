@@ -786,22 +786,14 @@ class ChildMasterCrudController extends CrudController
 
     function hometown()
     {
-        $getcity = City::get()
-            ->map
-            ->only(['city_id', 'city_name']);
-        $collection = collect($getcity);
-        $city = $collection->pluck('city_name', 'city_id') ? $collection->pluck('city_name', 'city_id') : 0 / null;
-        return $city;
+        $getcity = City::get();
+        return $getcity->pluck('city_name', 'city_id');
     }
 
     function religion()
     {
-        $getreligion = Religion::get()
-            ->map
-            ->only(['religion_id', 'religion_name']);
-        $collection = collect($getreligion);
-        $religion = $collection->pluck('religion_name', 'religion_id') ? $collection->pluck('religion_name', 'religion_id') : 0 / null;
-        return $religion;
+        $getreligion = Religion::get();
+        return $getreligion->pluck('religion_name', 'religion_id');
     }
 
     function store()
