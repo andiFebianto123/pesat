@@ -807,8 +807,11 @@ class ChildMasterCrudController extends CrudController
 
         $cekprovince = Province::where('province_id', $request->province_id);
         $province = $cekprovince->exists();
-        $cekcity = City::where('city_id', $request->city_id);
+
+        $cekcity = City::where('province_id', $request->province_id)
+        ->where('city_id', $request->city_id);
         $city = $cekcity->exists();
+
         $cekhometown = City::where('city_id', $request->hometown);
         $hometown = $cekhometown->exists();
         $cekreligion = Religion::where('religion_id', $request->religion_id);
@@ -818,7 +821,7 @@ class ChildMasterCrudController extends CrudController
             $error['province_id'] = ['The selected Province is not valid'];
         }
         if (!$city) {
-            $error['city_id'] = ['The selected City is not valid'];
+            $error['city_id'] = ['The selected City is not valid on province'];
         }
         if (!$hometown) {
             $error['hometown'] = ['The selected Hometown is not valid'];
@@ -860,8 +863,11 @@ class ChildMasterCrudController extends CrudController
 
         $cekprovince = Province::where('province_id', $request->province_id);
         $province = $cekprovince->exists();
-        $cekcity = City::where('city_id', $request->city_id);
+
+        $cekcity = City::where('province_id', $request->province_id)
+        ->where('city_id', $request->city_id);
         $city = $cekcity->exists();
+
         $cekhometown = City::where('city_id', $request->hometown);
         $hometown = $cekhometown->exists();
         $cekreligion = Religion::where('religion_id', $request->religion_id); //
@@ -871,7 +877,7 @@ class ChildMasterCrudController extends CrudController
             $error['province_id'] = ['The selected Province is not valid'];
         }
         if (!$city) {
-            $error['city_id'] = ['The selected City is not valid'];
+            $error['city_id'] = ['The selected City is not valid on province'];
         }
         if (!$hometown) {
             $error['hometown'] = ['The selected Hometown is not valid'];
