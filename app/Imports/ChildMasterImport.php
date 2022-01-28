@@ -71,8 +71,8 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             $anak->school_year = $row['an'];
             $anak->sign_in_fc = ($row['masuk_fc'] === null) ? null : $this->convertNumbertoDate($row['masuk_fc']);
             $anak->leave_fc = ($row['keluar_fc'] === null) ? null : $this->convertNumbertoDate($row['keluar_fc']);
-            $anak->reason_to_leave = $row['alasan_keluar'];
-            $anak->child_discription = $row['keterangan'];
+            $anak->reason_to_leave = $row['alasan_keluar'] ?? null;
+            $anak->child_discription = $row['keterangan'] ?? null;
             $anak->internal_discription = null;
             $anak->status_dlp = 0;
             $anak->is_sponsored = 0;
@@ -106,8 +106,8 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             $anak->school_year = $row['an'];
             $anak->sign_in_fc = ($row['masuk_fc'] === null) ? null : $this->convertNumbertoDate($row['masuk_fc']);
             $anak->leave_fc = ($row['keluar_fc'] === null) ? null : $this->convertNumbertoDate($row['keluar_fc']);
-            $anak->reason_to_leave = $row['alasan_keluar'];
-            $anak->child_discription = $row['keterangan'];
+            $anak->reason_to_leave = $row['alasan_keluar'] ?? null;
+            $anak->child_discription = $row['keterangan'] ?? null;
             $anak->save();
             
         }
