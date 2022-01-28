@@ -24,11 +24,11 @@
 
       <td>
         @if($projectorder->payment_status==1)
-        {{"menunggu pembayaran"}}
+        {{"Menunggu Pembayaran"}}
         @elseif($projectorder->payment_status==2)
-        {{"suskes"}}
+        {{"Suskes"}}
         @else
-        {{"batal"}}
+        {{"Batal"}}
       @endif
       </td>
       <td>Rp{{ number_format($projectorder->price, 2, ',', '.') }}</td>
