@@ -55,7 +55,7 @@ class CancelOrderController extends Controller
                 if ($e->getCode() != 404 && !$cancelSuccess) {
                     DB::rollBack();
                     \Alert::add('error', 'Gagal melakukan perubahan status order anak di Midtrans. [' . $e->getCode() . ']')->flash();
-                    return redirect(backpack_url('data-order-project'));
+                    return redirect(backpack_url('data-order'));
                 }
             }
 
