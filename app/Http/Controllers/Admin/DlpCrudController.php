@@ -40,7 +40,7 @@ class DlpCrudController extends CrudController
         });
         CRUD::setModel(Dlp::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/dlp/' . ($this->crud->child_id ?? '-') . '/detail');
-        CRUD::setEntityNameStrings('Add DLP', 'Add DLP');
+        CRUD::setEntityNameStrings('DLP', 'DLP');
     }
 
     /**
