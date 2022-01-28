@@ -23,9 +23,9 @@
         <td>{{date('d-m-Y', strtotime($order->created_at))}}</td>
         <td>
           @if($order->payment_status == 1)
-          {{"menunggu pembayaran"}}
+          {{"Menunggu Pembayaran"}}
           @elseif($order->payment_status  == 2)
-          {{"suskes"}}
+          {{"Suskes"}}
           @else
           {{"Batal"}}
         @endif

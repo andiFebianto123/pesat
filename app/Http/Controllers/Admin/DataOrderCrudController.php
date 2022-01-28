@@ -96,7 +96,7 @@ class DataOrderCrudController extends CrudController
                 'name' => 'payment_status',
                 'label' => 'Status Pembayaran',
                 'type' => 'radio',
-                'options' => [1 => 'Menungggu Pembayaran', 2 => 'Sukses', 3 => 'Batal'],
+                'options' => [1 => 'Menunggu Pembayaran', 2 => 'Sukses', 3 => 'Batal'],
 
             ],
             [
