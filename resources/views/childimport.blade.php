@@ -67,7 +67,6 @@
                 });
                 var inputLabel = $('#label-file-input');
                 $('#formFile').change(function(){
-                        console.log('enti');
                         var path = $(this).val();
                         var path = path.replace("C:\\fakepath\\", "");
                         inputLabel.html(path);
