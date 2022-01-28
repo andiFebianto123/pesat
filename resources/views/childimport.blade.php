@@ -11,7 +11,7 @@
 @section('content')
 <!-- <h1>Import Anak</h1> -->
 <div class="row">
-        <div class="col-md-8 bold-labels">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
                         <form action="{{ backpack_url('import') }}" class="" id="custom-form" method="POST" enctype="multipart/form-data">
@@ -35,7 +35,7 @@
                                         <div class="invalid-feedback" id="formFileError"></div>
                                 </div>
                         </div>
-                        <input type="submit" class="btn btn-primary btn-sm" value="Submit"/>
+                        <input type="submit" class="btn btn-primary btn-sm" id="formSubmit" value="Submit"/>
                         </form>
                 </div>
             </div>
@@ -67,7 +67,6 @@
                 });
                 var inputLabel = $('#label-file-input');
                 $('#formFile').change(function(){
-                        console.log('enti');
                         var path = $(this).val();
                         var path = path.replace("C:\\fakepath\\", "");
                         inputLabel.html(path);
@@ -75,6 +74,7 @@
                 $(function(){
                         $('#custom-form').submit(function(e){
                                 e.preventDefault();
+                                $('#formSubmit').attr('disabled','disabled');
                                 var form = $(this);
                                 var actionUrl = form.attr('action');
                                 var dataForm = new FormData();
@@ -92,6 +92,7 @@
                                         contentType: false,
                                         success: function(result){ 
                                                 $(form)[0].reset();
+                                                $('#formSubmit').removeAttr('disabled');
                                                 if(result.validator){
                                                         $('#formFile').addClass('is-invalid');
                                                         $('#formFileError').html(result.message);
@@ -124,6 +125,7 @@
                                         },
                                         error: function (xhr, desc, err)
                                         {
+                                                $('#formSubmit').removeAttr('disabled');
                                                 new Noty({
                                                         type: 'danger',
                                                         text: err

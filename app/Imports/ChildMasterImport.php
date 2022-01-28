@@ -188,13 +188,11 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'tpt_lahir' => [
                 'required',
                 function($attribute, $value, $onFailure){
-                    if($value == 0){
-                        // jika tempat lahir tidak ada
-                        $cekKota = City::where('city_name', trim($value))->limit(1);
-                        if(!$cekKota->exists()){
-                            // jika ada 
-                            $onFailure("{$attribute} is not exists in master city");
-                        }
+                    // jika tempat lahir tidak ada
+                    $cekKota = City::where('city_name', trim($value))->limit(1);
+                    if(!$cekKota->exists()){
+                        // jika ada 
+                        $onFailure("{$attribute} is not exists in master city");
                     }
                 }
             ],
@@ -227,7 +225,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
                     if(!$cekData->exists()){
                         // jika ada 
                         $onFailure("{$attribute} is not exists in master province");
-
                     }
                 }
             ],
