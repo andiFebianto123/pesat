@@ -25,7 +25,7 @@
           @if($order->payment_status == 1)
           {{"Menunggu Pembayaran"}}
           @elseif($order->payment_status  == 2)
-          {{"Suskes"}}
+          {{"Sukses"}}
           @else
           {{"Batal"}}
         @endif
