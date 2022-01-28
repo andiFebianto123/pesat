@@ -42,7 +42,9 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
     public function onRow(Row $row)
     {
         $rowIndex = $row->getIndex();
-        $row      = $row->toArray();
+        $dataRow  = $row->toArray();
+
+        $row = $this->convertRowData($dataRow, $rowIndex);
 
         if($row['id'] == 0){
             // maka dia buat data baru
@@ -112,7 +114,9 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
     
     }
 
-    public function prepareForValidation($data, $index)
+  
+
+    private function convertRowData($data, $index)
     {
         $data['s'] = (Str::lower($data['s']) == 'l') ? 'laki-laki' : 'perempuan'; 
 
@@ -125,8 +129,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             if($cekKota->exists()){
                 // jika ada 
                 $data['tpt_lahir'] = $cekKota->get()[0]->city_id;
-            }else{
-                $data['tpt_lahir'] = 0;
             }
         }
 
@@ -136,8 +138,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             if($cekData->exists()){
                 // jika ada 
                 $data['agama'] = $cekData->get()[0]->religion_id;
-            }else{
-                $data['agama'] = 0;
             }
         }
 
@@ -146,8 +146,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             if($cekData->exists()){
                 // jika ada 
                 $data['kabupaten'] = $cekData->get()[0]->city_id;
-            }else{
-                $data['kabupaten'] = 0;
             }
         }
 
@@ -156,8 +154,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             if($cekData->exists()){
                 // jika ada 
                 $data['propinsi'] = $cekData->get()[0]->province_id;
-            }else{
-                $data['propinsi'] = 0;
             }
         }
         return $data;
@@ -174,10 +170,10 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
     {
         return [
             'id' => [
-                'required',
                 'integer',
+                'nullable',
                 function($attribute, $value, $onFailure){
-                    if((strlen($value) > 0) && ($value != 0)){
+                    if((strlen($value) > 0)){
                         // jika ada id nya maka akan dilakukan cek
                         if (!ChildMaster::where('child_id', $value)->exists()) {
                             $onFailure('ID of child is not exists to update');
@@ -188,23 +184,27 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'n_a_m_a' => 'required',
             'panggilan' => 'required',
             'no_induk' => 'required',
-            's' => 'required',
+            's' => 'required|in:L,P',
             'tpt_lahir' => [
                 'required',
-                'integer',
                 function($attribute, $value, $onFailure){
                     if($value == 0){
                         // jika tempat lahir tidak ada
-                        $onFailure("{$attribute} is not exists in master city");
+                        $cekKota = City::where('city_name', 'like', '%'.trim($value).'%')->limit(1);
+                        if(!$cekKota->exists()){
+                            // jika ada 
+                            $onFailure("{$attribute} is not exists in master city");
+                        }
                     }
                 }
             ],
             'tgl_lahir' => 'required|numeric',
             'agama' => [
                 'required',
-                'integer',
                 function($attribute, $value, $onFailure){
-                    if($value == 0){
+                    $cekData = Religion::where('religion_name', 'like', '%'.trim($value).'%')->limit(1);
+                    if(!$cekData->exists()){
+                        // jika ada 
                         $onFailure("{$attribute} is not exists in master religion");
                     }
                 }
@@ -212,19 +212,22 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'kecamatan' => 'required',
             'kabupaten' => [
                 'required',
-                'integer',
                 function($attribute, $value, $onFailure){
-                    if($value == 0){
+                    $cekData = City::where('city_name', 'like', '%'.trim($value).'%')->limit(1);
+                    if(!$cekData->exists()){
+                        // jika ada 
                         $onFailure("{$attribute} is not exists in master city");
                     }
                 }
             ],
             'propinsi' => [
                 'required',
-                'integer',
                 function($attribute, $value, $onFailure){
-                    if($value == 0){
+                    $cekData = Province::where('province_name', 'like', '%'.trim($value).'%')->limit(1);
+                    if(!$cekData->exists()){
+                        // jika ada 
                         $onFailure("{$attribute} is not exists in master province");
+
                     }
                 }
             ],
@@ -238,5 +241,9 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'masuk_fc' => 'numeric|nullable',
             'keluar_fc' => 'numeric|nullable',
         ];
+    }
+    public function headingRow(): int
+    {
+        return 1;
     }
 }
