@@ -106,8 +106,19 @@ class ImportChildController extends Controller
                         $errorPerRow['message'][] = implode('<br/>', $failure->errors());
                     }
                 }
-        
             }
+
+            if(isset($errorPerRow['row'])){
+                $message = implode("<br/>", $errorPerRow['message']);
+                $errorPerRow['message'] = $message;
+                $dataErrors[] = $errorPerRow;
+                $errorPerRow = [];
+
+                $errorPerRow['row'] = $failure->row();
+                $errorPerRow['message'] = [];
+                $errorPerRow['message'][] = implode('<br/>', $failure->errors());
+            }
+
 
             return response()->json([
                 'data' => $dataErrors,
