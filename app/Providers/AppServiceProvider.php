@@ -34,14 +34,12 @@ class AppServiceProvider extends ServiceProvider
         \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
         Validator::extend('provinsikabupatenvalidation', function ($attribute, $value, $parameters, $validator) {
             $data = $validator->getData();
-            $index = array_keys($data)[0];
-            $province = isset($data[$index]['propinsi']) ? trim($data[$index]['propinsi']) : '';
-            $kabupaten = isset($data[$index]['kabupaten']) ? trim($data[$index]['kabupaten']) : '';
+            $province = isset($data['propinsi']) ? trim($data['propinsi']) : '';
+            $kabupaten = isset($data['kabupaten']) ? trim($data['kabupaten']) : '';
             $cekData = City::whereHas('province', function($query) use($province){
                 $query->where('province_name', $province);
-            })->where('city_name', $kabupaten)
-            ->exists();
-            return $cekData;
+            })->where('city_name', $kabupaten);
+            return $cekData->exists();
         });
         
         Paginator::useBootstrap();

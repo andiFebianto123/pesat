@@ -10,6 +10,7 @@ use Prologue\Alerts\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ImportChildController extends Controller
 {
@@ -74,56 +75,37 @@ class ImportChildController extends Controller
         $file->storeAs('public/file_anak', $nama_file);
 		//$file->move('file_anak',$nama_file);
 
+        DB::beginTransaction();
 
-        $import = new ChildMasterImport();
-        $import->import(storage_path('/app/public/file_anak/'.$nama_file));
+        try{
+            $import = new ChildMasterImport();
+            $import->import(storage_path('/app/public/file_anak/'.$nama_file));
 
-        if(file_exists( storage_path('/app/public/file_anak/'.$nama_file))) {
-            unlink(storage_path('/app/public/file_anak/'.$nama_file));
-        }
-
-        if(count($import->failures()) > 0){
-            // jika ada error
-            $dataErrors = [];
-
-            $errorPerRow = [];
-            foreach ($import->failures() as $failure) {
-                if(!isset($errorPerRow['row'])){
-                    $errorPerRow['row'] = $failure->row();
-                    $errorPerRow['message'] = [];
-                    $errorPerRow['message'][] = implode('<br/>', $failure->errors());
-                }else{
-                    if($errorPerRow['row'] == $failure->row()){
-                        $errorPerRow['message'][] = implode('<br/>', $failure->errors());
-                    }else{
-                        $message = implode("<br/>", $errorPerRow['message']);
-                        $errorPerRow['message'] = $message;
-                        $dataErrors[] = $errorPerRow;
-                        $errorPerRow = [];
-
-                        $errorPerRow['row'] = $failure->row();
-                        $errorPerRow['message'] = [];
-                        $errorPerRow['message'][] = implode('<br/>', $failure->errors());
-                    }
-                }
-        
+            if(file_exists( storage_path('/app/public/file_anak/'.$nama_file))) {
+                unlink(storage_path('/app/public/file_anak/'.$nama_file));
+            }
+    
+            if(count($import->errorsMessage) > 0){
+                DB::rollback();
+                return response()->json([
+                    'data' => $import->errorsMessage,
+                    'status' => false,
+                    'message' => 'Ada data yang error ketika di import',
+                    'notification' => 'Ada beberapa data tidak valid proses import',
+                ], 200);
             }
 
+            DB::commit();
             return response()->json([
-                'data' => $dataErrors,
-                'status' => false,
-                'message' => 'Ada data yang error ketika di import',
-                'notification' => 'Ada beberapa data tidak valid proses import',
+                'status' => true,
+                'message' => 'Import Anak telah berhasil dilakukan',
+                'notification' => 'File berhasil di import',
             ], 200);
 
+        }catch(\Exception $e){
+            DB::rollback();
+            \Alert::add('error', $e->getMessage())->flash();
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Import Anak telah berhasil dilakukan',
-            'notification' => 'File berhasil di import',
-        ], 200);
-
 
     }
 }
