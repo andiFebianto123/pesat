@@ -183,7 +183,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             ],
             'n_a_m_a' => 'required',
             'panggilan' => 'required',
-            'no_induk' => 'required',
+            'no_induk' => 'required|unique:child_master,registration_number',
             's' => 'required|in:L,P',
             'tpt_lahir' => [
                 'required',
