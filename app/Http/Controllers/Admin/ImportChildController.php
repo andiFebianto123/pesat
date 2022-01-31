@@ -76,7 +76,6 @@ class ImportChildController extends Controller
 		//$file->move('file_anak',$nama_file);
 
         DB::beginTransaction();
-
         try{
             $import = new ChildMasterImport();
             $import->import(storage_path('/app/public/file_anak/'.$nama_file));
@@ -94,7 +93,6 @@ class ImportChildController extends Controller
                     'notification' => 'Ada beberapa data tidak valid proses import',
                 ], 200);
             }
-
             DB::commit();
             return response()->json([
                 'status' => true,
