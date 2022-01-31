@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
-        Commands\CekStatus::class,
+        Commands\CreateChildOrder::class,
     ];
 
     /**
@@ -25,10 +25,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
-       // $schedule->command('command:CekStatus')
-       //         ->everyMinute();
-                $schedule->call('App\Http\Controllers\OrderController@cekstatus')->everyMinute();
+       $schedule->command('create:childorder')
+                ->daily();
+              
+                
     }
 
     /**

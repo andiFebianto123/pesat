@@ -21,6 +21,7 @@ Route::get('/childdetail/{id}', 'App\Http\Controllers\HomeController@childdetail
 Route::post('/order', 'App\Http\Controllers\OrderController@index');
 Route::get('/order/{snap_token}/{code}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
+Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
 Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
 Route::get('/child-donation','App\Http\Controllers\Sponsor\MyAccountController@childDonation');
 Route::get('/project-donation','App\Http\Controllers\Sponsor\MyAccountController@projectDonation');
