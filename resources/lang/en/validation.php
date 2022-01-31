@@ -135,6 +135,7 @@ return [
     | specify a specific custom language line for a given attribute rule.
     |
     */
+    'provinsikabupatenvalidation' => 'The :attribute is not valid with province',
 
     'custom' => [
         'attribute-name' => [

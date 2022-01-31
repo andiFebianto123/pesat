@@ -91,10 +91,10 @@ class ImportChildController extends Controller
                 if(!isset($errorPerRow['row'])){
                     $errorPerRow['row'] = $failure->row();
                     $errorPerRow['message'] = [];
-                    $errorPerRow['message'][] = implode('\n', $failure->errors());
+                    $errorPerRow['message'][] = implode('<br/>', $failure->errors());
                 }else{
                     if($errorPerRow['row'] == $failure->row()){
-                        $errorPerRow['message'][] = implode('\n', $failure->errors());
+                        $errorPerRow['message'][] = implode('<br/>', $failure->errors());
                     }else{
                         $message = implode("<br/>", $errorPerRow['message']);
                         $errorPerRow['message'] = $message;
@@ -103,7 +103,7 @@ class ImportChildController extends Controller
 
                         $errorPerRow['row'] = $failure->row();
                         $errorPerRow['message'] = [];
-                        $errorPerRow['message'][] = implode('\n', $failure->errors());
+                        $errorPerRow['message'][] = implode('<br/>', $failure->errors());
                     }
                 }
         

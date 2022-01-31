@@ -210,6 +210,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'kecamatan' => 'required',
             'kabupaten' => [
                 'required',
+                'provinsikabupatenvalidation',
                 function($attribute, $value, $onFailure){
                     $cekData = City::where('city_name', trim($value))->limit(1);
                     if(!$cekData->exists()){
@@ -239,6 +240,24 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithValidation, Sk
             'keluar_fc' => 'numeric|nullable',
         ];
     }
+    // public function withValidator($validator)
+    // {
+    //     $validator->after(function ($validator){
+
+    //         $data = $validator->getData();
+    //         $province = isset($data['propinsi']) ? $data['propinsi'] : '';
+    //         $kabupaten = isset($data['kabupaten']) ? $data['kabupaten'] : '';
+
+    //         $cekData = City::whereHas('province', function($query) use($province){
+    //             $query->where('province_name', $province);
+    //         })->where('city_name', $kabupaten)
+    //         ->exists();
+
+    //         if(!$cekData){
+    //             $validator->errors()->add('kabupaten', 'Kabupaten is not valid with province');
+    //         }
+    //     });
+    // }
     public function headingRow(): int
     {
         return 1;
