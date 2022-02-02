@@ -46,7 +46,11 @@ Route::group([
     Route::crud('city', 'CityCrudController');
     Route::crud('religion', 'ReligionCrudController');
     Route::crud('sponsor-type', 'SponsorTypeCrudController');
+
     Route::crud('child-master', 'ChildMasterCrudController');
+    Route::post('child-master/add-sponsor', 'ChildMasterCrudController@addSponsor');
+    Route::post('child-master/delete-sponsor', 'ChildMasterCrudController@removeSponsor');
+
     Route::crud('project-master', 'ProjectMasterCrudController');
     Route::crud('project-master-detail', 'ProjectMasterDetailCrudController');
      Route::prefix('project-master-detail/{header_id}')->group(function () {

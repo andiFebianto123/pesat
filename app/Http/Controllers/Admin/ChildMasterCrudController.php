@@ -12,6 +12,7 @@ use App\Models\Religion;
 use App\Traits\RedirectCrud;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class ChildMasterCrudController
@@ -50,7 +51,10 @@ class ChildMasterCrudController extends CrudController
     function setupListOperation()
     {
 
+        $this->crud->enableBulkActions();
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
+        $this->crud->addButtonFromView('top', 'update_sponsor', 'update_sponsor', 'ending');
+        $this->crud->addButtonFromView('top', 'update_not_sponsor', 'update_not_sponsor', 'ending');
         $this->crud->addFilter([
             'name'  => 'is_sponsored',
             'type'  => 'dropdown',
@@ -919,6 +923,52 @@ class ChildMasterCrudController extends CrudController
         } else {
             return $this->crud->delete($id);
 
+        }
+    }
+
+    function addSponsor(){
+        $entriChilds = request()->input('entries');
+        DB::beginTransaction();
+        try{
+            foreach($entriChilds as $id){
+                $child = ChildMaster::find($id);
+                if($child !== null){
+                    $child->is_sponsored = 1;
+                }
+                $child->save();
+            }
+            DB::commit();
+            return response()->json([
+                'message' => 'Berhasil ubah status sponsor'
+            ], 200);
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'message' => 'Gagal ubah status sponsor'
+            ], 400);
+        }
+    }
+
+    function removeSponsor(){
+        $entriChilds = request()->input('entries');
+        DB::beginTransaction();
+        try{
+            foreach($entriChilds as $id){
+                $child = ChildMaster::find($id);
+                if($child !== null){
+                    $child->is_sponsored = 0;
+                }
+                $child->save();
+            }
+            DB::commit();
+            return response()->json([
+                'message' => 'Berhasil ubah status sponsor'
+            ], 200);
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json([
+                'message' => 'Gagal ubah status sponsor'
+            ], 400);
         }
     }
 
