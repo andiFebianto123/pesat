@@ -1,5 +1,5 @@
 <a href="javascript:void(0)" onclick="updateSponsorEntries(this)" class="btn btn-success">
-    <span class="ladda-label"><i class="la la-edit"></i></span> Add Sponsored
+    <span class="ladda-label"><i class="la la-arrow-circle-up"></i></span> Add Sponsored
 </a>
 
 @push('after_scripts')
@@ -24,9 +24,9 @@
 
         // show confirm message
         swal({
-        title: "{{ trans('backpack::base.warning') }}",
+        title: "Information",
         text: message,
-        icon: "warning",
+        icon: "info",
         buttons: {
           cancel: {
           text: "{{ trans('backpack::crud.cancel') }}",
@@ -55,17 +55,21 @@
                       // Show an alert with the result
                             new Noty({
                             type: "success",
-                            text: "<strong>Entries Add status Sponsored</strong><br>"+crud.checkedItems.length+" new entries have been added."
+                            text: "<strong>Entries Add Status Sponsored</strong><br>"+crud.checkedItems.length+" entries have been changed."
                           }).show();
 
                       crud.checkedItems = [];
                       crud.table.ajax.reload();
                     },
                     error: function(result) {
+                      var defaultText = "Gagal meproses data dari server. Silahkan coba lagi / login kembali.";
+                      if(result.status != 500 && result.responseJSON != null && result.responseJSON.message != null && result.responseJSON.message.length != 0){
+                        defaultText = result.responseJSON.message;
+                      }
                       // Show an alert with the result
                             new Noty({
                             type: "danger",
-                            text: result.message
+                            text: defaultText
                           }).show();
                     }
                   });

@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\ChildMasterRequest;
-use App\Models\ChildMaster;
+use Carbon\Carbon;
 use App\Models\City;
-use App\Models\DataDetailOrder;
 use App\Models\OrderDt;
 use App\Models\Province;
 use App\Models\Religion;
+use App\Models\ChildMaster;
 use App\Traits\RedirectCrud;
+use Illuminate\Http\Request;
+use App\Models\DataDetailOrder;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\ChildMasterRequest;
+use Illuminate\Support\Facades\Validator;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class ChildMasterCrudController
@@ -926,16 +929,37 @@ class ChildMasterCrudController extends CrudController
         }
     }
 
-    function addSponsor(){
+    function addSponsor(Request $request){
+        $validator = Validator::make($request->all(), [
+            'entries' => 'required|array|min:1',
+        ]); 
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);   
+        }
         $entriChilds = request()->input('entries');
         DB::beginTransaction();
         try{
+            $errors = [];
+            $now = Carbon::now()->startOfDay();
             foreach($entriChilds as $id){
                 $child = ChildMaster::find($id);
                 if($child !== null){
-                    $child->is_sponsored = 1;
+                    // TO DO : CHECK STATUS anak disponsori secara online
+                    $isOnlineSponsored = false;
+                    if($isOnlineSponsored){
+                        $errors[] = 'Anak ' . $child->full_name . ' telah disponsori secara online.';
+                    }
+                    else if(count($errors) == 0){
+                        $child->is_sponsored = 1;
+                        $child->save();
+                    }
                 }
-                $child->save();
+            }
+            if(count($errors) != 0){
+                DB::rollback();
+                return response()->json([
+                    'message' => collect($errors)->join('</br>')
+                ], 422);
             }
             DB::commit();
             return response()->json([
@@ -943,13 +967,17 @@ class ChildMasterCrudController extends CrudController
             ], 200);
         }catch(\Exception $e){
             DB::rollback();
-            return response()->json([
-                'message' => 'Gagal ubah status sponsor'
-            ], 400);
+            throw $e;
         }
     }
 
-    function removeSponsor(){
+    function removeSponsor(Request $request){
+        $validator = Validator::make($request->all(), [
+            'entries' => 'required|array|min:1',
+        ]); 
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);   
+        }
         $entriChilds = request()->input('entries');
         DB::beginTransaction();
         try{
@@ -957,8 +985,8 @@ class ChildMasterCrudController extends CrudController
                 $child = ChildMaster::find($id);
                 if($child !== null){
                     $child->is_sponsored = 0;
+                    $child->save();
                 }
-                $child->save();
             }
             DB::commit();
             return response()->json([
@@ -966,9 +994,7 @@ class ChildMasterCrudController extends CrudController
             ], 200);
         }catch(\Exception $e){
             DB::rollback();
-            return response()->json([
-                'message' => 'Gagal ubah status sponsor'
-            ], 400);
+            throw $e;
         }
     }
 
