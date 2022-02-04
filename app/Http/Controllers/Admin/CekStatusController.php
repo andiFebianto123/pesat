@@ -180,17 +180,7 @@ class CekStatusController extends Controller
                 'status_midtrans' => $transaction,
                 'user_id' => backpack_user()->id,
             ]);
-
-            if ($resetOrder) {
-                $cekDetailOrder = DataDetailOrder::where('order_id', $id)->get();
-                foreach ($cekDetailOrder as $key => $detailOrder) {
-                    $child = ChildMaster::find($detailOrder->child_id);
-                    $child->is_sponsored = 0;
-                    $child->is_paid = 0;
-                    $child->current_order_id = null;
-                    $child->save();
-                }
-            }
+            
             DB::commit();
 
             \Alert::add('success', 'Status pembayaran berhasil di perbarui.')->flash();

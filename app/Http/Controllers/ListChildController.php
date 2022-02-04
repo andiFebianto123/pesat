@@ -46,37 +46,10 @@ class ListChildController extends Controller
             }
         }
 
+        $now = Carbon::now()->startOfDay();
 
-        $childsData = $childs->map(function ($child, $key) {
-            $isSponsored = false;
-            $now = Carbon::now()->startOfDay();
-
-            $cekStatusPayment = DataDetailOrder::where('child_id', $child->child_id)
-                ->whereDate('start_order_date', '<=', $now)
-                ->whereDate('end_order_date', '>', $now)
-                ->join('order_hd', 'order_hd.order_id', 'order_dt.order_id')
-                ->addSelect('order_hd.order_id_midtrans')
-                ->first();
-
-            if ($cekStatusPayment != null) {
-                $getStatusMidtrans = $cekStatusPayment->order_id_midtrans;
-                $transaction = null;
-                try {
-                    $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-                    $transaction = $decoderespon->transaction_status;
-                } catch (Exception $e) {
-                }
-
-                if ($transaction == 'capture') {
-                    $isSponsored = true;
-                } else if ($transaction == 'settlement') {
-                    $isSponsored = true;
-                } else if ($transaction == 'pending') {
-                    $isSponsored = true;
-                }
-            }
-
-            $child->is_sponsored = $isSponsored;
+        $childsData = $childs->map(function ($child, $key) use ($now) {
+            $child->is_sponsored = ChildMaster::getStatusSponsor($child->child_id, $now);
             return $child;
         });
 
@@ -99,33 +72,7 @@ class ListChildController extends Controller
         if (empty($getChild)) {
             return redirect(url('list-child'))->with(['error' => 'Anak yang dimaksud tidak ditemukan.']);
         } else {
-            $isSponsored = false;
             $now = Carbon::now()->startOfDay();
-
-            $cekStatusPayment = DataDetailOrder::where('child_id', $getChild->child_id)
-                ->whereDate('start_order_date', '<=', $now)
-                ->whereDate('end_order_date', '>', $now)
-                ->join('order_hd', 'order_hd.order_id', 'order_dt.order_id')
-                ->addSelect('order_hd.order_id_midtrans')
-                ->first();
-
-            if ($cekStatusPayment != null) {
-                $getStatusMidtrans = $cekStatusPayment->order_id_midtrans;
-                $transaction = null;
-                try {
-                    $decoderespon = \Midtrans\Transaction::status($getStatusMidtrans);
-                    $transaction = $decoderespon->transaction_status;
-                } catch (Exception $e) {
-                }
-
-                if ($transaction == 'capture') {
-                    $isSponsored = true;
-                } else if ($transaction == 'settlement') {
-                    $isSponsored = true;
-                } else if ($transaction == 'pending') {
-                    $isSponsored = true;
-                }
-            }
 
             $childdata      = ChildMaster::where('child_id', $id)
                 ->join('city as c1', 'c1.city_id', 'child_master.hometown')
@@ -145,7 +92,7 @@ class ListChildController extends Controller
                 ->addSelect('child_master.gender')
                 ->first();
 
-            $childdata->is_sponsored = $isSponsored;
+            $childdata->is_sponsored = ChildMaster::getStatusSponsor($getChild->child_id, $now);
             $data['childs'] = $childdata;
 
             return view('childdetail', $data);

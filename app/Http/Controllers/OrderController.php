@@ -33,13 +33,14 @@ class OrderController extends Controller
             $user = auth()->user();
             $childmaster = ChildMaster::where('child_id', $id)->first();
             $totalprice = $request->monthly_subscription * $childmaster->price;
+            $now = Carbon::now()->startOfDay();
 
             if($childmaster == null){
                 DB::rollback();
                 return redirect(url('list-child'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
             }
 
-            if ($childmaster->is_sponsored == true) {
+            if (ChildMaster::getStatusSponsor($childmaster->child_id, $now)) {
                 DB::rollback();
                 return redirect(url('childdetail/' . $id))->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain.']);
             }
@@ -93,12 +94,6 @@ class OrderController extends Controller
             $order->order_id_midtrans = 'anak-' . $order->order_id;
             $order->total_price = $getTotalPrice;
             $order->save();
-
-            //update is_sponsored
-
-            $childmaster->is_sponsored = 1;
-            $childmaster->current_order_id = $OrderId;
-            $childmaster->save();
 
             DB::commit();
 

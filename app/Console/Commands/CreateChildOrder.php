@@ -122,12 +122,6 @@ class CreateChildOrder extends Command
             $detailOrder->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($order->monthly_subscription);
             $detailOrder->save();
 
-            $child = ChildMaster::find($order->child_id);
-            $child->is_sponsored = 1;
-            $child->current_order_id = $dataOrder->order_id;
-            $child->is_paid = 0;
-            $child->save();
-
             $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $dataOrder->order_id)
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')

@@ -206,10 +206,7 @@ class DataDetailOrderCrudController extends CrudController
 
         DataOrder::where('order_id', $request->order_id)
             ->update(['total_price' => $TotalPrice]);
-        
-        ChildMaster::where('child_id', $request->child_id)
-            ->update(['is_sponsored' => 1]);
-        
+                
         // show a success message
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
 

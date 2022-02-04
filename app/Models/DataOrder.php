@@ -52,15 +52,6 @@ class DataOrder extends Model
     }
 
 
-    public function childnamenosponsor()
-    {
-       return $this->belongsTo(ChildMaster::class,'child_id','child_id')->where('is_sponsored',0);
-    }
-
-
-
-
-
     public function orderdetails(){
         return $this->hasMany(DataDetailOrder::class,'order_id','order_id');
     }
@@ -74,12 +65,6 @@ class DataOrder extends Model
         return $this->orderdt()->belongsTo(ChildMaster::class,'child_id','child_id');
         
     }
-
-    public function test()
-	{
-        return $this->orders()->where('is_sponsored',false);
-	}
-
    
     /*
     |--------------------------------------------------------------------------

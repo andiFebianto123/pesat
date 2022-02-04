@@ -65,17 +65,6 @@ class CancelOrderController extends Controller
             }
             $dataOrder->save();
 
-            foreach ($cekDetailOrder as $key => $detailOrder) {
-
-                $child = ChildMaster::find($detailOrder->child_id);
-                $child->is_sponsored = 0;
-                $child->is_paid = 0;
-                if ($child->current_order_id == $id) {
-                    $child->current_order_id = null;
-                }
-                $child->save();
-            }
-
             DB::commit();
 
             \Alert::add('success', 'Order anak berhasil dibatalkan.')->flash();

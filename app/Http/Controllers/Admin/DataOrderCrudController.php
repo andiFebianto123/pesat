@@ -511,16 +511,16 @@ class DataOrderCrudController extends CrudController
             $index = 1;
 
             $uniquedata = [];
+            $now = Carbon::now()->startOfDay();
 
             if (JSON_ERROR_NONE !== json_last_error() || !is_array($datas) || count($datas) == 0) {
                 $error[] = 'Detail order tidak boleh kosong';
             } else {
                 foreach ($datas as $key => $orderDecode) {
-
                     $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
                     if ($child == null) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-                    } elseif ($child->is_sponsored == 1) {
+                    } elseif (ChildMaster::getStatusSponsor($child->child_id, $now)) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
                     } else {
                         $childs[$child->child_id] = $child;
@@ -572,11 +572,6 @@ class DataOrderCrudController extends CrudController
                 $orders->start_order_date = $startOrderdate;
                 $orders->end_order_date = $startOrderdate->copy()->addMonthsNoOverflow($data->monthly_subscription);
                 $orders->save();
-
-
-                $child->is_sponsored = 1;
-                $child->current_order_id = $id;
-                $child->save();
             }
 
             $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $id)
@@ -630,6 +625,7 @@ class DataOrderCrudController extends CrudController
 
             $error = [];
 
+            $now = Carbon::now()->startOfDay();
             $cekStatusPayment = DataOrder::where('order_id', $request->order_id)->first();
             if ($cekStatusPayment == null) {
                 DB::rollback();
@@ -641,8 +637,7 @@ class DataOrderCrudController extends CrudController
                 return redirect($this->crud->route);
             } elseif (JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0) {
                 $error[] = 'Detail order tidak boleh kosong';
-            }
-            else{
+            } else {
                 $childs = [];
                 $index = 1;
                 $intOrderId = (int)$request->order_id;
@@ -652,12 +647,16 @@ class DataOrderCrudController extends CrudController
 
                     if ($child == null) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-                    } elseif ($child->is_sponsored == 1 && $child->current_order_id != $intOrderId) {
-                        $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
                     } else {
+                        $statusSponsor = ChildMaster::getStatusSponsor($child->child_id, $now . true);
+                        if ($statusSponsor != null && $statusSponsor != $intOrderId) {
+                            $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
+                        } else {
 
-                        $childs[$child->child_id] = $child;
+                            $childs[$child->child_id] = $child;
+                        }
                     }
+
                     if ($orderDecode->monthly_subscription != 1 && $orderDecode->monthly_subscription != 3 && $orderDecode->monthly_subscription != 6 && $orderDecode->monthly_subscription != 12) {
                         $error[] = 'Detail order ke ' . $index . ' : Durasi subscribe tidak valid';
                     }
@@ -708,11 +707,6 @@ class DataOrderCrudController extends CrudController
                     $orderdt = new DataDetailOrder();
                 }
 
-                $child = $childs[$orderDecode->child_id];
-                $child->is_sponsored = 1;
-                $child->current_order_id = $request->order_id;
-                $child->save();
-
                 $startOrderdate = Carbon::now();
                 $getPrice = $child->price;
                 $subs = $orderDecode->monthly_subscription;
@@ -730,16 +724,8 @@ class DataOrderCrudController extends CrudController
             }
 
             $getDeletedOrder = DataDetailOrder::where('order_id', $request->order_id)
-                ->whereNotIn('order_dt_id', $orderdetailid)->get();
+                ->whereNotIn('order_dt_id', $orderdetailid)->delete();
 
-            foreach ($getDeletedOrder as $key => $datadeleted) {
-                $child = ChildMaster::where('child_id', $datadeleted->child_id)->first();
-                $child->is_sponsored = 0;
-                $child->current_order_id = null;
-                $child->save();
-
-                $datadeleted->delete();
-            }
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $request->order_id)
                 ->sum('price');
@@ -804,11 +790,11 @@ class DataOrderCrudController extends CrudController
 
     function child($child, $isPluck)
     {
+        $now = Carbon::now()->startOfDay();
 
-        $getchild = ChildMaster::where('is_sponsored', 0)
-            ->when($child != null, function ($query) use ($child) {
-                $query->orWhereIn('child_id', $child);
-            })
+        $getchild = ChildMaster::when($child != null, function ($query) use ($child, $now) {
+            return ChildMaster::getStatusSponsor($child->child_id, $now);
+        })
             ->get();
 
         if ($isPluck == true) {
@@ -821,11 +807,10 @@ class DataOrderCrudController extends CrudController
 
     function childprice($child)
     {
-
-        $getchild = ChildMaster::where('is_sponsored', 0)
-            ->when($child != null, function ($query) use ($child) {
-                $query->orWhereIn('child_id', $child);
-            })
+        $now = Carbon::now()->startOfDay();
+        $getchild = ChildMaster::when($child != null, function ($query) use ($child, $now) {
+            return ChildMaster::getStatusSponsor($child->child_id, $now);
+        })
             ->get();
 
         return $getchild->pluck('price', 'child_id');

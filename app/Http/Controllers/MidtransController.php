@@ -168,28 +168,6 @@ class MidtransController extends Controller
 
                     $getOrderId = $order->order_id;
 
-                    $detailOrders = DataDetailOrder::where('order_id', $getOrderId)->get();
-                    foreach ($detailOrders as $key => $detailOrder) {
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        if ($child != null && $child->current_order_id == $getOrderId) {
-                            if($paymentStatus == 3){
-                                $child->is_sponsored = 0;
-                                $child->current_order_id = null;
-                                $child->is_paid = 0;
-                                $child->save();
-                            }
-                            else if($paymentStatus == 2){
-                                $child->is_sponsored = 1;
-                                $child->is_paid = 1;
-                                $child->save();
-                            }
-                            else if($paymentStatus == 1){
-                                $child->is_sponsored = 1;
-                                $child->is_paid = 0;
-                                $child->save();
-                            }
-                        }
-                    }
                 }
             }
             DB::commit();

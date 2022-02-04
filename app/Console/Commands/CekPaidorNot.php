@@ -82,16 +82,7 @@ class CekPaidorNot extends Command
                         $datasOrder->status_midtrans = 'cancel';
                     }
                     $datasOrder->save();
-                    $cekDetailOrder = DataDetailOrder::where('order_id', $datasOrder->order_id)->get();
-                    foreach ($cekDetailOrder as $key => $detailOrder) {
-                        $child = ChildMaster::find($detailOrder->child_id);
-                        if ($child != null && $child->current_order_id == $datasOrder->order_id) {
-                            $child->is_sponsored = 0;
-                            $child->current_order_id = null;
-                            $child->is_paid = 0;
-                            $child->save();
-                        }
-                    }
+
                     // TO DO : SEND EMAIL CANCEL
                 }
             }

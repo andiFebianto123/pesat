@@ -86,9 +86,6 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
                 $anak->child_discription = $row['keterangan'] ?? null;
                 $anak->internal_discription = null;
                 $anak->status_dlp = 0;
-                $anak->is_sponsored = 0;
-                $anak->is_paid = 0;
-                $anak->current_order_id = null;
                 $anak->created_by = backpack_auth()->user()->id;
                 // $anak->is_active = 1;
                 $anak->save();

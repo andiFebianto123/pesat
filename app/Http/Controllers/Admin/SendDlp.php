@@ -20,11 +20,13 @@ class SendDlp extends Controller
             ->first();
 
         if ($getchild !== null) {
-
-            if ($getchild->is_sponsored == 1) {
+            $now = Carbon::now()->startOfDay();
+            $isSponsored = ChildMaster::getStatusSponsor($getchild->child_id, $now);
+            if ($isSponsored) {
 
                 $getEmail = DB::table('child_master')
-                    ->join('order_hd as ohd', 'ohd.order_id', '=', 'child_master.current_order_id')
+                    ->join('order_dt as dt', 'dt.child_id', '=', 'child_master.child_id')
+                    ->join('order_hd as ohd', 'ohd.order_id', '=', 'dt.order_id')
                     ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'ohd.sponsor_id')
                     ->join('dlp as dl', 'dl.child_id', '=', 'child_master.child_id')
                     ->where('dl.dlp_id', $id)
@@ -65,12 +67,10 @@ class SendDlp extends Controller
                     return back()->withMessage(['message' => 'email was successfully sent']); //false;
 
                 }
-
             } else {
                 \Alert::add('error', 'The child dont have a sponsor')->flash();
 
                 return back()->withMessage(['message' => 'The child dont have a sponsor']);
-
             }
         } else {
             \Alert::add('error', 'Data tidak ditemukan.')->flash();

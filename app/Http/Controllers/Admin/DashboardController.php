@@ -21,7 +21,6 @@ class DashboardController extends Controller
         $sponsoredchild = DataOrder::where('payment_status', 2)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-//            ->where('cm.is_sponsored', 1)
 
             ->whereBetween('odt.start_order_date', [$start, $end])
             ->distinct()
