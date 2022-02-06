@@ -51,8 +51,6 @@
                   @if(!$error)
                     @if ($order->payment_status == 1)
                             <button class="btn btn-primary" id="pay-button">Bayar Sekarang</button>
-                        @else
-                            Pembayaran berhasil
                         @endif
                   @endif
                     </div>
