@@ -18,7 +18,7 @@ class ImportSponsorController extends Controller
     public function index()
     {
 
-        return view('sponsorimport');
+        return view('sponsorimport', ['title' => 'Import Sponsor']);
     }
 
     public function importsponsor(Request $request)

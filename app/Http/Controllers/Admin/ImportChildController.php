@@ -15,7 +15,7 @@ class ImportChildController extends Controller
     public function index()
     {
 
-        return view('childimport');
+        return view('childimport', ['title' => 'Import Anak']);
 
     }
 
