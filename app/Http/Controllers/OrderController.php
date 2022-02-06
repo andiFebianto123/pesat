@@ -40,7 +40,7 @@ class OrderController extends Controller
                 return redirect(url('list-child'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
             }
 
-            if (ChildMaster::getStatusSponsor($childmaster->child_id, $now)) {
+            if ($childmaster->is_sponsored || ChildMaster::getStatusSponsor($childmaster->child_id, $now)) {
                 DB::rollback();
                 return redirect(url('childdetail/' . $id))->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain.']);
             }

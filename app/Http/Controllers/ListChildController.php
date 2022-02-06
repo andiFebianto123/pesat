@@ -49,7 +49,7 @@ class ListChildController extends Controller
         $now = Carbon::now()->startOfDay();
 
         $childsData = $childs->map(function ($child, $key) use ($now) {
-            $child->is_sponsored = ChildMaster::getStatusSponsor($child->child_id, $now);
+            $child->is_sponsored = $child->is_sponsored || ChildMaster::getStatusSponsor($child->child_id, $now);
             return $child;
         });
 
@@ -92,7 +92,7 @@ class ListChildController extends Controller
                 ->addSelect('child_master.gender')
                 ->first();
 
-            $childdata->is_sponsored = ChildMaster::getStatusSponsor($getChild->child_id, $now);
+            $childdata->is_sponsored =  $childdata->is_sponsored || ChildMaster::getStatusSponsor($getChild->child_id, $now);
             $data['childs'] = $childdata;
 
             return view('childdetail', $data);

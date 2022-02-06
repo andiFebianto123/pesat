@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Models\DataOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use \Venturecraft\Revisionable\RevisionableTrait;
 
 class DataDetailOrder extends Model
@@ -59,4 +60,8 @@ class DataDetailOrder extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
+    public function order(){
+        return $this->belongsTo(DataOrder::class, 'order_id', 'order_id');
+    }
 }

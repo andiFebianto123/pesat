@@ -51,35 +51,36 @@ class ImportSponsorController extends Controller
         $file->storeAs('public/file_sponsor', $nama_file);
         //$file->move('file_sponsor',$nama_file);
 
+        register_shutdown_function(function ($path) {
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }, storage_path('/app/public/file_sponsor/' . $nama_file));
+
         DB::beginTransaction();
         try {
             $import = new SponsorMasterImport;
 
             $import->import(storage_path('/app/public/file_sponsor/' . $nama_file));
 
-            if (file_exists(storage_path('/app/public/file_sponsor/' . $nama_file))) {
-                unlink(storage_path('/app/public/file_sponsor/' . $nama_file));
-            }
-
             if (count($import->errorsMessage) > 0) {
                 DB::rollback();
                 return response()->json([
                     'data' => $import->errorsMessage,
                     'status' => false,
-                    'message' => 'Ada data yang error ketika di import',
-                    'notification' => 'Ada beberapa data tidak valid proses import',
+                    'message' => 'Ada data yang error ketika di import.',
+                    'notification' => 'Ada beberapa data tidak valid proses import.',
                 ], 200);
             }
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => 'Import Anak telah berhasil dilakukan',
-                'notification' => 'File berhasil di import',
+                'message' => 'Import Sponsor telah berhasil dilakukan.',
+                'notification' => 'File berhasil di import.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollback();
-
-            \Alert::add('error', $e->getMessage())->flash();
+            throw $e;
         }
     }
 }

@@ -43,6 +43,7 @@ class ChildMasterCrudController extends CrudController
         CRUD::setModel(\App\Models\ChildMaster::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/child-master');
         CRUD::setEntityNameStrings('Data Anak', 'Data Anak');
+        $this->crud->dateNow = Carbon::now()->startOfDay();
     }
 
     /**
@@ -53,7 +54,6 @@ class ChildMasterCrudController extends CrudController
      */
     function setupListOperation()
     {
-
         $this->crud->enableBulkActions();
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
         $this->crud->addButtonFromView('top', 'update_sponsor', 'update_sponsor', 'ending');
@@ -67,7 +67,27 @@ class ChildMasterCrudController extends CrudController
             1 => 'Tersponsori',
             0 => 'Belum Tersponsori',
           ], function($value) { // if the filter is active
-             $this->crud->addClause('where', 'is_sponsored', $value);
+             $this->crud->addClause('where', function($query) use($value){
+                 if($value === "1"){
+                    $query->where('is_sponsored', 1)
+                    ->orWhereHas('detailorders', function($innerQuery){
+                        $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
+                        ->whereDate('end_order_date', '>=', $this->crud->dateNow)
+                        ->whereHas('order', function($deepestQuery){
+                            $deepestQuery->where('payment_status', '<=', 2);
+                        });
+                    });
+                 }
+                 else if($value === "0"){
+                    $query->where('is_sponsored', 0)->whereDoesntHave('detailorders', function($innerQuery){
+                        $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
+                        ->whereDate('end_order_date', '>=', $this->crud->dateNow)
+                        ->whereHas('order', function($deepestQuery){
+                            $deepestQuery->where('payment_status', '<=', 2);
+                        });
+                    });
+                 }
+             });
           });
 
         //     $this->crud->removeButton('delete');
@@ -87,6 +107,20 @@ class ChildMasterCrudController extends CrudController
                 'orderLogic' => function ($query, $column, $columnDirection) {
                     return $query->leftJoin('users', 'users.id', '=', 'child_master.created_by')
                         ->orderBy('users.name', $columnDirection)->select('child_master.*');
+                }
+            ],
+            [
+                'type' => 'closure',
+                'orderable' => false,
+                'label' => 'Status',
+                'function' => function($entry){
+                    if($entry->is_sponsored){
+                        return 'Tersponsori (Offline)';
+                    }
+                    else if(ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)){
+                        return 'Tersponsori';
+                    }
+                    return 'Belum Tersponsori';
                 }
             ],
             [
@@ -634,6 +668,20 @@ class ChildMasterCrudController extends CrudController
                 'label' => 'Nama Lengkap',
             ],
             [
+                'type' => 'closure',
+                'orderable' => false,
+                'label' => 'Status',
+                'function' => function($entry){
+                    if($entry->is_sponsored){
+                        return 'Tersponsori (Offline)';
+                    }
+                    else if(ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)){
+                        return 'Tersponsori';
+                    }
+                    return 'Belum Tersponsori';
+                }
+            ],
+            [
                 'name' => 'child_discription',
                 'label' => 'Diskripsi Anak',
                 'type' => 'text',
@@ -944,8 +992,7 @@ class ChildMasterCrudController extends CrudController
             foreach($entriChilds as $id){
                 $child = ChildMaster::find($id);
                 if($child !== null){
-                    // TO DO : CHECK STATUS anak disponsori secara online
-                    $isOnlineSponsored = false;
+                    $isOnlineSponsored = ChildMaster::getStatusSponsor($id, $now);
                     if($isOnlineSponsored){
                         $errors[] = 'Anak ' . $child->full_name . ' telah disponsori secara online.';
                     }

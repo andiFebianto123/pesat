@@ -2,36 +2,38 @@
 
 namespace App\Imports;
 
-use Maatwebsite\Excel\Row;
-use Illuminate\Support\Str;
-use App\Models\ChildMaster;
-use App\Models\Religion;
+use Exception;
 use App\Models\City;
 use App\Models\Province;
+use App\Models\Religion;
+use Maatwebsite\Excel\Row;
+use App\Models\ChildMaster;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\OnEachRow;
+use Illuminate\Support\Collection;
 // use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Concerns\OnEachRow;
 // 
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
 
 // 
 use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-//
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
+//
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 
 
 // HeadingRowFormatter::default('none');
 
 // OnEachRow
-class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //SkipsOnFailure
+class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
 {
 
     /**
@@ -68,7 +70,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
                 $anak->date_of_birth = $this->convertNumbertoDate($row['tgl_lahir']);
                 $anak->religion_id = $row['agama'];
                 $anak->fc = $row['fc'];
-                $anak->price = 0;
+                $anak->price = 150000;
                 $anak->sponsor_name = $row['sponsor'];
                 $anak->city_id = $row['kabupaten'];
                 $anak->districts = $row['kecamatan'];
@@ -168,8 +170,14 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
 
 
     function convertNumbertoDate($str){
-        return \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($str))
-        ->format('Y-m-d');
+        try{
+            $date = \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($str))
+            ->format('Y-m-d');
+            return $date;
+        }
+        catch(Exception $e){
+            return null;
+        }
     }
 
     
@@ -188,10 +196,11 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
                     }
                 }
             ],
-            'n_a_m_a' => 'required',
-            'panggilan' => 'required',
+            'n_a_m_a' => 'required|max:255',
+            'panggilan' => 'required|max:255',
             'no_induk' => [
                 'required',
+                'max:255',
                 function($attribute, $value, $onFailure) use($data) {
                     $cekNoindux = ChildMaster::where('registration_number', $value)->limit(1);
                     if($cekNoindux->exists()){
@@ -210,6 +219,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
             's' => 'required|in:L,P',
             'tpt_lahir' => [
                 'required',
+                'max:255',
                 function($attribute, $value, $onFailure){
                     // jika tempat lahir tidak ada
                     $cekKota = City::where('city_name', trim($value))->limit(1);
@@ -230,7 +240,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
                     }
                 }
             ],
-            'kecamatan' => 'required',
+            'kecamatan' => 'required|max:255',
             'kabupaten' => [
                 'required',
                 'provinsikabupatenvalidation',
@@ -252,13 +262,13 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
                     }
                 }
             ],
-            'ayah' => 'required',
-            'ibu' => 'required',
-            'pekerjaan' => 'required',
-            'eko' => 'required',
-            'kelas' => 'required',
-            'an' => 'required', // tahun ajaran
-            'sekolah' => 'required',
+            'ayah' => 'required|max:255',
+            'ibu' => 'required|max:255',
+            'pekerjaan' => 'required|max:255',
+            'eko' => 'required|max:255',
+            'kelas' => 'required|max:255',
+            'an' => 'required|max:255', // tahun ajaran
+            'sekolah' => 'required|max:255',
             'masuk_fc' => 'numeric|nullable',
             'keluar_fc' => 'numeric|nullable',
         ];
@@ -267,5 +277,12 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow //WithValidation //
     public function headingRow(): int
     {
         return 1;
+    }
+
+    public function sheets(): array
+    {
+        return [
+            0 => $this,
+        ];
     }
 }

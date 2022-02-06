@@ -134,13 +134,17 @@ class ChildMaster extends Model
     return '<a href="' . url($this->slug) . '" target="_blank">' . $this->slug . '</a>';
   }
 
+  public function detailorders(){
+    return $this->hasMany(DataDetailOrder::class, 'child_id', 'child_id');
+  }
+
   public static function getStatusSponsor($child_id, $now, $returnId = false)
   {
     $cekStatusPayment = DataDetailOrder::where('child_id', $child_id)
       ->whereDate('start_order_date', '<=', $now)
       ->whereDate('end_order_date', '>=', $now)
       ->join('order_hd', 'order_hd.order_id', 'order_dt.order_id')
-      ->where('order_hd.payment_status', 2)
+      ->where('order_hd.payment_status', '<=', 2)
       ->select('order_hd.order_id')
       ->first();
 

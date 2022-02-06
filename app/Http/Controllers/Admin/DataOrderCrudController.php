@@ -520,7 +520,7 @@ class DataOrderCrudController extends CrudController
                     $child = ChildMaster::where('child_id', $orderDecode->child_id)->first();
                     if ($child == null) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
-                    } elseif (ChildMaster::getStatusSponsor($child->child_id, $now)) {
+                    } elseif ($child->is_sponsored || ChildMaster::getStatusSponsor($child->child_id, $now)) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
                     } else {
                         $childs[$child->child_id] = $child;
@@ -649,7 +649,7 @@ class DataOrderCrudController extends CrudController
                         $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
                     } else {
                         $statusSponsor = ChildMaster::getStatusSponsor($child->child_id, $now . true);
-                        if ($statusSponsor != null && $statusSponsor != $intOrderId) {
+                        if ($child->is_sponsored || ($statusSponsor != null && $statusSponsor != $intOrderId)) {
                             $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
                         } else {
 
@@ -792,26 +792,41 @@ class DataOrderCrudController extends CrudController
     {
         $now = Carbon::now()->startOfDay();
 
-        $getchild = ChildMaster::when($child != null, function ($query) use ($child, $now) {
-            return ChildMaster::getStatusSponsor($child->child_id, $now);
+        $getchild = ChildMaster::where('is_sponsored', 0)
+        ->whereDoesntHave('detailorders', function($innerQuery) use($now){
+            $innerQuery->whereDate('start_order_date', '<=', $now)
+            ->whereDate('end_order_date', '>=', $now)
+            ->whereHas('order', function($deepestQuery){
+                $deepestQuery->where('payment_status', '<=', 2);
+            });
         })
-            ->get();
+        ->when($child != null, function ($query) use ($child) {
+            $query->orWhereIn('child_id', $child);
+        })->get();
 
         if ($isPluck == true) {
             return $getchild->pluck('full_name', 'child_id');
         } else {
-
-            return $getchild; //->pluck('full_name', 'child_id');
+            return $getchild;
         }
     }
 
     function childprice($child)
     {
         $now = Carbon::now()->startOfDay();
-        $getchild = ChildMaster::when($child != null, function ($query) use ($child, $now) {
-            return ChildMaster::getStatusSponsor($child->child_id, $now);
+        $getchild = ChildMaster::
+        where('is_sponsored', 0)
+        ->whereDoesntHave('detailorders', function($innerQuery) use($now){
+            $innerQuery->whereDate('start_order_date', '<=', $now)
+            ->whereDate('end_order_date', '>=', $now)
+            ->whereHas('order', function($deepestQuery){
+                $deepestQuery->where('payment_status', '<=', 2);
+            });
         })
-            ->get();
+        ->when($child != null, function ($query) use ($child) {
+            $query->orWhereIn('child_id', $child);
+        })
+        ->get();
 
         return $getchild->pluck('price', 'child_id');
     }

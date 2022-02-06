@@ -98,7 +98,7 @@ class MyAccountController extends Controller
 
         $sponsor->save();
 
-        return redirect()->back()->with(['success' => 'Data Berhasil Di Update.']);
+        return redirect(url('edit-account'))->with(['success' => 'Data Berhasil Di Update.']);
 
     }
 
@@ -126,12 +126,8 @@ class MyAccountController extends Controller
 
             $getUser->password = bcrypt($generatepass);
             $getUser->save();
-
-            return redirect()->back()->with(['success' => 'Password berhasil direset, silahkan cek email Anda.']);
-
-        } else {
-            return redirect()->back()->with(['error' => 'Email yang Anda masukan tidak terdaftar.']);
-        }
+        } 
+        return redirect(url('forgot-password'))->with(['success' => 'Apabila email Anda terdaftar maka password baru akan dikirim ke email Anda.']);
 
     }
 
@@ -181,7 +177,7 @@ class MyAccountController extends Controller
         $insertsponsor->church_member_of = $request->memberofchurch;
         $insertsponsor->save();
 
-        return redirect()->back()->with(['success' => 'Akun berhasil dibuat, silahkan login.']);
+        return redirect(url('register'))->with(['success' => 'Akun berhasil dibuat, silahkan login.']);
 
     }
 
