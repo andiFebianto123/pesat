@@ -54,7 +54,7 @@
                 <div class="col-10">
                 </div>
                 <div class="col-2">
-                    <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-left:80px">Apply Filter</button>
+                    <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-left:80px">Apply</button>
                 </div>
            
             </div>
