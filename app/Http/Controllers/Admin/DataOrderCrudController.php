@@ -201,7 +201,7 @@ class DataOrderCrudController extends CrudController
                 'new_item_label' => 'Add Data', // customize the text of the button
                 // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
                 'min_rows' => 0, // minimum rows allowed, when reached the "delete" buttons will be hidden
-                //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
+                'max_rows' => $this->notSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
 
             ],
             [
@@ -313,7 +313,6 @@ class DataOrderCrudController extends CrudController
                     'name' => 'order_dt_id',
                     'type' => 'hidden',
                 ],
-
                 [
                     'name' => 'child_id',
                     'label' => "Nama Anak",
@@ -356,7 +355,7 @@ class DataOrderCrudController extends CrudController
             'new_item_label' => 'Add Data', // customize the text of the button
             // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
             //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
-            //'max_rows' => 2, // maximum rows allowed, when reached the "new item" button will be hidden
+            'max_rows' => $this->notSponsoredChild() + 1, // maximum rows allowed, when reached the "new item" button will be hidden
 
         ];
         $space =             [
@@ -793,16 +792,16 @@ class DataOrderCrudController extends CrudController
         $now = Carbon::now()->startOfDay();
 
         $getchild = ChildMaster::where('is_sponsored', 0)
-        ->whereDoesntHave('detailorders', function($innerQuery) use($now){
-            $innerQuery->whereDate('start_order_date', '<=', $now)
-            ->whereDate('end_order_date', '>=', $now)
-            ->whereHas('order', function($deepestQuery){
-                $deepestQuery->where('payment_status', '<=', 2);
-            });
-        })
-        ->when($child != null, function ($query) use ($child) {
-            $query->orWhereIn('child_id', $child);
-        })->get();
+            ->whereDoesntHave('detailorders', function ($innerQuery) use ($now) {
+                $innerQuery->whereDate('start_order_date', '<=', $now)
+                    ->whereDate('end_order_date', '>=', $now)
+                    ->whereHas('order', function ($deepestQuery) {
+                        $deepestQuery->where('payment_status', '<=', 2);
+                    });
+            })
+            ->when($child != null, function ($query) use ($child) {
+                $query->orWhereIn('child_id', $child);
+            })->get();
 
         if ($isPluck == true) {
             return $getchild->pluck('full_name', 'child_id');
@@ -814,21 +813,37 @@ class DataOrderCrudController extends CrudController
     function childprice($child)
     {
         $now = Carbon::now()->startOfDay();
-        $getchild = ChildMaster::
-        where('is_sponsored', 0)
-        ->whereDoesntHave('detailorders', function($innerQuery) use($now){
-            $innerQuery->whereDate('start_order_date', '<=', $now)
-            ->whereDate('end_order_date', '>=', $now)
-            ->whereHas('order', function($deepestQuery){
-                $deepestQuery->where('payment_status', '<=', 2);
-            });
-        })
-        ->when($child != null, function ($query) use ($child) {
-            $query->orWhereIn('child_id', $child);
-        })
-        ->get();
+        $getchild = ChildMaster::where('is_sponsored', 0)
+            ->whereDoesntHave('detailorders', function ($innerQuery) use ($now) {
+                $innerQuery->whereDate('start_order_date', '<=', $now)
+                    ->whereDate('end_order_date', '>=', $now)
+                    ->whereHas('order', function ($deepestQuery) {
+                        $deepestQuery->where('payment_status', '<=', 2);
+                    });
+            })
+            ->when($child != null, function ($query) use ($child) {
+                $query->orWhereIn('child_id', $child);
+            })
+            ->get();
 
         return $getchild->pluck('price', 'child_id');
+    }
+
+    function notSponsoredChild()
+    {
+        $now = Carbon::now()->startOfDay();
+        $sponsoredchild = DataOrder::where('payment_status', '<=', 2)
+            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+            ->whereDate('odt.start_order_date', '<=', $now)
+            ->whereDate('odt.end_order_date', '>=', $now)
+            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->distinct()
+            ->get();
+
+        $childIds = $sponsoredchild->pluck('child_id');
+
+        $notsponsoredchild = ChildMaster::whereNotIn('child_id', $childIds)->count();
+        return $notsponsoredchild;
     }
 
     function sumprice($id)
