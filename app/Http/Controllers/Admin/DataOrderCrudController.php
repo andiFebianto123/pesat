@@ -201,7 +201,7 @@ class DataOrderCrudController extends CrudController
                 'new_item_label' => 'Add Data', // customize the text of the button
                 // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
                 'min_rows' => 0, // minimum rows allowed, when reached the "delete" buttons will be hidden
-                'max_rows' => $this->notSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
+                'max_rows' => $this->countSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
 
             ],
             [
@@ -355,7 +355,7 @@ class DataOrderCrudController extends CrudController
             'new_item_label' => 'Add Data', // customize the text of the button
             // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
             //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
-            'max_rows' => $this->notSponsoredChild() + 1, // maximum rows allowed, when reached the "new item" button will be hidden
+            'max_rows' => $this->countSponsoredChild($this->crud->getCurrentEntryId(), true), // maximum rows allowed, when reached the "new item" button will be hidden
 
         ];
         $space =             [
@@ -465,6 +465,13 @@ class DataOrderCrudController extends CrudController
     function create()
     {
         $this->crud->hasAccessOrFail('create');
+
+        $sponsoredChild = $this->countSponsoredChild();
+
+        if ($sponsoredChild == 0) {
+            \Alert::error('Semua anak sudah tersponsori')->flash();
+            return redirect($this->crud->route);
+        }
 
         $fields = $this->crud->getCreateFields();
 
@@ -697,9 +704,10 @@ class DataOrderCrudController extends CrudController
             $orderdetailid = [];
             foreach ($orderDecodes as $key => $orderDecode) {
 
-                $orderdt = DataDetailOrder::where('order_id', $request->order_id)
+                $orderdt = DataDetailOrder::where('order_id', $orderDecode->order_dt_id)
                     ->where('child_id', $orderDecode->child_id)
                     ->first();
+                $cm = ChildMaster::where('child_id', $orderDecode->child_id)->first();
 
                 if ($orderdt == null) {
 
@@ -707,7 +715,7 @@ class DataOrderCrudController extends CrudController
                 }
 
                 $startOrderdate = Carbon::now();
-                $getPrice = $child->price;
+                $getPrice = $cm->price;
                 $subs = $orderDecode->monthly_subscription;
                 $totalPrice = $getPrice * $subs;
                 $endOrderDate = $startOrderdate->copy()->addMonthsNoOverflow($orderDecode->monthly_subscription);
@@ -722,8 +730,7 @@ class DataOrderCrudController extends CrudController
                 $orderdetailid[] = $orderdt->order_dt_id;
             }
 
-            $getDeletedOrder = DataDetailOrder::where('order_id', $request->order_id)
-                ->whereNotIn('order_dt_id', $orderdetailid)->delete();
+            DataDetailOrder::whereNotIn('order_dt_id', $orderdetailid)->delete();
 
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $request->order_id)
@@ -829,20 +836,25 @@ class DataOrderCrudController extends CrudController
         return $getchild->pluck('price', 'child_id');
     }
 
-    function notSponsoredChild()
+    function countSponsoredChild($id = null, $withSponsored = false)
     {
         $now = Carbon::now()->startOfDay();
         $sponsoredchild = DataOrder::where('payment_status', '<=', 2)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->where('odt.deleted_at', null)
             ->whereDate('odt.start_order_date', '<=', $now)
             ->whereDate('odt.end_order_date', '>=', $now)
-            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
             ->distinct()
             ->get();
 
         $childIds = $sponsoredchild->pluck('child_id');
-
         $notsponsoredchild = ChildMaster::whereNotIn('child_id', $childIds)->count();
+
+        if ($withSponsored) {
+            $currentSponsored = DataDetailOrder::where('order_id', $id)->where('deleted_at', null)->count();
+            return $notsponsoredchild +  $currentSponsored;
+        }
         return $notsponsoredchild;
     }
 
