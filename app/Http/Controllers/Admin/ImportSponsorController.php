@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Exports\SponsorExport;
 
 class ImportSponsorController extends Controller
 {
@@ -20,6 +21,12 @@ class ImportSponsorController extends Controller
 
         return view('sponsorimport', ['title' => 'Import Sponsor']);
     }
+
+    public function download()
+    {
+        return new SponsorExport();
+    }
+
 
     public function importsponsor(Request $request)
     {

@@ -11,10 +11,12 @@
 @section('content')
     <div class="row">
         <div class="col-md-8">
+            <a href="{{ backpack_url('download-sponsor') }}" class="btn btn-success p-2 btn-md my-4">Download Template
+                Sponsor</a>
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ backpack_url('importsponsor') }}" class="" id="custom-form" method="POST"
-                        enctype="multipart/form-data">
+                    <form action="{{ backpack_url('importsponsor') }}" class="" id="custom-form"
+                        method="POST" enctype="multipart/form-data">
                         @if ($message = Session::get('success'))
                             <div class="col- 5 alert alert-success" role="alert">
                                 {{ $message }}

@@ -42,6 +42,7 @@ Route::group([
 
     Route::get('/import-sponsor', [ImportSponsorController::class, 'index']);
     Route::post('importsponsor', [ImportSponsorController::class, 'importsponsor']);
+    Route::get('/download-sponsor', [ImportSponsorController::class, 'download']);
 
     Route::crud('province', 'ProvinceCrudController');  
     Route::crud('city', 'CityCrudController');
