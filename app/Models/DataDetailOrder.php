@@ -13,7 +13,8 @@ class DataDetailOrder extends Model
     use CrudTrait;
 
     use RevisionableTrait;
-    protected  $revisionForceDeleteEnabled = true;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -41,7 +42,7 @@ class DataDetailOrder extends Model
     */
     public function childname()
     {
-       return $this->belongsTo(ChildMaster::class,'child_id','child_id');
+        return $this->belongsTo(ChildMaster::class, 'child_id', 'child_id');
     }
     /*
     |--------------------------------------------------------------------------
@@ -61,7 +62,8 @@ class DataDetailOrder extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function order(){
+    public function order()
+    {
         return $this->belongsTo(DataOrder::class, 'order_id', 'order_id');
     }
 }

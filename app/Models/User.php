@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use \Venturecraft\Revisionable\RevisionableTrait;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use RevisionableTrait;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
 
     /**
      * The attributes that are mass assignable.

@@ -11,7 +11,8 @@ class Religion extends Model
 {
     use CrudTrait;
     use RevisionableTrait;
-    protected  $revisionForceDeleteEnabled = true;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES

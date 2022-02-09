@@ -10,7 +10,8 @@ class DataSponsor extends Model
 {
     use CrudTrait;
     use RevisionableTrait;
-    protected  $revisionForceDeleteEnabled = true;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
 
     /*
     |--------------------------------------------------------------------------
@@ -57,6 +58,6 @@ class DataSponsor extends Model
     */
     public function EditUser($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="'.url('admin/users/'.$this->id.'/edit').'" id="'.$this->child_id.'" "><i class="la la-edit"></i>Edit</a>';
+        return '<a class="btn btn-sm btn-link" href="' . url('admin/users/' . $this->id . '/edit') . '" id="' . $this->child_id . '" "><i class="la la-edit"></i>Edit</a>';
     }
 }

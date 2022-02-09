@@ -12,6 +12,8 @@ class ChildMaster extends Model
 {
   use CrudTrait;
   use RevisionableTrait;
+  protected $revisionCreationsEnabled = true;
+  protected $revisionForceDeleteEnabled = true;
 
   /*
     |--------------------------------------------------------------------------
@@ -134,7 +136,8 @@ class ChildMaster extends Model
     return '<a href="' . url($this->slug) . '" target="_blank">' . $this->slug . '</a>';
   }
 
-  public function detailorders(){
+  public function detailorders()
+  {
     return $this->hasMany(DataDetailOrder::class, 'child_id', 'child_id');
   }
 
@@ -148,10 +151,10 @@ class ChildMaster extends Model
       ->select('order_hd.order_id')
       ->first();
 
-      if($returnId) {
-        return $cekStatusPayment->order_id ?? null;
-      }
+    if ($returnId) {
+      return $cekStatusPayment->order_id ?? null;
+    }
 
-      return $cekStatusPayment != null;
+    return $cekStatusPayment != null;
   }
 }

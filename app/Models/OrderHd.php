@@ -9,6 +9,9 @@ use \Venturecraft\Revisionable\RevisionableTrait;
 class OrderHd extends Model
 {
     use HasFactory;
+    use RevisionableTrait;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
 
     protected $table = 'order_hd';
     protected $primaryKey = 'order_id';

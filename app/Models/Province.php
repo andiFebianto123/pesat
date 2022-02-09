@@ -11,7 +11,8 @@ class Province extends Model
 {
     use CrudTrait;
     use RevisionableTrait;
-    protected  $revisionForceDeleteEnabled = true;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ class Province extends Model
     protected $guarded = ['province_id'];
     // protected $fillable = [];
     // protected $hidden = [];
-     protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at'];
 
     /*
     |--------------------------------------------------------------------------

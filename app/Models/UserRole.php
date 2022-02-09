@@ -5,10 +5,14 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use \Venturecraft\Revisionable\RevisionableTrait;
 
 class UserRole extends Model
 {
     use CrudTrait;
+    use RevisionableTrait;
+    protected $revisionCreationsEnabled = true;
+    protected $revisionForceDeleteEnabled = true;
 
     /*
     |--------------------------------------------------------------------------
