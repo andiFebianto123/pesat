@@ -38,6 +38,7 @@ Route::group([
 
     Route::get('/import-anak', [ImportChildController::class, 'index']);
     Route::post('/import', [ImportChildController::class, 'import'])->name('import');
+    Route::get('/download', [ImportChildController::class, 'download'])->name('download');
 
     Route::get('/import-sponsor', [ImportSponsorController::class, 'index']);
     Route::post('importsponsor', [ImportSponsorController::class, 'importsponsor']);

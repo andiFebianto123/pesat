@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Prologue\Alerts\Facades\Alert;
+use App\Exports\ChildMasterExport;
 
 class ImportChildController extends Controller
 {
@@ -16,7 +17,11 @@ class ImportChildController extends Controller
     {
 
         return view('childimport', ['title' => 'Import Anak']);
+    }
 
+    public function download()
+    {
+        return new ChildMasterExport();
     }
 
     public function import(Request $request)
@@ -75,11 +80,9 @@ class ImportChildController extends Controller
                 'message' => 'Import Anak telah berhasil dilakukan.',
                 'notification' => 'File berhasil di import.',
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
         }
-
     }
 }
