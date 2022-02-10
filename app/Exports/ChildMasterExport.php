@@ -45,7 +45,7 @@ class ChildMasterExport implements Responsable, WithHeadings, WithStyles
             'Masuk FC',
             'Keluar FC',
             'Alasan Keluar',
-            "keterangan"
+            'Keterangan'
         ];
     }
 

@@ -11,7 +11,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-8">
-            <a href="{{ backpack_url('download-sponsor') }}" class="btn btn-success p-2 btn-md my-4">Download Template
+            <a href="{{ backpack_url('download-sponsor') }}" class="btn btn-success mb-2">Download Template
                 Sponsor</a>
             <div class="card">
                 <div class="card-body">

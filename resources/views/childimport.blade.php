@@ -12,7 +12,7 @@
     <!-- <h1>Import Anak</h1> -->
     <div class="row">
         <div class="col-md-8">
-            <a href="{{ backpack_url('download') }}" class="btn btn-success p-2 btn-md my-4">Download Template Anak</a>
+            <a href="{{ backpack_url('download') }}" class="btn btn-success mb-2">Download Template Anak</a>
             <div class="card">
                 <div class="card-body">
                     <form action="{{ backpack_url('import') }}" class="" id="custom-form" method="POST"
