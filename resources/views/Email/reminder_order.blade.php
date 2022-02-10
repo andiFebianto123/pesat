@@ -62,7 +62,7 @@
     Abaikan email ini jika Anda sudah melakukan pembayaran.
     <p></p>
     @if ($lastReminder)
-    Ini adalah pengingat terakhir untuk pembayaran donasi anak di pesat. Harap melakukan pembayaran maksimal tanggal <strong>{{Carbon\Carbon::parse($orderDetails->first()->start_order_date)->format('F d, Y')}}</strong>.
+    Ini adalah pengingat terakhir untuk pembayaran donasi anak di Pesat. Harap melakukan pembayaran maksimal tanggal <strong>{{Carbon\Carbon::parse($orderDetails->first()->start_order_date)->format('F d, Y')}}</strong>.
     <p style="margin: 0px"></p>
     Jika lebih dari tenggang waktu pembayaran diatas maka pembayaran tidak dapat dilakukan.
     <p></p>
