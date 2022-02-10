@@ -1,6 +1,6 @@
 
 @include('header')
-    <div class="container">
+    <div class="container pb-5 pb-md-0">
         <div class="col-12" >
             <div class="bs-callout bs-callout-primary">
                 <h2>Sponsor Anak</h2>
@@ -23,7 +23,7 @@
         {!! csrf_field() !!}
         <div class="card card-body">
             <div class="row">
-                <div class="col-4">
+                <div class="col-md-6 col-lg-4">
                     <p>Provinsi :</p>
                         <select class="form-select" name = "provinceid" aria-label="Default select example">
                             <option selected></option>
@@ -32,7 +32,7 @@
                             @endforeach
                         </select>
                 </div>
-                <div class='col-4'>
+                <div class='col-md-6 col-lg-4'>
                     <p>Gender :<p>
                         <select class="form-select" name="gender" aria-label="Default select example">
                             <option selected></option>
@@ -40,7 +40,7 @@
                             <option value="2">Perempuan</option>
                         </select>
                 </div>
-                <div class='col-4'>
+                <div class='col-md-6 col-lg-4'>
                     <p>Kelas :<p>
                         <select class="form-select" name = "class" aria-label="Default select example">
                             <option selected></option>
@@ -60,10 +60,10 @@
         <div class="row">
             @foreach ($childs as $key => $child)
     
-            <div class="col-4">
+            <div class="col-md-6 col-lg-4 mb-4">
                 <a href="{{url('childdetail/'.$child->child_id)}}" style="text-decoration:none;color: inherit;">
                     <input type="hidden" name="childid" value="{{$child->child_id}}">
-                        <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
+                        <div class="card">
                             @if($child->photo_profile == '')
                             <img class="card-img-top" src="{{asset('images/blank.png')}}" alt="Card image cap">
                             @else

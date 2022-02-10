@@ -46,12 +46,14 @@ class DashboardController extends Controller
             ->pluck('sum_price')
             ->first();
 
+        $monthYear = $now->format('F Y');
 
         $data['sponsored'] = $sponsoredchild->count();
         $data['notsponsored'] = $notsponsoredchild;
         $data['notpaid']    = $notpaid;
         $data['totalamount'] = $totalamount;
         $data['newsponsor'] = $newSponsor;
+        $data['monthYear'] = $monthYear;
 
         return view(backpack_view('dashboard'), $data);
     }
