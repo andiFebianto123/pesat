@@ -22,8 +22,8 @@ class Config extends Model
     protected $table = 'config';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
-    protected $guarded = ['id'];
-    // protected $fillable = [];
+    // protected $guarded = ['id'];
+    protected $fillable = ['value'];
     // protected $hidden = [];
     // protected $dates = [];
 

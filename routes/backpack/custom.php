@@ -84,5 +84,5 @@ Route::group([
     Route::crud('data-detail-order', 'DataDetailOrderCrudController');
     Route::crud('data-order-project', 'DataOrderProjectCrudController');
     Route::crud('donate-goods', 'DonateGoodsCrudController');
-    Route::crud('config', 'ConfigCrudController');
+    Route::crud('general', 'ConfigCrudController');
 }); // this should be the absolute last line of this file

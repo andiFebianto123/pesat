@@ -45,7 +45,7 @@
                         <select class="form-select" name = "class" aria-label="Default select example">
                             <option selected></option>
                             @foreach($class as $key => $data) 
-                            <option value="{{$key}}">{{$key}}</option>
+                            <option value="{{$data}}">{{$data}}</option>
                             @endforeach
                         </select>
                 </div>

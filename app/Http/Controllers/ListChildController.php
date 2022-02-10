@@ -2,25 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChildMaster;
-use App\Models\DataOrder;
-use App\Models\DataDetailOrder;
+use Exception;
+use Carbon\Carbon;
 use App\Models\Province;
+use App\Models\DataOrder;
 //use Illuminate\Contracts\Session\Session;
+use App\Models\ChildMaster;
 use Illuminate\Http\Request;
+use App\Models\DataDetailOrder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Carbon\Carbon;
-use Exception;
 
 class ListChildController extends Controller
 {
     public function index(Request $request)
     {
+        $now = Carbon::now();
         $provinceid = $request->input('provinceid');
         $class = $request->input('class');
         $gender = $request->input('gender');
-        $childsdatas = ChildMaster::where('deleted_at', null);
+        $childsdatas = ChildMaster::where('deleted_at', null)
+        ->orderBy(DB::raw('IF(is_sponsored = 1 OR EXISTS(SELECT 1 FROM order_dt WHERE order_dt.child_id = child_master.child_id AND order_dt.deleted_at IS NULL 
+        AND start_order_date <= "' . $now->format('Y-m-d') . '" AND end_order_date >= "' . $now->format('Y-m-d') . '"
+        AND EXISTS(SELECT 1 FROM order_hd WHERE order_hd.order_id = order_dt.order_id AND order_hd.deleted_at IS NULL AND order_hd.payment_status <= 2)), 0, 1)'), 'desc')
+        ->orderBy(DB::raw('IF(photo_profile IS NULL, 0, 1)'), 'desc')
+        ->orderBy('child_id', 'desc');
 
         if ($provinceid == null && $class == null &&  $gender == null) {
 
@@ -53,14 +60,13 @@ class ListChildController extends Controller
             return $child;
         });
 
-        $childsData->all();
+        // $childsData->all();
 
 
         $data['provinces']  = Province::where('province.deleted_at', null)
             ->get();
         $data['class']      = ChildMaster::where('child_master.deleted_at', null)
-            ->get()
-            ->groupBy('class');
+            ->groupBy('class')->select('class')->get()->pluck('class');
 
         $data['childs'] = $childs;
 

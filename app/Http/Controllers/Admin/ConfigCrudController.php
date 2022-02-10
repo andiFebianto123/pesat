@@ -14,9 +14,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class ConfigCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
     /**
@@ -27,8 +25,32 @@ class ConfigCrudController extends CrudController
     public function setup()
     {
         CRUD::setModel(\App\Models\Config::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/config');
-        CRUD::setEntityNameStrings('config', 'configs');
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/general');
+        CRUD::setEntityNameStrings('General', 'General');
+    }
+
+    protected function setupShowOperation(){
+        $this->crud->set('show.setFromDb', false);
+        $this->crud->addColumns([
+            [
+                'name' => 'key',
+                'label' => 'Key',
+            ],
+
+            [
+                'name' => 'value',
+                'label' => 'Value',
+                'limit' => 255,
+                'type' => 'closure',
+                'function' => function($entry){
+                    return '<span class="text-wrap">' . $entry->value . '</br>
+                    <small class="font-italic">Alamat email ini hanya untuk kebutuhan administrasi (pendaftaran member, order sponsor baru). Jika merubah email ini maka email selanjutnya akan menggunakan ini.</small></span>';
+                },
+                'orderable' => false,
+                'searchLogic' => false
+            ],
+
+        ]);
     }
 
     /**
@@ -40,12 +62,6 @@ class ConfigCrudController extends CrudController
     protected function setupListOperation()
     {
         
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
         $this->crud->addColumns([
             [
                 'name' => 'key',
@@ -55,7 +71,14 @@ class ConfigCrudController extends CrudController
             [
                 'name' => 'value',
                 'label' => 'Value',
-
+                'limit' => 255,
+                'type' => 'closure',
+                'function' => function($entry){
+                    return '<span class="text-wrap">' . $entry->value . '</br>
+                    <small class="font-italic">Alamat email ini hanya untuk kebutuhan administrasi (pendaftaran member, order sponsor baru). Jika merubah email ini maka email selanjutnya akan menggunakan ini.</small></span>';
+                },
+                'orderable' => false,
+                'searchLogic' => false
             ],
 
         ]);
@@ -67,30 +90,6 @@ class ConfigCrudController extends CrudController
      * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
-    protected function setupCreateOperation()
-    {
-        CRUD::setValidation(ConfigRequest::class);
-
-        $this->crud->addFields([
-
-            [
-                'name' => 'key',
-                'label' => "Key",
-
-            ],
-            [
-                'name' => 'value',
-                'label' => "Value",
-
-            ],
-        ]);
-
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
-    }
 
     /**
      * Define what happens when the Update operation is loaded.
@@ -100,6 +99,21 @@ class ConfigCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setValidation(ConfigRequest::class);
+        $this->crud->addFields([
+
+            [
+                'name' => 'key',
+                'label' => "Key",
+                'attributes' => [
+                    'readonly' => true
+                ]
+            ],
+            [
+                'name' => 'value',
+                'label' => "Value",
+                'hint' => ' <span class="font-italic">Alamat email ini hanya untuk kebutuhan administrasi (pendaftaran member, order sponsor baru). Jika merubah email ini maka email selanjutnya akan menggunakan ini.</span>'
+            ],
+        ]);
     }
 }
