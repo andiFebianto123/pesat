@@ -92,6 +92,24 @@ class DonateGoodsCrudController extends CrudController
         $this->setupCreateOperation();
     }
 
+    function create()
+    {
+        $this->crud->hasAccessOrFail('create');
+
+        $countGoods = DonateGoods::all()->count();
+        if ($countGoods >= 1) {
+            \Alert::error(trans('Sudah terdapat donasi barang.'))->flash();
+            return redirect(url($this->crud->route));
+        }
+        $fields = $this->crud->getCreateFields();
+        $this->crud->setOperationSetting('fields', $fields);
+
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->crud->getSaveAction();
+
+        return view($this->crud->getCreateView(), $this->data);
+    }
+
     function destroy($id)
     {
         $this->crud->hasAccessOrFail('delete');
