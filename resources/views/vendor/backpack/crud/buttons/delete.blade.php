@@ -46,7 +46,6 @@
 
 			              // Hide the modal, if any
 			              $('.modal').modal('hide');
-						  location.reload();
 			          } else {
 			              // if the result is an array, it means 
 			              // we have notification bubbles to show

@@ -30,6 +30,11 @@ class DonateGoodsCrudController extends CrudController
         CRUD::setModel(\App\Models\DonateGoods::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/donate-goods');
         CRUD::setEntityNameStrings('Donasi Barang', 'Donasi Barang');
+
+        $countGoods = DonateGoods::count();
+        if ($countGoods >= 1) {
+            $this->crud->denyAccess('create');
+        }
     }
 
     /**
@@ -49,10 +54,10 @@ class DonateGoodsCrudController extends CrudController
                 'type' => 'text',
             ],
         ]);
-        $countGoods = DonateGoods::all()->count();
-        if ($countGoods >= 1) {
-            $this->crud->denyAccess('create');
-        }
+
+        CRUD::button('delete')->remove();
+
+        $this->crud->addButtonFromView('line', 'delete_donation_goods', 'delete_donation_goods', 'ending');
     }
 
     /**
@@ -96,7 +101,7 @@ class DonateGoodsCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        $countGoods = DonateGoods::all()->count();
+        $countGoods = DonateGoods::count();
         if ($countGoods >= 1) {
             \Alert::error(trans('Sudah terdapat donasi barang.'))->flash();
             return redirect(url($this->crud->route));
