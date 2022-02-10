@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\DonateGoods;
 use App\Http\Requests\DonateGoodsRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -39,7 +40,6 @@ class DonateGoodsCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        
 
         CRUD::addColumns([
 
@@ -49,11 +49,10 @@ class DonateGoodsCrudController extends CrudController
                 'type' => 'text',
             ],
         ]);
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
+        $countGoods = DonateGoods::all()->count();
+        if ($countGoods >= 1) {
+            $this->crud->denyAccess('create');
+        }
     }
 
     /**
@@ -66,7 +65,6 @@ class DonateGoodsCrudController extends CrudController
     {
         CRUD::setValidation(DonateGoodsRequest::class);
 
-        
         $title = [
             'name' => 'title',
             'label' => 'Judul',
@@ -79,13 +77,8 @@ class DonateGoodsCrudController extends CrudController
         ];
 
         $this->crud->addFields([
-            $title,$discription
-            ]);
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+            $title, $discription
+        ]);
     }
 
     /**
@@ -97,5 +90,12 @@ class DonateGoodsCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        $this->crud->allowAccess('create');
+        return $this->crud->delete($id);
     }
 }
