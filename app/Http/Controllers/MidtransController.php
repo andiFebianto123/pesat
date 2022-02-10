@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Carbon\Carbon;
+use App\Models\Config;
 use App\Models\DataOrder;
 use App\Models\ChildMaster;
 use App\Models\OrderProject;
+use App\Mail\PaymentComplete;
 use App\Models\ProjectMaster;
 use App\Models\DataDetailOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\HistoryStatusPayment;
+use Illuminate\Support\Facades\Mail;
 use App\Models\ProjectHistoryStatusPayment;
 
 class MidtransController extends Controller
@@ -159,7 +162,7 @@ class MidtransController extends Controller
                     'status_midtrans' => $transaction,
                 ]);
 
-                $order = DataOrder::where('order_id', $order_id)->first();
+                $order = DataOrder::where('order_id', $order_id)->with('sponsorname')->first();
                 if ($order == null) {
                     Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);
                     Log::channel('notificationmidtrans')->error('Order anak yang dimaksud tidak ditemukan.');
@@ -177,6 +180,35 @@ class MidtransController extends Controller
                 }
             }
             DB::commit();
+            try{
+                if($paymentStatus == 2){
+                    $orderDetails = DataDetailOrder::where('order_id', $order->order_id)->with('childname')->get();
+                    // SPONSOR
+                    Mail::to($order->sponsorname->email)
+                    ->send(new PaymentComplete($order, $orderDetails, 
+                    'Terima kasih atas donasi Anda di Pesat #' . $order->order_id, 
+                    'Terima kasih, Donasi #' . $order->order_id));
+
+                    // ADMIN
+                    $config = Config::where('key', 'Administration Email Address')->first();
+                    if($config != null){
+                        $explodedEmail = collect(explode(',', $config->value));
+                        $email = $explodedEmail->shift();
+                        $cc = $explodedEmail->toArray();
+                        $mail =  Mail::to($email);
+                        if(count($cc) != 0){
+                            $mail->cc($cc);
+                        }
+                        $mail   ->send(new PaymentComplete($order, $orderDetails, 
+                        'Donasi Baru di Pesat #' . $order->order_id, 
+                        'Detail Donasi #' . $order->order_id));
+                    }
+                }
+            }
+            catch(Exception $e){
+                Log::channel('notificationmidtrans')->info('Email order anak ID Midtrans : ' . $order_id_midtrans);
+                Log::channel('notificationmidtrans')->error($e);
+            }
         } catch (Exception $e) {
             DB::rollback();
             Log::channel('notificationmidtrans')->info('Order anak ID Midtrans : ' . $order_id_midtrans);

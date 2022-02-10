@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 //Route::get('/', 'App\Http\Controllers\ListChildController@index');
 Route::group(['middleware'=>['auth']],function(){
 	Route::get('/my-account','App\Http\Controllers\Sponsor\MyAccountController@index');
@@ -45,7 +44,7 @@ Route::get('/', 'App\Http\Controllers\HomeController@index');
 //Route::get('/send-mail/{dlp_id}', 'App\Http\Controllers\SendDlp@sendEmail');
 Route::get('/cek','App\Http\Controllers\OrderController@cekstatus');
 Route::get('/donate-goods','App\Http\Controllers\DonationGoodsController@index');
-Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
+// Route::get('reminder-invoice','App\Http\Controllers\OrderController@reminderinvoice');
 Route::get('/childdetail/{id}', 'App\Http\Controllers\ListChildController@childdetail');
 Route::get('/list-child', 'App\Http\Controllers\ListChildController@index');
 Route::get('/list-proyek', 'App\Http\Controllers\ListProyekController@index');

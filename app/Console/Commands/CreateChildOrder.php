@@ -6,6 +6,7 @@ use PDF;
 use Exception;
 use Carbon\Carbon;
 use App\Models\DataOrder;
+use App\Mail\ReminderOrder;
 use App\Models\ChildMaster;
 use App\Models\DataDetailOrder;
 use Illuminate\Console\Command;
@@ -100,6 +101,7 @@ class CreateChildOrder extends Command
     }
 
     private function handleCreateChildOrder($orders){
+        $uniqueOrderId = [];
         foreach($orders as $order){
             $sponsorid = $order->sponsor_id;
             $totalPrice = $order->price;
@@ -156,16 +158,18 @@ class CreateChildOrder extends Command
             $data["total_price"] = $totalPrice;
             $data["date_now"] = $startOrderdate->format('Y-m-d');
 
-            $pdf = PDF::loadView('Email.NewOrder', $data);
-
-            Mail::send('Email.BodyNewOrder', $data, function ($message) use ($data, $pdf) {
-                $message->to($data["email"], $data["email"])
-                    ->subject($data["title"])
-                    ->attachData($pdf->output(), $data["order_id"] . "_" . $data["sponsor_name"] . ".pdf");
-            });
-
             $order->has_child = 1;
             $order->save();
+            $uniqueOrderId[$order->order_id] = true;
+        }
+
+        foreach($uniqueOrderId as $orderId => $boolean){
+            $orderDetails = DataDetailOrder::where('order_id', $orderId)->with('childname')->get();
+            $order = DataOrder::where('order_id', $orderId)->with('sponsorname')->first();
+            if($order != null){
+                Mail::to($order->sponsorname->email)
+                ->send(new ReminderOrder($order, $orderDetails, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, true));
+            }
         }
     }
 

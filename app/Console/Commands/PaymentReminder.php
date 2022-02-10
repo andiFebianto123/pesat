@@ -6,6 +6,7 @@ use PDF;
 use Exception;
 use Carbon\Carbon;
 use App\Models\DataOrder;
+use App\Mail\ReminderOrder;
 use App\Models\DataDetailOrder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -68,8 +69,7 @@ class PaymentReminder extends Command
                     'cm.child_id', 'cm.full_name as child_name', 'cm.registration_number', 'cm.gender', 'cm.date_of_birth', 'cm.class', 'cm.school', 'cm.school_year'
                 )
                 ->get();
-            
-            $this->handlePaymentReminder($orders);
+           $this->handlePaymentReminder($orders);
 
             $dateafter3days = $now->copy()->addDay(3);
             $orders1month = DataDetailOrder::join('order_hd', 'order_hd.order_id', '=', 'order_dt.order_id')
@@ -101,6 +101,7 @@ class PaymentReminder extends Command
     }
 
     public function handlePaymentReminder($orders){
+        $uniqueOrderId = [];
         foreach ($orders as $key => $order) {
             $data["email"] = $order->email;
             $data["title"] = "Peringatan";
@@ -115,16 +116,18 @@ class PaymentReminder extends Command
             $data["no_hp"] = $order->no_hp;
             $data["date_now"] = Carbon::parse($order->start_order_date)->format('Y-m-d');
 
-            $pdf = PDF::loadView('Email.PaymentReminder', $data);
-
-            Mail::send('Email.BodyPaymentReminder', $data, function ($message) use ($data, $pdf) {
-                $message->to($data["email"], $data["email"])
-                    ->subject($data["title"])
-                    ->attachData($pdf->output(), $data['order_id'] . "_" . $data['sponsor_name'] . ".pdf");
-            });
-
             $order->has_remind = 1;
             $order->save();
+            $uniqueOrderId[$order->order_id] = true;
+        }
+
+        foreach($uniqueOrderId as $orderId => $boolean){
+            $orderDetails = DataDetailOrder::where('order_id', $orderId)->with('childname')->get();
+            $order = DataOrder::where('order_id', $orderId)->with('sponsorname')->first();
+            if($order != null){
+                Mail::to($order->sponsorname->email)
+                ->send(new ReminderOrder($order, $orderDetails, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, false));
+            }
         }
     }
 }
