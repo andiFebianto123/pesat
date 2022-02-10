@@ -49,7 +49,10 @@ class MidtransController extends Controller
         try {
             $response = json_encode($decoderespon->getResponse());
             $transaction = $decoderespon->transaction_status;
-            $type = $decoderespon->payment_type;
+            $type = ucwords(str_replace('_', ' ', $decoderespon->payment_type));
+            if($type == 'Bank Transfer'){
+                $type .= ' - ' . (strtoupper($decoderespon->va_numbers[0]->bank ?? ''));
+            }
             $order_id_midtrans = $decoderespon->order_id;
 
             $explodeId = explode('-', $order_id_midtrans);
@@ -125,7 +128,10 @@ class MidtransController extends Controller
         try {
             $response = json_encode($decoderespon->getResponse());
             $transaction = $decoderespon->transaction_status;
-            $type = $decoderespon->payment_type;
+            $type = ucwords(str_replace('_', ' ', $decoderespon->payment_type));
+            if($type == 'Bank Transfer'){
+                $type .= ' - ' . (strtoupper($decoderespon->va_numbers[0]->bank ?? ''));
+            }
             $order_id_midtrans = $decoderespon->order_id;
 
             $explodeId = explode('-', $order_id_midtrans);

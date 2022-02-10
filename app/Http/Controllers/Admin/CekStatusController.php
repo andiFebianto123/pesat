@@ -50,7 +50,10 @@ class CekStatusController extends Controller
             }
 
             $transaction = $decoderespon->transaction_status;
-            $type = $decoderespon->payment_type;
+            $type = ucwords(str_replace('_', ' ', $decoderespon->payment_type));
+            if($type == 'Bank Transfer'){
+                $type .= ' - ' . (strtoupper($decoderespon->va_numbers[0]->bank ?? ''));
+            }
             $order_id = $decoderespon->order_id;
 
             $paymentStatus = null;
@@ -144,9 +147,11 @@ class CekStatusController extends Controller
             }
 
             $response = json_encode($decoderespon);
-
             $transaction = $decoderespon->transaction_status;
-            $type = $decoderespon->payment_type;
+            $type = ucwords(str_replace('_', ' ', $decoderespon->payment_type));
+            if($type == 'Bank Transfer'){
+                $type .= ' - ' . (strtoupper($decoderespon->va_numbers[0]->bank ?? ''));
+            }
             $order_id = $decoderespon->order_id;
 
             if ($transaction == 'capture') {
