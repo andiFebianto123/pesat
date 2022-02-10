@@ -109,11 +109,4 @@ class DonateGoodsCrudController extends CrudController
 
         return view($this->crud->getCreateView(), $this->data);
     }
-
-    function destroy($id)
-    {
-        $this->crud->hasAccessOrFail('delete');
-        $this->crud->allowAccess('create');
-        return $this->crud->delete($id);
-    }
 }
