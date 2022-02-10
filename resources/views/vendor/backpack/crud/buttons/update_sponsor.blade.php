@@ -1,5 +1,5 @@
 <a href="javascript:void(0)" onclick="updateSponsorEntries(this)" class="btn btn-success">
-    <span class="ladda-label"><i class="la la-arrow-circle-up"></i></span> Add Sponsored
+    <span class="ladda-label"><i class="la la-arrow-circle-up"></i></span> Add Sponsored Offline
 </a>
 
 @push('after_scripts')

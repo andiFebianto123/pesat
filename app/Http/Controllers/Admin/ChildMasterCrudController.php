@@ -42,7 +42,7 @@ class ChildMasterCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ChildMaster::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/child-master');
-        CRUD::setEntityNameStrings('Data Anak', 'Data Anak');
+        CRUD::setEntityNameStrings('Data', 'Data Anak');
         $this->crud->dateNow = Carbon::now()->startOfDay();
     }
 

@@ -101,7 +101,7 @@ class DonateGoodsCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        $countGoods = DonateGoods::all()->count();
+        $countGoods = DonateGoods::count();
         if ($countGoods >= 1) {
             \Alert::error(trans('Sudah terdapat donasi barang.'))->flash();
             return redirect(url($this->crud->route));
