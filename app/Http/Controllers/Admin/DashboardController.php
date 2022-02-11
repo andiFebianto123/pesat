@@ -19,21 +19,23 @@ class DashboardController extends Controller
         $end = $now->copy()->endOfMonth();
 
         $now = Carbon::now()->startOfDay();
-        $sponsoredchild = DataOrder::join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-            ->where('is_sponsored', 1)
-            ->orWhere(function ($query) use ($now) {
-                $query->where('payment_status', 2)
-                    ->whereDate('odt.start_order_date', '<=', $now)
-                    ->whereDate('odt.end_order_date', '>=', $now)
-                    ->where('odt.deleted_at', null);
-            })
-            ->distinct()
-            ->get();
+        $sponsoredchild = ChildMaster::where('is_sponsored', 1)
+        ->orWhereHas('detailorders', function($innerQuery) use($now){
+            $innerQuery->whereDate('start_order_date', '<=', $now)
+            ->whereDate('end_order_date', '>=', $now)
+            ->whereHas('order', function($deepestQuery){
+                $deepestQuery->where('payment_status', '<=', 2);
+            });
+        })->count();
 
-        $childIds = $sponsoredchild->pluck('child_id');
 
-        $notsponsoredchild = ChildMaster::whereNotIn('child_id', $childIds)->count();
+        $notsponsoredchild = ChildMaster::where('is_sponsored', 0)->whereDoesntHave('detailorders', function($innerQuery) use($now){
+            $innerQuery->whereDate('start_order_date', '<=', $now)
+            ->whereDate('end_order_date', '>=', $now)
+            ->whereHas('order', function($deepestQuery){
+                $deepestQuery->where('payment_status', '<=', 2);
+            });
+        })->count();
 
 
         $newSponsor = Sponsor::whereBetween('created_at', [$start, $end])->count();
@@ -43,16 +45,12 @@ class DashboardController extends Controller
             ->count();
 
         $totalamount = DataOrder::where('payment_status', 2)
-            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-            ->whereBetween('odt.start_order_date', [$start, $end])
-            ->selectRaw('sum(odt.price) as sum_price')
-            ->pluck('sum_price')
-            ->first();
+            ->whereBetween('created_at', [$start, $end])
+            ->sum('total_price');
 
         $monthYear = $now->format('F Y');
 
-        $data['sponsored'] = $sponsoredchild->count();
+        $data['sponsored'] = $sponsoredchild;
         $data['notsponsored'] = $notsponsoredchild;
         $data['notpaid']    = $notpaid;
         $data['totalamount'] = $totalamount;
