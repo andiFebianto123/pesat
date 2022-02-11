@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Traits\CustomRevisionableTrait;
 //use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Model;
-use \Venturecraft\Revisionable\RevisionableTrait;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 
 class Sponsor extends Model
 {
     use CrudTrait;
-    use RevisionableTrait;
+    use CustomRevisionableTrait;
     protected $revisionCreationsEnabled = true;
     protected $revisionForceDeleteEnabled = true;
     /*

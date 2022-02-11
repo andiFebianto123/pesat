@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Symfony\Component\VarDumper\Cloner\Data;
-use \Venturecraft\Revisionable\RevisionableTrait;
+use App\Traits\CustomRevisionableTrait;
 
 class DataOrder extends Model
 {
     use CrudTrait;
 
-    use RevisionableTrait;
+    use CustomRevisionableTrait;
     protected $revisionCreationsEnabled = true;
     protected $revisionForceDeleteEnabled = true;
     /*

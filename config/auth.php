@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'sponsor',
+        'guard' => 'backpack',
         'passwords' => 'users',
     ],
 

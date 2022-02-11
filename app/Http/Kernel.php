@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'usersession' => \App\Http\Middleware\CheckUserSession::class,
         'isloggedin' => \App\Http\Middleware\IsLoggedIn::class,
+        'assign.guard' => \App\Http\Middleware\AssignGuard::class,
     ];
 }

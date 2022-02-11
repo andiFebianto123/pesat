@@ -5,12 +5,12 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use \Venturecraft\Revisionable\RevisionableTrait;
+use App\Traits\CustomRevisionableTrait;
 
 class DonateGoods extends Model
 {
     use CrudTrait;
-    use RevisionableTrait;
+    use CustomRevisionableTrait;
     protected $revisionCreationsEnabled = true;
     protected $revisionForceDeleteEnabled = true;
     /*

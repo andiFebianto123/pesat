@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use \Venturecraft\Revisionable\RevisionableTrait;
+use App\Traits\CustomRevisionableTrait;
 
 class OrderProject extends Model
 {
     use HasFactory;
-    use RevisionableTrait;
+    use CustomRevisionableTrait;
     protected $revisionCreationsEnabled = true;
     protected $revisionForceDeleteEnabled = true;
 

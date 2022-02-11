@@ -6,7 +6,7 @@ return [
     | Revision Model
     |--------------------------------------------------------------------------
     */
-    'model' => Venturecraft\Revisionable\Revision::class,
+    'model' => \App\Models\CustomRevision::class,
 
     'additional_fields' => [],
 

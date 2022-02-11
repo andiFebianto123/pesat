@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
+use App\Traits\CustomRevisionableTrait;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use \Venturecraft\Revisionable\RevisionableTrait;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    use RevisionableTrait;
+    use CustomRevisionableTrait;
     protected $revisionCreationsEnabled = true;
     protected $revisionForceDeleteEnabled = true;
 
