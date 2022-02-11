@@ -160,11 +160,10 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 theme: "bootstrap",
             })
             var allChilds = @json($childs);
-            var dataOrder = @json($dataorder);
-            var filteredChilds = $.extend({}, allChilds); //allChilds;
+            var filteredChilds = $.extend({}, allChilds);
 
-            var childForDeleted = @json($childs);
             var childForPrice = @json($childForPrice);
+
             /**
              * Takes all inputs and makes them an object.
              */
@@ -198,10 +197,9 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
             /**
              * The method that initializes the javascript on this field type.
              */
-            function bpFieldInitRepeatableElement(element) {
 
+            function bpFieldInitRepeatableElement(element) {
                 var field_name = element.attr('name');
-                element.val(dataOrder)
 
                 // element will be a jQuery wrapped DOM node
                 var container = $('[data-repeatable-identifier=' + field_name + ']');
@@ -230,9 +228,17 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 // this way we have a clean element we can clone when the user
                 // wants to add a new group of inputs
                 var field_group_clone = container.clone();
+
                 container.remove();
 
                 element.parent().find('.add-repeatable-element-button').click(function() {
+                    if(Object.keys(filteredChilds).length === 0){
+                        new Noty({
+                            type: "error",
+                            text: "Semua anak yang dapat disponsori telah dipilih.",
+                        }).show();
+                        return;
+                    }
                     openModal(container, field_group_clone)
                     //    newRepeatableElement(container, field_group_clone);
                 });
@@ -240,11 +246,17 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 if (element.val()) {
                     var repeatable_fields_values = JSON.parse(element.val());
                     var totalPrice = 0;
+
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
 
                         var repeat_value = repeatable_fields_values[i];
-                        var price = parseInt(repeat_value.price);
-                        totalPrice += price;
+                        var price = 0;
+                        if(childForPrice[repeat_value.child_id] !== null){
+                            price = childForPrice[repeat_value.child_id];
+                        }
+                        repeat_value.price = price;
+                        var monthlySub = repeat_value.monthly_subscription;
+                        totalPrice += parseInt(price) * parseInt(monthlySub);
 
                         if (repeat_value.child_id != null) {
                             delete filteredChilds[repeat_value.child_id];
@@ -288,9 +300,10 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 var field_name = container.data('repeatable-identifier');
                 var new_field_group = field_group.clone();
 
+
+
                 // this is the container that holds the group of fields inside the main form.
                 var container_holder = $('[data-repeatable-holder=' + field_name + ']');
-
 
                 new_field_group.find('.delete-element').click(function() {
 
@@ -301,10 +314,8 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                         $(el).trigger('backpack_field.deleted');
                     });
 
-                    //  var deletedChild =  new_field_group.find('select[name="child_id"]').val();
 
                     var deletedChild = new_field_group.find('select[data-repeatable-input-name="child_id"]').val();
-
                     if (allChilds[deletedChild] != null) {
                         filteredChilds[deletedChild] = allChilds[deletedChild]
 
@@ -313,28 +324,17 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                     $('#child').empty();
                     for (key in filteredChilds) {
                         $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);
+
                     }
 
                     var subscription = new_field_group.find(
                         'select[data-repeatable-input-name="monthly_subscription"]');
-
-                    var price = childForPrice[values.child_id];
-                    var subs = values.monthly_subscription;
-                    subscription.data('prev', subscription.val());
-
                     var totalPrice = 0
                     if (childForPrice[values.child_id] !== null) {
-
                         totalPrice = childForPrice[values.child_id];
                     }
-
-                    var prev = subscription.data('prev');
-
-                    var deletePrice = price * subscription.val();
-
-
+                    var deletePrice = totalPrice * subscription.val();
                     $("#totalprice").val(parseInt($("#totalprice").val()) - deletePrice);
-                    subscription.data('prev', subscription.val());
 
 
                     // decrement the container current number of rows by -1
@@ -501,13 +501,13 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
 
             $('#exampleModal').appendTo("body");
 
+
             function openModal(container, field_group_clone) {
 
                 $('#exampleModal').modal('show');
                 $('#bt-submit').off();
                 $('#bt-submit').click(function() {
                     addChildDonation(container, field_group_clone);
-                    var new_field_group = field_group_clone;
                 });
             }
 
@@ -533,6 +533,7 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 newRepeatableElement(container, field_group_clone, {
                     child_id: childid,
                     monthly_subscription: 1,
+                    price: totalPrice
                 });
 
                 $('#exampleModal').modal('hide');

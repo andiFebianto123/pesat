@@ -64,8 +64,6 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
 <button type="button" class="btn btn-outline-primary btn-sm ml-1 add-repeatable-element-button">+
     {{ $field['new_item_label'] ?? trans('backpack::crud.new_item') }}</button>
 
-<!-- <input type="text" id="totalprice" value="0"/> -->
-
 <div class="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -164,8 +162,6 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
             var allChilds = @json($childs);
             var filteredChilds = $.extend({}, allChilds);
 
-            var childForDeleted = @json($childs);
-
             var childForPrice = @json($childForPrice);
 
             /**
@@ -236,6 +232,13 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 container.remove();
 
                 element.parent().find('.add-repeatable-element-button').click(function() {
+                    if(Object.keys(filteredChilds).length === 0){
+                        new Noty({
+                            type: "error",
+                            text: "Semua anak yang dapat disponsori telah dipilih.",
+                        }).show();
+                        return;
+                    }
                     openModal(container, field_group_clone)
                     //    newRepeatableElement(container, field_group_clone);
                 });
@@ -247,7 +250,11 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
 
                         var repeat_value = repeatable_fields_values[i];
-                        var price = repeat_value.price;
+                        var price = 0;
+                        if(childForPrice[repeat_value.child_id] !== null){
+                            price = childForPrice[repeat_value.child_id];
+                        }
+                        repeat_value.price = price;
                         var monthlySub = repeat_value.monthly_subscription;
                         totalPrice += parseInt(price) * parseInt(monthlySub);
 
@@ -322,25 +329,12 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
 
                     var subscription = new_field_group.find(
                         'select[data-repeatable-input-name="monthly_subscription"]');
-
-                    var price = childForPrice[values.child_id];
-                    var subs = values.monthly_subscription;
-                    subscription.data('prev', subscription.val());
-                    //      subscription.change(function(){
                     var totalPrice = 0
                     if (childForPrice[values.child_id] !== null) {
-
                         totalPrice = childForPrice[values.child_id];
                     }
-
-                    var prev = subscription.data('prev');
-                    // var newTotalPrice = parseInt(totalPrice) * $(this).val() - parseInt(totalPrice) * (prev || 0)
-                    var deletePrice = price * subscription.val();
-
-
+                    var deletePrice = totalPrice * subscription.val();
                     $("#totalprice").val(parseInt($("#totalprice").val()) - deletePrice);
-                    subscription.data('prev', subscription.val());
-                    //    });
 
 
                     // decrement the container current number of rows by -1
@@ -514,9 +508,6 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 $('#bt-submit').off();
                 $('#bt-submit').click(function() {
                     addChildDonation(container, field_group_clone);
-
-                    var new_field_group = field_group_clone; //field_group.clone();
-
                 });
             }
 

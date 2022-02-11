@@ -137,10 +137,10 @@ class DataOrderCrudController extends CrudController
                 'label' => 'List Order',
                 'type' => 'repeatable_create_child',
                 'fields' => [
-                    [
-                        'name' => 'order_no',
-                        'type' => 'hidden',
-                    ],
+                    // [
+                    //     'name' => 'order_no',
+                    //     'type' => 'hidden',
+                    // ],
 
                     [
                         'name' => 'child_id',
@@ -176,24 +176,24 @@ class DataOrderCrudController extends CrudController
                         'allows_multiple' => false,
 
                     ],
-                    [
-                        'name' => 'start_order_date',
-                        'type' => 'hidden',
-                    ],
+                    // [
+                    //     'name' => 'start_order_date',
+                    //     'type' => 'hidden',
+                    // ],
 
-                    [
-                        'name' => 'end_order_date',
-                        'type' => 'hidden',
-                    ],
-                    [
-                        'name' => 'price',
-                        'type' => 'hidden',
-                    ],
+                    // [
+                    //     'name' => 'end_order_date',
+                    //     'type' => 'hidden',
+                    // ],
+                    // [
+                    //     'name' => 'price',
+                    //     'type' => 'hidden',
+                    // ],
 
-                    [
-                        'name' => 'total_price',
-                        'type' => 'hidden',
-                    ],
+                    // [
+                    //     'name' => 'total_price',
+                    //     'type' => 'hidden',
+                    // ],
 
                 ],
 
@@ -201,7 +201,7 @@ class DataOrderCrudController extends CrudController
                 'new_item_label' => 'Add Data', // customize the text of the button
                 // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
                 'min_rows' => 0, // minimum rows allowed, when reached the "delete" buttons will be hidden
-                'max_rows' => $this->countSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
+                // 'max_rows' => $this->countSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
 
             ],
             [
@@ -329,10 +329,9 @@ class DataOrderCrudController extends CrudController
 
                 ],
                 [
-                    'name' => 'child_id',
+                    'name' => 'price',
                     'label' => 'Biaya / Bulan',
-                    'type' =>  'select_from_array', //'text',
-                    'attribute' => 'price',
+                    'type' => 'text',
                     'prefix' => 'Rp. ',
                     'attributes' => [
                         'disabled' => true
@@ -355,7 +354,7 @@ class DataOrderCrudController extends CrudController
             'new_item_label' => 'Add Data', // customize the text of the button
             // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
             //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
-            'max_rows' => $this->countSponsoredChild($this->crud->getCurrentEntryId(), true), // maximum rows allowed, when reached the "new item" button will be hidden
+            // 'max_rows' => $this->countSponsoredChild($this->crud->getCurrentEntryId(), true), // maximum rows allowed, when reached the "new item" button will be hidden
 
         ];
         $space =             [
@@ -425,8 +424,9 @@ class DataOrderCrudController extends CrudController
 
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
+        ->join('child_master as cm', 'cm.child_id', 'order_dt.child_id')
+        ->select('cm.child_id', 'monthly_subscription', 'cm.price', 'order_dt_id')
             ->get();
-
 
         $orderDt = json_encode($getOrderDt);
 
@@ -434,18 +434,18 @@ class DataOrderCrudController extends CrudController
 
         $fields = $this->crud->getUpdateFields();
 
-        $childs = $this->child($child, true);
-        $childPrice = $this->childprice($child);
+        $childs = $this->child($child, null);
+
+        $optionChilds = $childs->pluck('full_name', 'child_id');
+
         $priceChilds = $childs->pluck('price', 'child_id');
 
-
-        $fields['dataorder']['fields'][2]['options'] = $childPrice;
 
         $fields['email']['value'] = $getEmail;
         $fields['no_hp']['value'] = $getNoWa;
         $fields['address']['value'] = $getAddress;
         $fields['dataorder']['value'] = $orderDt;
-        $fields['dataorder']['fields'][1]['options'] = $childs;
+        $fields['dataorder']['fields'][1]['options'] = $optionChilds;
         $this->crud->setOperationSetting('fields', $fields);
 
         $this->data['entry'] = $this->crud->getEntry($id);
@@ -456,9 +456,8 @@ class DataOrderCrudController extends CrudController
 
         $this->data['id'] = $id;
 
-        $this->data['dataorder'] = $orderDt;
-        $this->data['childs'] = $childs;
-        $this->data['childForPrice'] = $childPrice;
+        $this->data['childs'] = $optionChilds;
+        $this->data['childForPrice'] = $priceChilds;
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
         return view($this->crud->getEditView(), $this->data);
     }
@@ -467,12 +466,12 @@ class DataOrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('create');
 
-        $sponsoredChild = $this->countSponsoredChild();
+        // $sponsoredChild = $this->countSponsoredChild();
 
-        if ($sponsoredChild == 0) {
-            \Alert::error('Semua anak sudah tersponsori')->flash();
-            return redirect($this->crud->route);
-        }
+        // if ($sponsoredChild == 0) {
+        //     \Alert::error('Semua anak sudah tersponsori')->flash();
+        //     return redirect($this->crud->route);
+        // }
 
         $fields = $this->crud->getCreateFields();
 
@@ -646,6 +645,7 @@ class DataOrderCrudController extends CrudController
                 $error[] = 'Detail order tidak boleh kosong';
             } else {
                 $childs = [];
+                $uniquedata = [];
                 $index = 1;
                 $intOrderId = (int)$request->order_id;
 
@@ -661,6 +661,7 @@ class DataOrderCrudController extends CrudController
                         } else {
 
                             $childs[$child->child_id] = $child;
+                            $uniquedata[$child->child_id] = $orderDecode;
                         }
                     }
 
@@ -703,11 +704,12 @@ class DataOrderCrudController extends CrudController
             }
 
             $orderdetailid = [];
-            foreach ($orderDecodes as $key => $orderDecode) {
-
-                $orderdt = DataDetailOrder::where('order_id', $orderDecode->order_dt_id)
+            foreach ($uniquedata as $key => $orderDecode) {
+                $orderdt = DataDetailOrder::where('order_dt_id', $orderDecode->order_dt_id)
                     ->where('child_id', $orderDecode->child_id)
+                    ->where('order_id', $request->order_id)
                     ->first();
+                $child = $childs[$orderDecode->child_id];
                 $cm = ChildMaster::where('child_id', $orderDecode->child_id)->first();
 
                 if ($orderdt == null) {
@@ -716,7 +718,7 @@ class DataOrderCrudController extends CrudController
                 }
 
                 $startOrderdate = Carbon::now();
-                $getPrice = $cm->price;
+                $getPrice = $child->price;
                 $subs = $orderDecode->monthly_subscription;
                 $totalPrice = $getPrice * $subs;
                 $endOrderDate = $startOrderdate->copy()->addMonthsNoOverflow($orderDecode->monthly_subscription);
@@ -731,7 +733,7 @@ class DataOrderCrudController extends CrudController
                 $orderdetailid[] = $orderdt->order_dt_id;
             }
 
-            DataDetailOrder::whereNotIn('order_dt_id', $orderdetailid)->delete();
+            DataDetailOrder::whereNotIn('order_dt_id', $orderdetailid)->where('order_id', $request->order_id)->delete();
 
             $getTotalPrice = DataDetailOrder::groupBy('order_id')
                 ->where('order_id', $request->order_id)
