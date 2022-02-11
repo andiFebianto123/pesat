@@ -1,14 +1,15 @@
 @include('header')
 
 <div class="container">
+    @if ($donateGood != null)
         <div class="col-12" >
             <div class="bs-callout bs-callout-primary">
-                <h2>Barang / Buku / Mainan</h2>
+                <h2>{{$donateGood->title}}</h2>
             </div>
-            </br>
-            <p>
-            Kami juga menerima bantuan berupa buku cerita anak dan mainan anak. Dapat di informasikan ke pesatjkt@gmail.com atau telp 0821-1462-2245
-            </p>
+           {!! $donateGood->discription!!}
         </div>
+    @else
+    <div class="alert alert-secondary">Informasi untuk sponsor barang belum tersedia.</div>
+    @endif
 </div>
 @include('footer')
