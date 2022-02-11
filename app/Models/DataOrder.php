@@ -82,7 +82,7 @@ class DataOrder extends Model
     */
     public function sponsoredchild($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="' . url('admin/detail-sponsor/' . $this->order_id . '/detail') . '" id="' . $this->child_id . '" "><i class="la la-file"></i> Sponsored Child</a>';
+        return '<a class="btn btn-sm btn-link" href="' . url('admin/detail-order/' . $this->order_id . '/detail') . '" id="' . $this->child_id . '" "><i class="la la-list"></i> Detail Order</a>';
     }
 
     public function cekStatus()

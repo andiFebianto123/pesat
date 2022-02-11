@@ -65,9 +65,9 @@ Route::group([
         Route::get('detail/{id}/document', [DlpCrudController::class, 'document']);
     });
 
-    Route::prefix('detail-sponsor/{header_id}')->group(function () {
+    Route::prefix('detail-order/{header_id}')->group(function () {
         Route::crud('detail', 'DataDetailOrderCrudController');
-        Route::get('detail/{id}/document', [DataDetailOrderCrudController::class, 'document']);
+        // Route::get('detail/{id}/document', [DataDetailOrderCrudController::class, 'document']);
     });
 
     Route::prefix('api')->group(function () {

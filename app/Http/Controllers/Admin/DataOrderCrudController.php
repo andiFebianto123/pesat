@@ -134,7 +134,7 @@ class DataOrderCrudController extends CrudController
             ],
             [ // repeatable
                 'name' => 'testimonials',
-                'label' => 'List Order',
+                'label' => 'Detail Order',
                 'type' => 'repeatable_create_child',
                 'fields' => [
                     // [
@@ -305,7 +305,7 @@ class DataOrderCrudController extends CrudController
 
         $dataorder = [ // repeatable
             'name' => 'dataorder',
-            'label' => 'List Order',
+            'label' => 'Detail Order',
             'type' => 'repeatable_edit_child',
             'fields' => [
 
@@ -640,7 +640,7 @@ class DataOrderCrudController extends CrudController
                 return redirect($this->crud->route);
             } elseif ($cekStatusPayment->payment_status == 3) {
                 DB::rollback();
-                \Alert::error('Tidak dapat melakukan perubahan data karena order anak telah dibatalkan')->flash();
+                \Alert::error('Tidak dapat melakukan perubahan data karena order anak telah dibatalkan.')->flash();
                 return redirect($this->crud->route);
             } elseif (JSON_ERROR_NONE !== json_last_error() || !is_array($orderDecodes) || count($orderDecodes) == 0) {
                 $error[] = 'Detail order tidak boleh kosong';

@@ -22,13 +22,13 @@ use Symfony\Component\VarDumper\Cloner\Data;
 class DataDetailOrderCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
+    // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
 
 
     use RedirectCrud;
@@ -50,8 +50,8 @@ class DataDetailOrderCrudController extends CrudController
             $builder->where('order_id', $this->crud->order_id);
         });
         CRUD::setModel(DataDetailOrder::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/detail-sponsor/' . ($this->crud->order_id ?? '-') . '/detail');
-        CRUD::setEntityNameStrings('Add Child', 'Add Child');
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/detail-order/' . ($this->crud->order_id ?? '-') . '/detail');
+        CRUD::setEntityNameStrings('Detail Order #' . ($this->crud->order_id ?? '-'), 'Detail Order #' . ($this->crud->order_id ?? '-'));
     }
 
     /**
@@ -79,6 +79,14 @@ class DataDetailOrderCrudController extends CrudController
             [
                 'name' => 'monthly_subscription',
                 'label'=> 'Durasi (Bulan)'
+            ],
+            [
+                'name' => 'start_order_date',
+                'label'=> 'Start Date',
+            ],
+            [
+                'name' => 'end_order_date',
+                'label'=> 'End Date',
             ],
         ]);
         /**
