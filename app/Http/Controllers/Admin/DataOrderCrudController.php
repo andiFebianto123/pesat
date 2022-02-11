@@ -656,7 +656,7 @@ class DataOrderCrudController extends CrudController
                     if ($child == null) {
                         $error[] = 'Detail order ke ' . $index . ' : Anak tidak ditemukan';
                     } else {
-                        $statusSponsor = ChildMaster::getStatusSponsor($child->child_id, $now . true);
+                        $statusSponsor = ChildMaster::getStatusSponsor($child->child_id, $now, true);
                         if ($child->is_sponsored || ($statusSponsor != null && $statusSponsor != $intOrderId)) {
                             $error[] = 'Detail order ke ' . $index . ' : Anak sudah disponsori';
                         } else {
