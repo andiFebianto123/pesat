@@ -7,22 +7,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class NewSponsor extends Mailable
+class ResetPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $title;
-    public $sponsorname;
-
+    public $generatepass;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($title, $sponsorname)
+    public function __construct($title, $generatepass)
     {
         $this->title = $title;
-        $this->sponsorname = $sponsorname;
+        $this->generatepass = $generatepass;
     }
 
     /**
@@ -32,10 +31,10 @@ class NewSponsor extends Mailable
      */
     public function build()
     {
-        return $this->markdown('Email.new_sponsor')->subject($this->title)
+        return $this->markdown('Email.ResetPassword')->subject($this->title)
             ->with([
                 'title' => $this->title,
-                'sponsor' => $this->sponsorname,
-            ]);;
+                'generatepass' => $this->generatepass,
+        ]);
     }
 }

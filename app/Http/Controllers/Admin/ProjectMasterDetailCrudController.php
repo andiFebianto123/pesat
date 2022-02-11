@@ -74,7 +74,7 @@ class ProjectMasterDetailCrudController extends CrudController
         return [
             [
                 'name'=>'image_detail',
-                'label'=>'Nama File',
+                'label'=>'File',
                 'type' => 'link',
                 'wrapper' => [
                     'href' => function ( $crud,$column,$entry,$related_key ) {
@@ -94,7 +94,7 @@ class ProjectMasterDetailCrudController extends CrudController
         CRUD::addColumns([
             [
                 'name'=>'image_detail',
-                'label'=>'Nama File',
+                'label'=>'File',
                 'type' => 'link',
                 'wrapper' => [
                     'href' => function ( $crud,$column,$entry,$related_key ) {

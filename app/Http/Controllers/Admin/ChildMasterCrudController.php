@@ -123,11 +123,11 @@ class ChildMasterCrudController extends CrudController
                     return 'Belum Tersponsori';
                 }
             ],
-            [
-                'name' => 'DLP',
-                'type' => 'boolean',
-                'options' => [0 => 'Not Sent', 1 => 'Sent'],
-            ],
+            // [
+            //     'name' => 'DLP',
+            //     'type' => 'boolean',
+            //     'options' => [0 => 'Not Sent', 1 => 'Sent'],
+            // ],
         ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:

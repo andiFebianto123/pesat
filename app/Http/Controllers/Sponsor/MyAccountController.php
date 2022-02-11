@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Sponsor;
 
-use App\Http\Controllers\Controller;
-use App\Mail\NewSponsor;
-use App\Models\ChildMaster;
-use App\Models\DataOrder;
-use App\Models\OrderProject;
-use App\Models\Sponsor;
 use App\Models\Config;
+use App\Models\Sponsor;
+use App\Mail\NewSponsor;
+use App\Models\DataOrder;
+use App\Mail\ResetPassword;
+use App\Models\ChildMaster;
+use App\Models\OrderProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
@@ -113,18 +114,9 @@ class MyAccountController extends Controller
         $getUser = Sponsor::where("email", "=", $request->email)->first();
         if ($getUser) {
             $length = 8;
-            $newpass = '';
-            $generatepass = $this->generatepassword($length, $newpass);
+            $generatepass = $this->generatepassword($length);
 
-            $data["email"] = $request->email;
-            $data["title"] = "Reset Password";
-            $data["body"] = "This is Demo";
-            $data["generatepass"] = $generatepass;
-
-            Mail::send('Email.ResetPassword', $data, function ($message) use ($data) {
-                $message->to($data["email"], $data["email"])
-                    ->subject($data["title"]);
-            });
+            Mail::to($getUser->email)->send(new ResetPassword("Reset Password", $generatepass));
 
             $getUser->password = bcrypt($generatepass);
             $getUser->save();
@@ -132,7 +124,7 @@ class MyAccountController extends Controller
         return redirect(url('forgot-password'))->with(['success' => 'Apabila email Anda terdaftar maka password baru akan dikirim ke email Anda.']);
     }
 
-    public function generatepassword($length, $newpass)
+    public function generatepassword($length)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -185,15 +177,13 @@ class MyAccountController extends Controller
                 $explodedEmail = collect(explode(',', $config->value));
                 $email = $explodedEmail->shift();
                 $cc = $explodedEmail->toArray();
-                // Kirim email beserta cc jika ada
                 $mail =  Mail::to($email);
                 if (count($cc) != 0) {
                     $mail->cc($cc);
                 }
 
-                $emailTitle = 'Notifikasi Sponsor Baru';
-                //  buat class mailable laravel : https://laravel.com/docs/8.x/mail#generating-mailables
-                $mail->send(new NewSponsor($emailTitle, $insertsponsor->name));
+                $emailTitle = 'Ada yang mendaftar sponsor baru bernama ' . $insertsponsor->full_name;
+                $mail->send(new NewSponsor($emailTitle, $insertsponsor->full_name));
             }
 
             DB::commit();

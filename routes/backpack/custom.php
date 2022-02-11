@@ -29,7 +29,7 @@ Route::group([
     Route::get('dashboard', [DashboardController::class,'index']);
     Route::get('report', [ReportController::class,'index']);
     Route::post('filter-report', [ReportController::class,'filterreport']);
-    Route::get('/send-mail/{child_id}/dlp/{dlp_id}', [SendDlp::class,'sendEmail']);
+    // Route::get('/send-mail/{child_id}/dlp/{dlp_id}', [SendDlp::class,'sendEmail']);
 
     Route::get('/cek-status/{id}', [CekStatusController::class, 'index']);
     Route::get('/child-cek-status/{id}', [CekStatusController::class, 'childcekstatus']);

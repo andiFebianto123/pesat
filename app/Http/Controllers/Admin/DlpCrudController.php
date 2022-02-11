@@ -64,13 +64,13 @@ class DlpCrudController extends CrudController
     {
         $this->crud->cekdata = $this->getChildMaster($this->crud->child_id);
 
-        $this->crud->addButtonFromModelFunction('line', 'sendmail', 'Send_Email', 'beginning');
+       // $this->crud->addButtonFromModelFunction('line', 'sendmail', 'Send_Email', 'beginning');
 
         CRUD::addColumns([
 
             [
                 'name' => 'file_dlp',
-                'label' => 'Nama Profile',
+                'label' => 'File',
                 'type' => 'custom_html',
                 'value' => '<span>File</span>',
                 'wrapper' => [
@@ -83,12 +83,12 @@ class DlpCrudController extends CrudController
                 ],
 
             ],
-            [   // Enum
-                'name'  => 'deliv_status',
-                'label' => 'Status',
-                'type' => 'radio',
-                'options' => [1 => 'Belum Dikirim', 2 => 'Sukses',3=> 'Gagal'],
-            ],
+            // [   // Enum
+            //     'name'  => 'deliv_status',
+            //     'label' => 'Status',
+            //     'type' => 'radio',
+            //     'options' => [1 => 'Belum Dikirim', 2 => 'Sukses',3=> 'Gagal'],
+            // ],
         ]);
         /**
          * Columns can be defined using the fluent syntax or array syntax:
