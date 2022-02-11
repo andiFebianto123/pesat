@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Sponsor;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewSponsor;
 use App\Models\ChildMaster;
 use App\Models\DataOrder;
 use App\Models\OrderProject;
 use App\Models\Sponsor;
+use App\Models\Config;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
@@ -99,7 +102,6 @@ class MyAccountController extends Controller
         $sponsor->save();
 
         return redirect(url('edit-account'))->with(['success' => 'Data Berhasil Di Update.']);
-
     }
 
     public function forgotpassword()
@@ -126,9 +128,8 @@ class MyAccountController extends Controller
 
             $getUser->password = bcrypt($generatepass);
             $getUser->save();
-        } 
+        }
         return redirect(url('forgot-password'))->with(['success' => 'Apabila email Anda terdaftar maka password baru akan dikirim ke email Anda.']);
-
     }
 
     public function generatepassword($length, $newpass)
@@ -165,35 +166,73 @@ class MyAccountController extends Controller
 
         $cekEmail = Sponsor::where('email', $request->email)->first();
 
-        $insertsponsor = new Sponsor();
-        $insertsponsor->name = $request->name;
-        $insertsponsor->full_name = $request->fullname;
-        $insertsponsor->hometown = $request->hometown;
-        $insertsponsor->date_of_birth = $request->dateofbirth;
-        $insertsponsor->address = $request->address;
-        $insertsponsor->email = $request->email;
-        $insertsponsor->password = bcrypt($request->password);
-        $insertsponsor->no_hp = $request->nohp;
-        $insertsponsor->church_member_of = $request->memberofchurch;
-        $insertsponsor->save();
+        DB::beginTransaction();
+        try {
+            $insertsponsor = new Sponsor();
+            $insertsponsor->name = $request->name;
+            $insertsponsor->full_name = $request->fullname;
+            $insertsponsor->hometown = $request->hometown;
+            $insertsponsor->date_of_birth = $request->dateofbirth;
+            $insertsponsor->address = $request->address;
+            $insertsponsor->email = $request->email;
+            $insertsponsor->password = bcrypt($request->password);
+            $insertsponsor->no_hp = $request->nohp;
+            $insertsponsor->church_member_of = $request->memberofchurch;
+            $insertsponsor->save();
 
-        return redirect(url('register'))->with(['success' => 'Akun berhasil dibuat, silahkan login.']);
+            $config = Config::where('key', 'Administration Email Address')->first();
+            if ($config != null) {
+                $explodedEmail = collect(explode(',', $config->value));
+                $email = $explodedEmail->shift();
+                $cc = $explodedEmail->toArray();
+                // Kirim email beserta cc jika ada
+                $mail =  Mail::to($email);
+                if (count($cc) != 0) {
+                    $mail->cc($cc);
+                }
 
+                $emailTitle = 'Notifikasi Sponsor Baru';
+                //  buat class mailable laravel : https://laravel.com/docs/8.x/mail#generating-mailables
+                $mail->send(new NewSponsor($emailTitle, $insertsponsor->name));
+            }
+
+            DB::commit();
+            return redirect(url('sponsor/login'))->with(['success' => 'Akun berhasil dibuat, silahkan login.']);
+        } catch (Execption $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function childdetaildonation($id)
     {
         $orderhd = DataOrder::where('order_id', $id)->first();
-        if($orderhd == null){
+        if ($orderhd == null) {
             return redirect(url('child-donation'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
         }
         $orders = DataOrder::where('order_hd.order_id', $id)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
-            ->select('order_hd.order_id', 'order_hd.total_price', 'order_hd.payment_status', 'order_hd.snap_token', 'order_hd.status_midtrans', 'order_hd.created_at', 'order_hd.payment_type',
-                'odt.order_dt_id', 'odt.price as price_dt', 'odt.monthly_subscription', 'cm.full_name as child_name', 'cm.price as child_price',
-                'sm.sponsor_id', 'cm.child_id', 'sm.full_name as sponsor_name', 'sm.address as sponsor_address', 'sm.no_hp', 'sm.email'
+            ->select(
+                'order_hd.order_id',
+                'order_hd.total_price',
+                'order_hd.payment_status',
+                'order_hd.snap_token',
+                'order_hd.status_midtrans',
+                'order_hd.created_at',
+                'order_hd.payment_type',
+                'odt.order_dt_id',
+                'odt.price as price_dt',
+                'odt.monthly_subscription',
+                'cm.full_name as child_name',
+                'cm.price as child_price',
+                'sm.sponsor_id',
+                'cm.child_id',
+                'sm.full_name as sponsor_name',
+                'sm.address as sponsor_address',
+                'sm.no_hp',
+                'sm.email'
             )
             ->get();
         $data['orders'] = $orders;
@@ -210,7 +249,7 @@ class MyAccountController extends Controller
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
             ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
             ->first();
-        if($orderproject == null){
+        if ($orderproject == null) {
             return redirect(url('project-donation'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
         }
         $data['orders'] = $orderproject;
@@ -241,5 +280,4 @@ class MyAccountController extends Controller
 
         return view('sponsor.listdlp', $data);
     }
-
 }
