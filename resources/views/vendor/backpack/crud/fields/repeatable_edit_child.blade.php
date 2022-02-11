@@ -160,6 +160,7 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 theme: "bootstrap",
             })
             var allChilds = @json($childs);
+            var dataOrder = @json($dataorder);
             var filteredChilds = $.extend({}, allChilds); //allChilds;
 
             var childForDeleted = @json($childs);
@@ -200,6 +201,7 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
             function bpFieldInitRepeatableElement(element) {
 
                 var field_name = element.attr('name');
+                element.val(dataOrder)
 
                 // element will be a jQuery wrapped DOM node
                 var container = $('[data-repeatable-identifier=' + field_name + ']');
@@ -237,10 +239,12 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
 
                 if (element.val()) {
                     var repeatable_fields_values = JSON.parse(element.val());
-
+                    var totalPrice = 0;
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
 
                         var repeat_value = repeatable_fields_values[i];
+                        var price = parseInt(repeat_value.price);
+                        totalPrice += price;
 
                         if (repeat_value.child_id != null) {
                             delete filteredChilds[repeat_value.child_id];
@@ -248,6 +252,7 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                         newRepeatableElement(container, field_group_clone, repeat_value);
                     }
 
+                    $("#totalprice").val(totalPrice);
                     $('#child').empty();
                     for (key in filteredChilds) {
                         $('#child').append(`<option value="${key}">${filteredChilds[key]}</option>`);

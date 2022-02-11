@@ -16,11 +16,15 @@ class ReportController extends Controller
     public function index()
     {
         $now = Carbon::now()->startOfDay();
-        $sponsoredchild = DataOrder::where('payment_status', 2)
-            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-            ->whereDate('odt.start_order_date', '<=', $now)
-            ->whereDate('odt.end_order_date', '>=', $now)
+        $sponsoredchild = DataOrder::join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->where('is_sponsored', 1)
+            ->orWhere(function ($query) use ($now) {
+                $query->where('payment_status', 2)
+                    ->whereDate('odt.start_order_date', '<=', $now)
+                    ->whereDate('odt.end_order_date', '>=', $now)
+                    ->where('odt.deleted_at', null);
+            })
             ->distinct()
             ->get();
 

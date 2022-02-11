@@ -243,7 +243,6 @@ $field['min_rows'] = $field['min_rows'] ?? 0;
                 if (element.val()) {
                     var repeatable_fields_values = JSON.parse(element.val());
                     var totalPrice = 0;
-                    console.log(repeatable_fields_values)
 
                     for (var i = 0; i < repeatable_fields_values.length; ++i) {
 

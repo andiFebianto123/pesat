@@ -373,7 +373,7 @@ class DataOrderCrudController extends CrudController
             'label' => "Total Price",
             'type' => 'text',
             'prefix' => 'Rp.',
-            'default' => $this->sumprice($this->crud->getCurrentEntryId()),
+            'default' => 0,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
@@ -456,6 +456,7 @@ class DataOrderCrudController extends CrudController
 
         $this->data['id'] = $id;
 
+        $this->data['dataorder'] = $orderDt;
         $this->data['childs'] = $childs;
         $this->data['childForPrice'] = $childPrice;
         // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
@@ -839,16 +840,20 @@ class DataOrderCrudController extends CrudController
     function countSponsoredChild($id = null, $withSponsored = false)
     {
         $now = Carbon::now()->startOfDay();
-        $sponsoredchild = DataOrder::where('payment_status', '<=', 2)
-            ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+        $sponsoredchild = DataOrder::join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-            ->where('odt.deleted_at', null)
-            ->whereDate('odt.start_order_date', '<=', $now)
-            ->whereDate('odt.end_order_date', '>=', $now)
+            ->where('is_sponsored', 1)
+            ->orWhere(function ($query) use ($now) {
+                $query->where('payment_status', '<=', 2)
+                    ->whereDate('odt.start_order_date', '<=', $now)
+                    ->whereDate('odt.end_order_date', '>=', $now)
+                    ->where('odt.deleted_at', null);
+            })
             ->distinct()
             ->get();
 
         $childIds = $sponsoredchild->pluck('child_id');
+        
         $notsponsoredchild = ChildMaster::whereNotIn('child_id', $childIds)->count();
 
         if ($withSponsored) {
