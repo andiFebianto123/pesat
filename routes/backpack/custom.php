@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DlpCrudController;
 use App\Http\Controllers\Admin\ImportChildController;
 use App\Http\Controllers\Admin\ImportSponsorController;
 use App\Http\Controllers\Admin\ProjectMasterDetailCrudController;
+use App\Http\Controllers\Admin\SponsorDonationController;
 use App\Http\Controllers\Admin\ReportController;
 
 Route::group(['middleware' => ['assign.guard:backpack']], function () {
@@ -34,6 +35,7 @@ Route::group(['middleware' => ['assign.guard:backpack']], function () {
         Route::get('/child-cek-status/{id}', [CekStatusController::class, 'childcekstatus']);
         Route::get('/child-cancel-order/{id}', [CancelOrderController::class, 'index']);
         Route::get('/project-cancel-order/{id}', [CancelOrderController::class, 'projectcancelorder']);
+        Route::get('/sponsor-donation', [SponsorDonationController::class, 'index']);
 
         Route::get('/import-anak', [ImportChildController::class, 'index']);
         Route::post('/import', [ImportChildController::class, 'import'])->name('import');

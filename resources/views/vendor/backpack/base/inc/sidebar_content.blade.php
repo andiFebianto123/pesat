@@ -8,6 +8,7 @@
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor') }}'>Data Sponsor</a></li>
     </ul>
 </li>
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('sponsor-donation') }}'><i class='nav-icon la la-user-check'></i> Master Sponsor</a></li>
 <li class="nav-item nav-dropdown">
     <a class="nav-link nav-dropdown-toggle" href="#"><i class="nav-icon la la-briefcase"></i> Orders</a>
     <ul class="nav-dropdown-items">
