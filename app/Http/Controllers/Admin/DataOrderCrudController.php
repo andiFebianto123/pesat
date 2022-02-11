@@ -145,7 +145,7 @@ class DataOrderCrudController extends CrudController
                     [
                         'name' => 'child_id',
                         'label' => "Nama Anak",
-                        'type' => 'select2_from_array',
+                        'type' => 'select_from_array',
                         'allows_null' => false,
                         'options' => [],
                         'attributes' => [
@@ -481,7 +481,8 @@ class DataOrderCrudController extends CrudController
 
         $priceChilds = $childs->pluck('price', 'child_id');
 
-        $fields['testimonials']['fields'][1]['options'] = $optionChilds;
+        $fields['testimonials']['fields'][0]['options'] = $optionChilds;
+
         $this->crud->setOperationSetting('fields', $fields);
 
         // prepare the fields you need to show
