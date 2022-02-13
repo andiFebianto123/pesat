@@ -30,7 +30,7 @@
   <tbody>
   @foreach($orders as $key => $order)
     <tr>
-      <td>{{$order->child_name." - 1 bulan x ".$order->monthly_subscription}}</td>
+      <td>{{$order->child_name." - 1 Bulan x ".$order->monthly_subscription}}</td>
       <td>Rp{{ number_format($order->price_dt, 2, ',', '.') }}</td>
       <td>
       <a href="{{url('list-dlp/'.$order->child_id)}}">

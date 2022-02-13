@@ -24,9 +24,11 @@ Route::group(['middleware' => ['assign.guard:sponsor']], function () {
         Route::get('/list-dlp/{id}', 'App\Http\Controllers\Sponsor\MyAccountController@listdlp');
         Route::get('/project-donation-detail/{id}', 'App\Http\Controllers\Sponsor\MyAccountController@projectdetaildonation');
         Route::post('/update-account', 'App\Http\Controllers\Sponsor\MyAccountController@updateaccount');
-        Route::post('/order/{id}', 'App\Http\Controllers\OrderController@index');
+        Route::get('/order/{id}', 'App\Http\Controllers\OrderController@index');
+        Route::post('/order/{id}', 'App\Http\Controllers\OrderController@postOrder');
         Route::get('/checkout-order/{id}', 'App\Http\Controllers\OrderController@orderdonation')->name('ordercheckout');
-        Route::post('/project-order/{id}', 'App\Http\Controllers\ProjectOrderController@index');
+        Route::get('/project-order/{id}', 'App\Http\Controllers\ProjectOrderController@index');
+        Route::post('/project-order/{id}', 'App\Http\Controllers\ProjectOrderController@postOrder');
         Route::get('/checkout-order-project/{code}', 'App\Http\Controllers\ProjectOrderController@orderproject')->name('orderprojectcheckout');
 
     });

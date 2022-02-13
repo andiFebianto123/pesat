@@ -1,6 +1,5 @@
 @include('header')
-<form id="form-child-detail" action="{{ url('order') . '/' . $childs->child_id }}" method="post">
-    {{ csrf_field() }}
+<form id="form-child-detail" action="{{ url('order') . '/' . $childs->child_id }}">
     <div class="container pb-5 pb-md-0">
         <br>
         <div class="bs-callout bs-callout-primary">
@@ -37,10 +36,8 @@
                 </div>
             </div>
             <div class="col-lg-8 my-4 my-lg-0">
-                <input type="hidden" name="childid" value="{{ $childs->child_id }}" />
                 <h3>{{ $childs->full_name }}</h3>
                 <h3>Rp. {{ number_format($childs->price, 2, ',', '.') }},-/ Bulan</h3>
-                <input type="hidden" name="price" value="{{ $childs->price }}" />
                 @if ($childs->is_sponsored == false)
                     </br>
                     <h5>Monthly Subscription</h5>

@@ -1,6 +1,5 @@
 @include('header')
-<form id="form-project-detail" action="{{url('project-order/' . $project->project_id)}}" method="post">
-{{ csrf_field() }}
+<form id="form-project-detail" action="{{url('project-order/' . $project->project_id)}}">
 </br></br>
 
 <div class="container">
@@ -49,7 +48,6 @@
 
         <div class="col-6">
             <h2>{{$project->title}}</h2>
-            <input type="hidden" name = "projectid" value="{{$project->project_id}}"> 
             <table class="table">
                 <thead class="table-light">
                     <tr>

@@ -2,22 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OrderProject;
-use App\Models\ProjectMaster;
-use App\Services\Midtrans\CreateSnapTokenForProjectService;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use App\Models\OrderProject;
 use Illuminate\Http\Request;
+use App\Models\ProjectMaster;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+use App\Services\Midtrans\CreateSnapTokenForProjectService;
 
 class ProjectOrderController extends Controller
 {
-    //
-    public function index($id, Request $request)
-    {
-        $request->validate(['donation' => 'required|integer|min:1']);
+    public function index($id, Request $request){
+        $project = ProjectMaster::where('project_id', $id)->first();
 
+        if($project == null){
+            return redirect(url('list-proyek'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
+        }
+
+        if ($project->is_closed) {
+            return redirect(url('project-detail/' . $id))->with(['error' => 'Maaf, Anda sudah tidak dapat melakukan donasi karena status proyek telah ditutup.']);
+        }
+
+        $validator = Validator::make($request->all(), ['donation' => 'required|integer|min:1']);
+
+        if($validator->fails()){
+            return redirect(url('project-detail/' . $id))->withInput()->withErrors($validator->errors());
+        }
+
+        $data['project'] = $project;
+        $data['title'] = 'Donasi Proyek';
+        $data['total'] = $request->donation;
+
+        return view('projectorder', $data);
+    }
+    public function postOrder($id, Request $request)
+    {
         DB::beginTransaction();
         try {
 
@@ -31,6 +52,13 @@ class ProjectOrderController extends Controller
             if ($project->is_closed) {
                 DB::rollback();
                 return redirect(url('project-detail/' . $id))->with(['error' => 'Maaf, Anda sudah tidak dapat melakukan donasi karena status proyek telah ditutup.']);
+            }
+
+            $validator = Validator::make($request->all(), ['donation' => 'required|integer|min:1']);
+
+            if($validator->fails()){
+                DB::rollback();
+                return redirect(url('project-detail/' . $id))->withInput()->withErrors($validator->errors());
             }
 
             $user = auth()->user();

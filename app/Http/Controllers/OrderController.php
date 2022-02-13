@@ -17,22 +17,45 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use App\Services\Midtrans\CreateSnapTokenService;
 use App\Services\Midtrans\UpdateSnapTokenServiceForExpiredTransaction;
 
 class OrderController extends Controller
 {
- 
-    public function index($id, Request $request)
-    {
-        $request->validate(['monthly_subscription' => ['required', Rule::in([1,3,6,12])]]);
+    public function index($id, Request $request){
+        $child = ChildMaster::where('child_id', $id)->first();
+        $now = Carbon::now()->startOfDay();
 
+        if($child == null){
+            return redirect(url('list-child'))->with(['error' => 'Order anak yang dimaksud tidak ditemukan.']);
+        }
+
+        if ($child->is_sponsored || ChildMaster::getStatusSponsor($child->child_id, $now)) {
+            return redirect(url('childdetail/' . $id))->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain.']);
+        }
+
+        $validator = Validator::make($request->all(), ['monthly_subscription' => ['required', Rule::in([1,3,6,12])]]);
+
+        if($validator->fails()){
+            return redirect(url('childdetail/' . $id))->withInput()->withErrors($validator->errors());
+        }
+
+        $data['child'] = $child;
+        $data['title'] = 'Donasi Anak';
+        $data['period'] = $request->monthly_subscription;
+        $data['total'] = $request->monthly_subscription * $child->price;
+        return view('childorder', $data);
+    }
+
+
+    public function postOrder($id, Request $request)
+    {
         DB::beginTransaction();
 
         try {
             $user = auth()->user();
             $childmaster = ChildMaster::where('child_id', $id)->first();
-            $totalprice = $request->monthly_subscription * $childmaster->price;
             $now = Carbon::now()->startOfDay();
 
             if($childmaster == null){
@@ -44,6 +67,15 @@ class OrderController extends Controller
                 DB::rollback();
                 return redirect(url('childdetail/' . $id))->with(['errorsponsor' => 'Maaf, Anda sudah tidak dapat melakukan sponsor karena anak telah memiliki sponsor lain.']);
             }
+
+            $validator = Validator::make($request->all(), ['monthly_subscription' => ['required', Rule::in([1,3,6,12])]]);
+
+            if($validator->fails()){
+                DB::rollback();
+                return redirect(url('childdetail/' . $id))->withInput()->withErrors($validator->errors());
+            }
+
+            $totalprice = $request->monthly_subscription * $childmaster->price;
 
             $idsponsor = $user->sponsor_id;
 
@@ -62,7 +94,7 @@ class OrderController extends Controller
             $startOrderdate = Carbon::now();
             $orders = new DataDetailOrder();
             $orders->order_id = $OrderId;
-            $orders->child_id = $request->childid;
+            $orders->child_id = $id;
             $orders->price = $totalprice;
             $orders->monthly_subscription = $request->monthly_subscription;
             $orders->start_order_date = $startOrderdate;
@@ -104,6 +136,8 @@ class OrderController extends Controller
             throw $e;
         }
     }
+
+
     public function orderdonation($id)
     {
         DB::beginTransaction();
