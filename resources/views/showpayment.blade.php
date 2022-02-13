@@ -71,7 +71,7 @@
                     </table>
                 </div>
             </div>
-            <p class="mb-0 mt-3">Segera lakukan pembayaran dengan metode pembayaran yang tersedia.</p>
+            <p class="mb-0 mt-3">Segera klik button "Bayar Sekarang" untuk melanjutkan pembayaran.</p>
             <p>Jika halaman ini tertutup maka Anda dapat melanjutkan pembayaran pada menu Akun Saya.</p>
         </div>
         <div class="col-12 col-md-4">
