@@ -131,7 +131,8 @@ class OrderController extends Controller
             $now = Carbon::now()->startOfDay();
             $nowSub2Days = $now->copy()->addDay(-2);
 
-            $createdAt = Carbon::parse(DataDetailOrder::where('order_id', $id)->first()->start_order_date)->startOfDay();
+            $orderDetails = DataDetailOrder::where('order_id', $id)->with('childname')->get();
+            $createdAt = Carbon::parse($orderDetails->first()->start_order_date)->startOfDay();
 
             if ($transaction == 'expire' && $nowSub2Days <= $createdAt) {
 
@@ -162,6 +163,8 @@ class OrderController extends Controller
 
             $data['order'] = $order;
             $data['snapToken'] =  $order->snap_token;
+            $data['orderDetails'] = $orderDetails;
+            $data['title'] = 'Checkout Donasi Anak #' . $order->order_id;
 
             return view('showpayment', $data);
         } catch (Exception $e) {

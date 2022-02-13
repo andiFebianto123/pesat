@@ -23,7 +23,7 @@ class SponsorLoginController extends DefaultLoginController
 
     public function showLoginForm()
     {
-        return view('login');
+        return view('login', ['title' => 'Login']);
     }
 
     public function username()

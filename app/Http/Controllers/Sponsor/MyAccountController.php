@@ -107,7 +107,7 @@ class MyAccountController extends Controller
 
     public function forgotpassword()
     {
-        return view('sponsor.forgotpassword');
+        return view('sponsor.forgotpassword', ['title' => 'Lost Password']);
     }
     public function resetpassword(Request $request)
     {
@@ -138,7 +138,7 @@ class MyAccountController extends Controller
     public function register(Request $request)
     {
 
-        return view('sponsor.register');
+        return view('sponsor.register', ['title' => "Register"]);
     }
 
     public function createaccount(Request $request)
@@ -228,7 +228,7 @@ class MyAccountController extends Controller
             ->get();
         $data['orders'] = $orders;
         $data['orderhd'] = $orderhd;
-        $data['title'] = "Detail Donasi";
+        $data['title'] = "Detail Donasi Anak";
 
         return view('sponsor.childdetaildonation', $data);
     }
@@ -244,7 +244,7 @@ class MyAccountController extends Controller
             return redirect(url('project-donation'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
         }
         $data['orders'] = $orderproject;
-        $data['title'] = "Detail Proyek Donasi";
+        $data['title'] = "Detail Donasi Proyek";
         return view('sponsor.projectdetaildonation', $data);
     }
 

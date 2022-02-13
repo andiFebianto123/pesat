@@ -35,7 +35,7 @@
           <div>
             <a class="btn btn-sm btn-primary" href="{{url('child-donation-detail/'.$order->order_id)}}" role="button">Detail</a>
             @if ($order->payment_status == 1)
-              <a class="btn btn-sm btn-primary"  href="{{url('order/' . $order->order_id)}}">Pay</a>
+              <a class="btn btn-sm btn-primary"  href="{{url('checkout-order/' . $order->order_id)}}">Pay</a>
             @endif
           </div>
         </td>

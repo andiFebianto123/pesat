@@ -77,7 +77,7 @@ class ProjectOrderController extends Controller
     {
         DB::beginTransaction();
         try {
-            $orderProject = OrderProject::where('order_project_id', $code)->first();
+            $orderProject = OrderProject::where('order_project_id', $code)->with('project')->first();
             if ($orderProject == null) {
                 DB::rollBack();
                 return redirect()->route('projectdonation')->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
@@ -127,6 +127,7 @@ class ProjectOrderController extends Controller
 
             $data['order'] = $orderProject;
             $data['snapToken'] = $orderProject->snap_token;
+            $data['title'] = 'Checkout Donasi Proyek #' . $orderProject->order_project_id;
 
             return view('projectshowpayment', $data);
         } catch (Exception $e) {

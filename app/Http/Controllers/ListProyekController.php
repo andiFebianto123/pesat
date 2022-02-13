@@ -24,6 +24,7 @@ class ListProyekController extends Controller
                 ->paginate(9);
         }
         $data['projects'] = $project;
+        $data['title'] = 'Sponsor Proyek';
         return view('listproyek', $data);
 
     }
@@ -48,6 +49,8 @@ class ListProyekController extends Controller
             } else {
                 $data['interval'] = $interval;
             }
+
+            $data['title'] = 'Detail Proyek';
             return view('projectdetail', $data);
         }
     }

@@ -69,6 +69,7 @@ class ListChildController extends Controller
             ->groupBy('class')->select('class')->get()->pluck('class');
 
         $data['childs'] = $childs;
+        $data['title'] = 'Sponsor Anak';
 
         return view('listchild', $data);
     }
@@ -100,6 +101,8 @@ class ListChildController extends Controller
 
             $childdata->is_sponsored =  $childdata->is_sponsored || ChildMaster::getStatusSponsor($getChild->child_id, $now);
             $data['childs'] = $childdata;
+
+            $data['title'] = 'Detail Anak';
 
             return view('childdetail', $data);
         }

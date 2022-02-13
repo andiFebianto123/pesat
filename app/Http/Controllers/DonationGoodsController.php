@@ -10,6 +10,6 @@ class DonationGoodsController extends Controller
     //
     public function index(){
         $donateGood = DonateGoods::first();
-        return view('donategoods', ['donateGood' => $donateGood]);
+        return view('donategoods', ['donateGood' => $donateGood, 'title' => 'Sponsor Barang']);
     }
 }

@@ -7,19 +7,26 @@
         </div>
     @endif
         <div class="row">
+            <div class="col-md-8">
+                <p class="mb-3">Terima kasih, order donasi telah berhasil dibuat. Berikut ini detail donasi Anda :</p>
+            </div>
             <div class="col-12 col-md-8">
                 <div class="card shadow">
                     <div class="card-header">
                         <h5>Data Order</h5>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover table-condensed">
+                        <table class="table table-hover table-condensed mb-0">
                             <tr>
                                 <td>ID</td>
                                 <td><b>#{{$order->order_project_id}}</b></td>
                             </tr>
                             <tr>
-                                <td>Total Harga</td>
+                                <td>Nama Proyek</td>
+                                <td><b>{{$order->project->title ?? '-'}}</b></td>
+                            </tr>
+                            <tr>
+                                <td>Total Donasi</td>
                                 <td><b>Rp{{ number_format($order->price, 2, ',', '.') }}</b></td>
                             </tr>
                             <tr>
@@ -36,11 +43,13 @@
                             </tr>
                             <tr>
                                 <td>Tanggal</td>
-                                <td><b>{{ $order->created_at->format('d M Y H:i') }}</b></td>
+                                <td><b>{{ $order->created_at->format('d M Y') }}</b></td>
                             </tr>
                         </table>
                     </div>
                 </div>
+                <p class="mb-0 mt-3">Segera lakukan pembayaran dengan metode pembayaran yang tersedia.</p>
+                <p>Jika halaman ini tertutup maka Anda dapat melanjutkan pembayaran pada menu Akun Saya.</p>
             </div>
             <div class="col-12 col-md-4">
                 <div class="card shadow">
