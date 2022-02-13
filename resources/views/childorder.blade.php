@@ -14,7 +14,7 @@
                     <table class="table table-hover table-condensed mb-0">
                         <tr>
                             <td>Nama Anak</td>
-                            <td><b>#{{ $child->full_name }}</b></td>
+                            <td><b>{{ $child->full_name }}</b></td>
                         </tr>
                         <tr>
                             <td>Total Donasi</td>
