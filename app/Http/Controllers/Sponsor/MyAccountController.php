@@ -202,6 +202,7 @@ class MyAccountController extends Controller
         }
         $orders = DataOrder::where('order_hd.order_id', $id)
             ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+            ->whereNull('odt.deleted_at')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
             ->select(

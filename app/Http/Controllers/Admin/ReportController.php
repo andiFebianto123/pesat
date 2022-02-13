@@ -18,6 +18,7 @@ class ReportController extends Controller
         $now = Carbon::now()->startOfDay();
         $sponsoredchild = DataOrder::join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
             ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
+            ->whereNull('odt.deleted_at')
             ->where('is_sponsored', 1)
             ->orWhere(function ($query) use ($now) {
                 $query->where('payment_status', 2)
@@ -45,6 +46,7 @@ class ReportController extends Controller
 
         $total = DataOrder::where('payment_status', 2)
             ->join('order_dt as odt', 'odt.order_id', 'order_hd.order_id')
+            ->whereNull('odt.deleted_at')
             ->whereBetween('odt.start_order_date', [$newstartDate, $newendDate])
             ->selectRaw('sum(odt.price) as sum_price')
             ->pluck('sum_price')

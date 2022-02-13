@@ -26,8 +26,8 @@ Route::group(['middleware' => ['assign.guard:backpack']], function () {
     ], function () { // custom admin routes
 
         Route::get('dashboard', [DashboardController::class, 'index']);
-        Route::get('report', [ReportController::class, 'index']);
-        Route::post('filter-report', [ReportController::class, 'filterreport']);
+        // Route::get('report', [ReportController::class, 'index']);
+        // Route::post('filter-report', [ReportController::class, 'filterreport']);
         // Route::get('/send-mail/{child_id}/dlp/{dlp_id}', [SendDlp::class,'sendEmail']);
 
         Route::get('/cek-status/{id}', [CekStatusController::class, 'index']);

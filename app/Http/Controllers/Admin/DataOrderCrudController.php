@@ -201,8 +201,6 @@ class DataOrderCrudController extends CrudController
                 'new_item_label' => 'Add Data', // customize the text of the button
                 // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
                 'min_rows' => 0, // minimum rows allowed, when reached the "delete" buttons will be hidden
-                // 'max_rows' => $this->countSponsoredChild(), // maximum rows allowed, when reached the "new item" button will be hidden
-
             ],
             [
                 'name' => 'empty',
@@ -354,8 +352,6 @@ class DataOrderCrudController extends CrudController
             'new_item_label' => 'Add Data', // customize the text of the button
             // 'init_rows' => 2, // number of empty rows to be initialized, by default 1
             //'min_rows' => 2, // minimum rows allowed, when reached the "delete" buttons will be hidden
-            // 'max_rows' => $this->countSponsoredChild($this->crud->getCurrentEntryId(), true), // maximum rows allowed, when reached the "new item" button will be hidden
-
         ];
         $space =             [
             'name' => 'empty',
@@ -465,13 +461,6 @@ class DataOrderCrudController extends CrudController
     function create()
     {
         $this->crud->hasAccessOrFail('create');
-
-        // $sponsoredChild = $this->countSponsoredChild();
-
-        // if ($sponsoredChild == 0) {
-        //     \Alert::error('Semua anak sudah tersponsori')->flash();
-        //     return redirect($this->crud->route);
-        // }
 
         $fields = $this->crud->getCreateFields();
 
@@ -584,6 +573,7 @@ class DataOrderCrudController extends CrudController
             $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $id)
                 ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
                 ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+                ->whereNull('odt.deleted_at')
                 ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
                 ->select(
                     'order_hd.*',
@@ -745,6 +735,7 @@ class DataOrderCrudController extends CrudController
             $Snaptokenorder = DB::table('order_hd')->where('order_hd.order_id', $request->order_id)
                 ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_hd.sponsor_id')
                 ->join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
+                ->whereNull('odt.deleted_at')
                 ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
                 ->select(
                     'order_hd.*',
@@ -838,32 +829,6 @@ class DataOrderCrudController extends CrudController
             ->get();
 
         return $getchild->pluck('price', 'child_id');
-    }
-
-    function countSponsoredChild($id = null, $withSponsored = false)
-    {
-        $now = Carbon::now()->startOfDay();
-        $sponsoredchild = DataOrder::join('order_dt as odt', 'odt.order_id', '=', 'order_hd.order_id')
-            ->join('child_master as cm', 'cm.child_id', '=', 'odt.child_id')
-            ->where('is_sponsored', 1)
-            ->orWhere(function ($query) use ($now) {
-                $query->where('payment_status', '<=', 2)
-                    ->whereDate('odt.start_order_date', '<=', $now)
-                    ->whereDate('odt.end_order_date', '>=', $now)
-                    ->where('odt.deleted_at', null);
-            })
-            ->distinct()
-            ->get();
-
-        $childIds = $sponsoredchild->pluck('child_id');
-        
-        $notsponsoredchild = ChildMaster::whereNotIn('child_id', $childIds)->count();
-
-        if ($withSponsored) {
-            $currentSponsored = DataDetailOrder::where('order_id', $id)->where('deleted_at', null)->count();
-            return $notsponsoredchild +  $currentSponsored;
-        }
-        return $notsponsoredchild;
     }
 
     function sumprice($id)
