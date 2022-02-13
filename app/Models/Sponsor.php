@@ -59,6 +59,15 @@ class Sponsor extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+    public function data_order()
+    {
+        return $this->hasMany(DataOrder::class, 'sponsor_id');
+    }
+
+    public function project_order()
+    {
+        return $this->hasMany(DataOrderProject::class, 'sponsor_id');
+    }
     public function setPhotoProfileAttribute($value)
     {
         // $attribute_name = "featured_image";
