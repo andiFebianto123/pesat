@@ -62,9 +62,10 @@
                     <p class="mb-0">Status : <span class="text-danger">Tersponsori</span></p>
                 @endif
                 </br>
-                <p>Tetapkan untuk berkomitmen mensponsori anak minimal 1 tahun</p>
+                </br>
                 <hr>
-                <p>*) Anda bisa mengirimkan donasi setiap bulan, per 3 bulan, 6 bulan, atau sekaligus untuk 1 tahun.</p>
+                <small>*) Anda bisa mengirimkan donasi setiap bulan, per 3 bulan, 6 bulan, atau sekaligus untuk 1
+                    tahun.</small>
             </div>
         </div>
         <div class="col-lg-9 mt-lg-4">
