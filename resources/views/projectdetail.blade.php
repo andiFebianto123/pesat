@@ -9,48 +9,25 @@
             </div>
         @endif
         <div class="row">
-            <div class="col-lg-6">
-                <div class="row">
-                    @foreach ($imgDetails as $key => $imgDetail)
-                        <div class="col-4" style="margin-bottom: 10px;">
-                            <a href="{{ asset('storage/' . $imgDetail->image_detail) }}" target="_blank"
-                                style="text-decoration:none;color: inherit;">
-                                <img src="{{ asset('storage/' . $imgDetail->image_detail) }}" width="200"
-                                    height="150">
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="col-12">
-                    <a href="{{ asset('storage/' . $project->featured_image) }}" target="_blank"
-                        style="text-decoration:none;color: inherit;">
-                        <img src="{{ asset('storage/' . $project->featured_image) }}" width="100%" height="500">
-                    </a>
-                </div>
-                </br>
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
-                            type="button" role="tab" aria-controls="home" aria-selected="true">Campaign Story</button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        </br>
-                        <h2>Campaign Story</h2>
-                        </br>
-                        <p>
-                            {{ strip_tags($project->discription) }}
-
-                        </p>
+            <div class="row">
+                @foreach ($imgDetails as $key => $imgDetail)
+                    <div class="col-4" style="margin-bottom: 10px;">
+                        <a href="{{ asset('storage/' . $imgDetail->image_detail) }}" target="_blank"
+                            style="text-decoration:none;color: inherit;">
+                            <img src="{{ asset('storage/' . $imgDetail->image_detail) }}" width="200" height="150">
+                        </a>
                     </div>
-
-                </div>
-
+                @endforeach
+            </div>
+            <div class="col-lg-6">
+                <a href="{{ asset('storage/' . $project->featured_image) }}" target="_blank"
+                    style="text-decoration:none;color: inherit;">
+                    <img src="{{ asset('storage/' . $project->featured_image) }}"
+                        style="object-fit: cover; width: 100%; height: 500px;">
+                </a>
             </div>
 
-
-            <div class="col-lg-6 my-4 mt-md-0">
+            <div class="col-lg-6 my-4 my-lg-0">
                 <h2>{{ $project->title }}</h2>
                 <table class="table">
                     <thead class="table-light">
@@ -118,6 +95,29 @@
                     </div>
                 @endif
             </div>
+        </div>
+
+        <div class="col-lg-6">
+            </br>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                        type="button" role="tab" aria-controls="home" aria-selected="true">Campaign Story</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    </br>
+                    <h2>Campaign Story</h2>
+                    </br>
+                    <p>
+                        {{ strip_tags($project->discription) }}
+
+                    </p>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </form>
