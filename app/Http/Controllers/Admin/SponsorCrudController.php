@@ -56,7 +56,7 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
-        $this->crud->addButtonFromModelFunction('line', 'donationHistory', 'donationHistory', 'end');
+        $this->crud->addButtonFromModelFunction('line', 'donationHistory', 'donationHistory', 'beginning');
 
         $this->crud->addColumns([
             [

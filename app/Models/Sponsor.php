@@ -106,6 +106,6 @@ class Sponsor extends Model
 
     public function donationHistory($crud)
     {
-        return '<a class="btn btn-sm btn-link" href="' . url('admin/data-order?sponsor_id=' . $this->sponsor_id) . ' "><i class="la la-edit"></i>Donation History</a>';
+        return '<a class="btn btn-sm btn-link" href="' . url('admin/data-order?sponsor_id=' . $this->sponsor_id) . ' "><i class="la la-hourglass"></i>Donation History</a>';
     }
 }
