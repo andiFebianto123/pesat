@@ -106,7 +106,7 @@ class SponsorCrudController extends CrudController
                         ]
                     )->first();
 
-                    $totalDonation = $sponsor->data_order->sum('total_price');
+                    $totalDonation = $sponsor->data_order->sum('total_price') + $sponsor->project_order->sum('price');
                     return number_format($totalDonation, 2, ',', '.');;
                 }
             ],
