@@ -36,6 +36,7 @@ class ProjectMasterCrudController extends CrudController
         CRUD::setModel(\App\Models\ProjectMaster::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/project-master');
         CRUD::setEntityNameStrings('Data Proyek', 'Data Proyek');
+        $this->crud->rightColumns = 1;
     }
 
     /**
