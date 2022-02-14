@@ -12,7 +12,7 @@ if($orders->payment_status == 1){
 ?>
 
 
-<p>Order {{$orders->order_id}} was placed on {{date("Y-m-d", strtotime($orders->created_at))}} and is currently {{$status}}</p>
+<p>Order {{$orders->order_id}} was placed on {{date("d-m-Y", strtotime($orders->op_created_at))}} and is currently {{$status}}</p>
 <h5 class="card-title">Detail Donasi</h5>
 <table class="table">
   <thead>

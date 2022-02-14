@@ -17,7 +17,7 @@
     }
 ?>
 
-<p>Order {{$orderhd->order_id}} was placed on {{date("Y-m-d", strtotime($orderhd->created_at))}} and is currently {{$status}}</p>
+<p>Order {{$orderhd->order_id}} was placed on {{date("d-m-Y", strtotime($orderhd->created_at))}} and is currently {{$status}}</p>
 <h5 class="card-title">Detail Donasi</h5>
 <table class="table">
   <thead>

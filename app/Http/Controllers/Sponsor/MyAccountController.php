@@ -239,6 +239,7 @@ class MyAccountController extends Controller
         $orderproject = OrderProject::where('order_project_id', $id)
             ->join('sponsor_master as sm', 'sm.sponsor_id', '=', 'order_project.sponsor_id')
             ->join('project_master as pm', 'pm.project_id', '=', 'order_project.project_id')
+            ->select('order_project.*', 'sm.*', 'pm.*', 'order_project.created_at as op_created_at')
             ->first();
         if ($orderproject == null) {
             return redirect(url('project-donation'))->with(['error' => 'Order proyek yang dimaksud tidak ditemukan.']);
