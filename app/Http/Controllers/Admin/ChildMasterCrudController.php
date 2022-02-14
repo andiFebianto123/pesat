@@ -44,6 +44,7 @@ class ChildMasterCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/child-master');
         CRUD::setEntityNameStrings('Data', 'Data Anak');
         $this->crud->dateNow = Carbon::now()->startOfDay();
+        $this->crud->setShowView(backpack_view('child_master_show'));
     }
 
     /**
