@@ -85,6 +85,8 @@ class DataOrderProjectCrudController extends CrudController
 
             ],
             [
+                'name' => 'price',
+                'label' => 'Nominal Donasi',
                 'type' => 'number',
                 'prefix' => 'Rp. ',
                 'decimals'      => 2,
@@ -299,7 +301,7 @@ class DataOrderProjectCrudController extends CrudController
             }
         }
 
-        if($getStatus->payment_status == 3){
+        if ($getStatus->payment_status == 3) {
             \Alert::error('Tidak dapat melakukan perubahan data karena order proyek telah dibatalkan.')->flash();
             return redirect(url($this->crud->route));
         }
@@ -362,7 +364,7 @@ class DataOrderProjectCrudController extends CrudController
                 }
             }
 
-            if($getStatus->payment_status == 3){
+            if ($getStatus->payment_status == 3) {
                 DB::rollBack();
                 \Alert::error('Tidak dapat melakukan perubahan data karena order proyek telah dibatalkan.')->flash();
                 return redirect(url($this->crud->route));
