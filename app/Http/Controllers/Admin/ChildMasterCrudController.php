@@ -755,7 +755,11 @@ class ChildMasterCrudController extends CrudController
             [
                 'name' => 'price',
                 'label' => 'Nominal',
-                'prefix' => 'Rp. '
+                'type' => 'number',
+                'prefix' => 'Rp. ',
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
             ],
             [
                 'name' => 'price',

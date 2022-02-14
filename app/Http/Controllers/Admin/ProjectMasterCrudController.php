@@ -23,9 +23,15 @@ class ProjectMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
+        show as traitshow;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitstore;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        update as traitupdate;
+    }
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -69,6 +75,9 @@ class ProjectMasterCrudController extends CrudController
                 'label' => 'Nominal',
                 'type' => 'number',
                 'prefix' => 'Rp. ',
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
                 'searchLogic' => function ($query, $column, $searchTerm) {
                     $validator = Validator::make(['value' => $searchTerm], ['value' => 'numeric']);
                     if (!$validator->fails()) {
@@ -309,7 +318,6 @@ class ProjectMasterCrudController extends CrudController
         $lastAmount = 0;
         if (($enddate != null & $now > $enddate) || $lastAmount >= $amount) {
             $this->crud->getRequest()->request->set('is_closed', 1);
-
         } else {
             $this->crud->getRequest()->request->set('is_closed', 0);
         }
@@ -347,7 +355,6 @@ class ProjectMasterCrudController extends CrudController
         $lastAmount = $getProject->last_amount;
         if (($enddate != null & $now > $enddate) || $lastAmount >= $amount) {
             $this->crud->getRequest()->request->set('is_closed', 1);
-
         } else {
             $this->crud->getRequest()->request->set('is_closed', 0);
         }
@@ -356,8 +363,10 @@ class ProjectMasterCrudController extends CrudController
         $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
         // update the row in the db
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-            $this->crud->getStrippedSaveRequest());
+        $item = $this->crud->update(
+            $request->get($this->crud->model->getKeyName()),
+            $this->crud->getStrippedSaveRequest()
+        );
         $this->data['entry'] = $this->crud->entry = $item;
 
         // show a success message
@@ -400,6 +409,9 @@ class ProjectMasterCrudController extends CrudController
                 'label' => 'Nominal',
                 'type' => 'number',
                 'prefix' => 'Rp. ',
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
             ],
             [
                 'type' => 'select',
@@ -437,7 +449,6 @@ class ProjectMasterCrudController extends CrudController
             return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
         } else {
             return $this->crud->delete($id);
-
         }
     }
 }

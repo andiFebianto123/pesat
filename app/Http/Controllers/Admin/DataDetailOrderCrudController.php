@@ -74,7 +74,11 @@ class DataDetailOrderCrudController extends CrudController
             [
                 'name' => 'price',
                 'label'=> 'Total',
-                'prefix'=> 'Rp. ',
+                'type' => 'number',
+                'prefix' => 'Rp. ',
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
             ],
             [
                 'name' => 'monthly_subscription',
@@ -291,7 +295,11 @@ class DataDetailOrderCrudController extends CrudController
             [
                 'name' => 'price',
                 'label'=> 'Total',
-                'prefix'=> 'Rp. ',
+                'type' => 'number',
+                'prefix' => 'Rp. ',
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
             ],
             [
                 'name' => 'monthly_subscription',

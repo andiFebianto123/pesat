@@ -89,8 +89,11 @@ class DataOrderCrudController extends CrudController
             [
                 'name' => 'total_price',
                 'label' => 'Total',
+                'type' => 'number',
                 'prefix' => 'Rp. ',
-
+                'decimals'      => 2,
+                'dec_point'     => ',',
+                'thousands_sep' => '.',
             ],
             [
                 'name' => 'payment_status',
@@ -420,8 +423,8 @@ class DataOrderCrudController extends CrudController
 
         // get the info for that entry
         $getOrderDt = DataDetailOrder::where('order_id', $id)
-        ->join('child_master as cm', 'cm.child_id', 'order_dt.child_id')
-        ->select('cm.child_id', 'monthly_subscription', 'cm.price', 'order_dt_id')
+            ->join('child_master as cm', 'cm.child_id', 'order_dt.child_id')
+            ->select('cm.child_id', 'monthly_subscription', 'cm.price', 'order_dt_id')
             ->get();
 
         $orderDt = json_encode($getOrderDt);
