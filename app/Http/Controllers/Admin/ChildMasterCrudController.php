@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
 use App\Models\City;
-use App\Models\OrderDt;
+use App\Models\Sponsor;
 use App\Models\Province;
 use App\Models\Religion;
 use App\Models\ChildMaster;
@@ -29,8 +29,12 @@ class ChildMasterCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {destroy as traitDestroy;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
+        show as traitshow;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation {
+        destroy as traitDestroy;
+    }
     use RedirectCrud;
 
     /**
@@ -59,37 +63,63 @@ class ChildMasterCrudController extends CrudController
         $this->crud->addButtonFromModelFunction('line', 'open_dlp', 'DetailDlp', 'beginning');
         $this->crud->addButtonFromView('top', 'update_sponsor', 'update_sponsor', 'ending');
         $this->crud->addButtonFromView('top', 'update_not_sponsor', 'update_not_sponsor', 'ending');
-        $this->crud->addFilter([
-            'name'  => 'is_sponsored',
-            'type'  => 'dropdown',
-            'label' => 'Status'
-          ], 
-          [
-            1 => 'Tersponsori',
-            0 => 'Belum Tersponsori',
-          ], function($value) { // if the filter is active
-             $this->crud->addClause('where', function($query) use($value){
-                 if($value === "1"){
+        $this->crud->addFilter(
+            [
+                'name'  => 'is_sponsored',
+                'type'  => 'dropdown',
+                'label' => 'Status'
+            ],
+            [
+                1 => 'Tersponsori',
+                0 => 'Belum Tersponsori',
+            ],
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', function ($query) use ($value) {
+                    if ($value === "1") {
+                        $query->where('is_sponsored', 1)
+                            ->orWhereHas('detailorders', function ($innerQuery) {
+                                $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
+                                    ->whereDate('end_order_date', '>=', $this->crud->dateNow)
+                                    ->whereHas('order', function ($deepestQuery) {
+                                        $deepestQuery->where('payment_status', '<=', 2);
+                                    });
+                            });
+                    } else if ($value === "0") {
+                        $query->where('is_sponsored', 0)->whereDoesntHave('detailorders', function ($innerQuery) {
+                            $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
+                                ->whereDate('end_order_date', '>=', $this->crud->dateNow)
+                                ->whereHas('order', function ($deepestQuery) {
+                                    $deepestQuery->where('payment_status', '<=', 2);
+                                });
+                        });
+                    }
+                });
+            }
+        );
+        $this->crud->addFilter(
+            [
+                'name'  => 'sponsor_id',
+                'type' => 'dropdown',
+            ],
+            function () { // the options that show up in the select2
+                return Sponsor::all()->pluck('name', 'sponsor_id')->toArray();
+            },
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', function ($query) use ($value) {
                     $query->where('is_sponsored', 1)
-                    ->orWhereHas('detailorders', function($innerQuery){
-                        $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
-                        ->whereDate('end_order_date', '>=', $this->crud->dateNow)
-                        ->whereHas('order', function($deepestQuery){
-                            $deepestQuery->where('payment_status', '<=', 2);
+                        ->orWhereHas('detailorders', function ($innerQuery) use ($value) {
+                            $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
+                                ->whereDate('end_order_date', '>=', $this->crud->dateNow)
+                                ->whereHas('order', function ($deepestQuery) use ($value) {
+                                    $deepestQuery->where('payment_status', '<=', 2)
+                                        ->whereHas('sponsorname', function ($sponsorQuery) use ($value) {
+                                            $sponsorQuery->where('sponsor_id', $value);
+                                        });
+                                });
                         });
-                    });
-                 }
-                 else if($value === "0"){
-                    $query->where('is_sponsored', 0)->whereDoesntHave('detailorders', function($innerQuery){
-                        $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
-                        ->whereDate('end_order_date', '>=', $this->crud->dateNow)
-                        ->whereHas('order', function($deepestQuery){
-                            $deepestQuery->where('payment_status', '<=', 2);
-                        });
-                    });
-                 }
-             });
-          });
+                });
+            }
+        );
 
         //     $this->crud->removeButton('delete');
         $this->crud->addColumns([
@@ -114,11 +144,10 @@ class ChildMasterCrudController extends CrudController
                 'type' => 'closure',
                 'orderable' => false,
                 'label' => 'Status',
-                'function' => function($entry){
-                    if($entry->is_sponsored){
+                'function' => function ($entry) {
+                    if ($entry->is_sponsored) {
                         return 'Tersponsori (Offline)';
-                    }
-                    else if(ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)){
+                    } else if (ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)) {
                         return 'Tersponsori';
                     }
                     return 'Belum Tersponsori';
@@ -155,8 +184,7 @@ class ChildMasterCrudController extends CrudController
             'name' => 'full_name',
             'type' => 'text',
             'label' => "Nama Lengkap",
-            'attributes' => [
-            ],
+            'attributes' => [],
         ];
 
         $childdiscription = [
@@ -186,7 +214,7 @@ class ChildMasterCrudController extends CrudController
             'type' => 'select2_from_array',
             'allows_null' => false,
             'default'     => 'one',
-            'options'=>['laki-laki'=>'Laki-Laki','perempuan'=>'Perempuan'],
+            'options' => ['laki-laki' => 'Laki-Laki', 'perempuan' => 'Perempuan'],
         ];
 
         $hometown = [
@@ -385,9 +413,10 @@ class ChildMasterCrudController extends CrudController
             'prefix' => '/storage/',
         ];
 
-        $this->crud->addFields([$createdby, $name, $childdiscription,$noRegistration, 
-            $nickname, $gender, $hometown,$dateofbirth, 
-            $religion, $FC,$price, $sponsor, $province,
+        $this->crud->addFields([
+            $createdby, $name, $childdiscription, $noRegistration,
+            $nickname, $gender, $hometown, $dateofbirth,
+            $religion, $FC, $price, $sponsor, $province,
             $city, $districts, $father, $mother,
             $profession, $economy, $class, $school,
             $schoolyear, $signinfc, $leavefc, $reasontoleave,
@@ -419,8 +448,7 @@ class ChildMasterCrudController extends CrudController
             'name' => 'full_name',
             'type' => 'text',
             'label' => "Nama Lengkap",
-            'attributes' => [
-            ],
+            'attributes' => [],
         ];
 
         $childdiscription = [
@@ -450,8 +478,8 @@ class ChildMasterCrudController extends CrudController
             'type' => 'select2_from_array',
             'allows_null' => false,
             'default'     => 'one',
-            'options'=>['laki-laki'=>'Laki-Laki','perempuan'=>'Perempuan'],
-                ];
+            'options' => ['laki-laki' => 'Laki-Laki', 'perempuan' => 'Perempuan'],
+        ];
 
         $hometown = [
             'name' => 'hometown',
@@ -516,7 +544,7 @@ class ChildMasterCrudController extends CrudController
             'data_source' => url("admin/api/province-select"), // url to controller search function (with /{id} should return model)
             'placeholder' => "Select a Province", // placeholder for the select
             'minimum_input_length' => 2, // minimum characters to type before querying results
-            'wrapperAttributes' => [ 
+            'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
             ],
         ];
@@ -649,9 +677,10 @@ class ChildMasterCrudController extends CrudController
             'prefix' => '/storage/',
         ];
 
-        $this->crud->addFields([$createdby, $name, $childdiscription,$noRegistration, 
-            $nickname, $gender, $hometown,$dateofbirth, 
-            $religion, $FC,$price, $sponsor, $province,
+        $this->crud->addFields([
+            $createdby, $name, $childdiscription, $noRegistration,
+            $nickname, $gender, $hometown, $dateofbirth,
+            $religion, $FC, $price, $sponsor, $province,
             $city, $districts, $father, $mother,
             $profession, $economy, $class, $school,
             $schoolyear, $signinfc, $leavefc, $reasontoleave,
@@ -672,11 +701,10 @@ class ChildMasterCrudController extends CrudController
                 'type' => 'closure',
                 'orderable' => false,
                 'label' => 'Status',
-                'function' => function($entry){
-                    if($entry->is_sponsored){
+                'function' => function ($entry) {
+                    if ($entry->is_sponsored) {
                         return 'Tersponsori (Offline)';
-                    }
-                    else if(ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)){
+                    } else if (ChildMaster::getStatusSponsor($entry->child_id, $this->crud->dateNow)) {
                         return 'Tersponsori';
                     }
                     return 'Belum Tersponsori';
@@ -727,7 +755,7 @@ class ChildMasterCrudController extends CrudController
             [
                 'name' => 'price',
                 'label' => 'Nominal',
-                'prefix'=>'Rp. '
+                'prefix' => 'Rp. '
             ],
             [
                 'name' => 'price',
@@ -828,7 +856,6 @@ class ChildMasterCrudController extends CrudController
                 'wrapper' => [
                     'href' => function ($crud, $column, $entry, $related_key) {
                         return url('storage/' . $entry->file_profile);
-
                     },
 
                     'target' => '__blank',
@@ -837,7 +864,6 @@ class ChildMasterCrudController extends CrudController
             ],
 
         ]);
-
     }
 
     function hometown()
@@ -865,7 +891,7 @@ class ChildMasterCrudController extends CrudController
         $province = $cekprovince->exists();
 
         $cekcity = City::where('province_id', $request->province_id)
-        ->where('city_id', $request->city_id);
+            ->where('city_id', $request->city_id);
         $city = $cekcity->exists();
 
         $cekhometown = City::where('city_id', $request->hometown);
@@ -921,7 +947,7 @@ class ChildMasterCrudController extends CrudController
         $province = $cekprovince->exists();
 
         $cekcity = City::where('province_id', $request->province_id)
-        ->where('city_id', $request->city_id);
+            ->where('city_id', $request->city_id);
         $city = $cekcity->exists();
 
         $cekhometown = City::where('city_id', $request->hometown);
@@ -949,8 +975,10 @@ class ChildMasterCrudController extends CrudController
         // MERGE USER
         $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-            $this->crud->getStrippedSaveRequest());
+        $item = $this->crud->update(
+            $request->get($this->crud->model->getKeyName()),
+            $this->crud->getStrippedSaveRequest()
+        );
         $this->data['entry'] = $this->crud->entry = $item;
 
         // show a success message
@@ -966,44 +994,43 @@ class ChildMasterCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('delete');
 
-        $checkchild = DataDetailOrder::where('child_id',$id);
-        $child= $checkchild->exists();
+        $checkchild = DataDetailOrder::where('child_id', $id);
+        $child = $checkchild->exists();
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
         if ($child == true) {
             return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
         } else {
             return $this->crud->delete($id);
-
         }
     }
 
-    function addSponsor(Request $request){
+    function addSponsor(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'entries' => 'required|array|min:1',
-        ]); 
+        ]);
         if ($validator->fails()) {
-            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);   
+            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);
         }
         $entriChilds = request()->input('entries');
         DB::beginTransaction();
-        try{
+        try {
             $errors = [];
             $now = Carbon::now()->startOfDay();
-            foreach($entriChilds as $id){
+            foreach ($entriChilds as $id) {
                 $child = ChildMaster::find($id);
-                if($child !== null){
+                if ($child !== null) {
                     $isOnlineSponsored = ChildMaster::getStatusSponsor($id, $now);
-                    if($isOnlineSponsored){
+                    if ($isOnlineSponsored) {
                         $errors[] = 'Anak ' . $child->full_name . ' telah disponsori secara online.';
-                    }
-                    else if(count($errors) == 0){
+                    } else if (count($errors) == 0) {
                         $child->is_sponsored = 1;
                         $child->save();
                     }
                 }
             }
-            if(count($errors) != 0){
+            if (count($errors) != 0) {
                 DB::rollback();
                 return response()->json([
                     'message' => collect($errors)->join('</br>')
@@ -1013,25 +1040,26 @@ class ChildMasterCrudController extends CrudController
             return response()->json([
                 'message' => 'Berhasil ubah status sponsor'
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
             throw $e;
         }
     }
 
-    function removeSponsor(Request $request){
+    function removeSponsor(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'entries' => 'required|array|min:1',
-        ]); 
+        ]);
         if ($validator->fails()) {
-            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);   
+            return response()->json(['message' => 'Mohon memilih minimal 1 anak yang ingin diubah.'], 422);
         }
         $entriChilds = request()->input('entries');
         DB::beginTransaction();
-        try{
-            foreach($entriChilds as $id){
+        try {
+            foreach ($entriChilds as $id) {
                 $child = ChildMaster::find($id);
-                if($child !== null){
+                if ($child !== null) {
                     $child->is_sponsored = 0;
                     $child->save();
                 }
@@ -1040,11 +1068,9 @@ class ChildMasterCrudController extends CrudController
             return response()->json([
                 'message' => 'Berhasil ubah status sponsor'
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
             throw $e;
         }
     }
-
-
 }

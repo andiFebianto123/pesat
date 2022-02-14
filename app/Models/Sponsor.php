@@ -103,4 +103,9 @@ class Sponsor extends Model
     {
         return '<a class="btn btn-sm btn-link" href="' . url('admin/sponsor/' . $this->sponsor_id . '/edit') . '" id="' . $this->child_id . '" "><i class="la la-edit"></i>Edit2</a>';
     }
+
+    public function donationHistory($crud)
+    {
+        return '<a class="btn btn-sm btn-link" href="' . url('admin/child-master?sponsor_id=' . $this->sponsor_id) . ' "><i class="la la-edit"></i>Donation History</a>';
+    }
 }

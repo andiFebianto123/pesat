@@ -24,9 +24,15 @@ class SponsorCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {store as traitstore;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {update as traitupdate;}
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {show as traitshow;}
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitstore;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation {
+        update as traitupdate;
+    }
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
+        show as traitshow;
+    }
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -48,22 +54,64 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
+        $this->crud->addButtonFromModelFunction('line', 'donationHistory', 'donationHistory', 'end');
 
         $this->crud->addColumns([
             [
                 'name' => 'full_name',
                 'label' => 'Nama',
             ],
-
-            [
-                'label' => 'Gereja',
-                'name' => 'church_member_of',
-            ],
             [
                 'label' => 'Kota',
                 'name' => 'address',
             ],
+            [
+                'name'     => 'total_order',
+                'label'    => 'Jumlah Order',
+                'type'     => 'closure',
+                'function' => function ($entry) {
+                    $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
+                        [
+                            'data_order' => function ($query) {
+                                $query->where('payment_status', 2)
+                                    ->where('deleted_at', null);
+                            },
+                            'project_order' => function ($query) {
+                                $query->where('payment_status', 2)
+                                    ->where('deleted_at', null);
+                            }
+                        ]
+                    )->first();
+
+                    $totalOrder = $sponsor->data_order->count() + $sponsor->project_order->count();
+                    return $totalOrder;
+                }
+            ],
+            [
+                'name'     => 'total_donation',
+                'label'    => 'Jumlah Donasi',
+                'type'     => 'closure',
+                'prefix' => 'Rp. ',
+                'function' => function ($entry) {
+                    $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
+                        [
+                            'data_order' => function ($query) {
+                                $query->where('payment_status', 2)
+                                    ->where('deleted_at', null);
+                            },
+                            'project_order' => function ($query) {
+                                $query->where('payment_status', 2)
+                                    ->where('deleted_at', null);
+                            }
+                        ]
+                    )->first();
+
+                    $totalDonation = $sponsor->data_order->sum('total_price');
+                    return number_format($totalDonation, 2, ',', '.');;
+                }
+            ],
         ]);
+
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -228,13 +276,14 @@ class SponsorCrudController extends CrudController
             'label' => "Photo Profile",
             'name' => "photo_profile",
             'type' => 'image',
-            'upload'=>true,           
+            'upload' => true,
             'crop' => true, // set to true to allow cropping, false to disable
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
             'prefix' => '/storage/',
         ];
 
-        $this->crud->addFields([$username, $email, $firstname, $lastname,
+        $this->crud->addFields([
+            $username, $email, $firstname, $lastname,
             $fullname, $passwordvalue, $passwordconfirm,
             $hometown, $dateofbirth, $address, $noHP,
             $churchmemberof, $label, $website, $facebook,
@@ -424,7 +473,8 @@ class SponsorCrudController extends CrudController
             'prefix' => '/storage',
             'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
         ];
-        $this->crud->addFields([$username, $email, $firstname, $lastname,
+        $this->crud->addFields([
+            $username, $email, $firstname, $lastname,
             $fullname, $passwordvalue, $passwordconfirm, $hometown,
             $dateofbirth, $address, $noHP, $churchmemberof,
             $label, $website, $facebook, $instagram,
@@ -462,7 +512,7 @@ class SponsorCrudController extends CrudController
             [
                 'name'  => 'hometown',
                 'label' => 'Tempat Lahir',
-                'type'  =>'text',
+                'type'  => 'text',
             ],
             [
                 'name'  => 'date_of_birth',
@@ -482,7 +532,7 @@ class SponsorCrudController extends CrudController
             [
                 'name'  => 'church_member_of',
                 'label' => 'Member Dari Gereja',
-                'type'  =>'text'
+                'type'  => 'text'
             ],
             [
                 'name'  => 'email',
@@ -551,7 +601,6 @@ class SponsorCrudController extends CrudController
             ],
 
         ]);
-
     }
 
 
@@ -589,15 +638,15 @@ class SponsorCrudController extends CrudController
             $hashpass = bcrypt($request->input('password'));
 
             $this->crud->getRequest()->request->set('password', $hashpass);
-
         } else {
 
             $this->crud->getRequest()->request->remove('password');
-
         }
 
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-            $this->crud->getStrippedSaveRequest());
+        $item = $this->crud->update(
+            $request->get($this->crud->model->getKeyName()),
+            $this->crud->getStrippedSaveRequest()
+        );
         $this->data['entry'] = $this->crud->entry = $item;
 
         // show a success message
@@ -616,7 +665,7 @@ class SponsorCrudController extends CrudController
         $cekChild = DataOrder::where('sponsor_id', $id);
         $child = $cekChild->exists();
 
-        $cekProject = OrderProject::where('sponsor_id',$id);
+        $cekProject = OrderProject::where('sponsor_id', $id);
         $project = $cekProject->exists();
 
         $id = $this->crud->getCurrentEntryId() ?? $id;
@@ -624,7 +673,6 @@ class SponsorCrudController extends CrudController
             return response()->json(array('status' => 'error', 'msg' => 'Error!', 'message' => 'The selected data has already had relation with other data.'), 403);
         } else {
             return $this->crud->delete($id);
-
         }
     }
 }
