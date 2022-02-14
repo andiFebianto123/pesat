@@ -11,6 +11,7 @@ use App\Models\OrderProject;
 use App\Models\Sponsor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Carbon\Carbon;
 
 /**
  * Class SponsorCrudController
@@ -54,6 +55,8 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
+        $now = Carbon::now()->startOfDay();
+
         $this->crud->addButtonFromModelFunction('line', 'donationHistory', 'donationHistory', 'end');
 
         $this->crud->addColumns([
@@ -69,12 +72,18 @@ class SponsorCrudController extends CrudController
                 'name'     => 'total_order',
                 'label'    => 'Jumlah Order',
                 'type'     => 'closure',
-                'function' => function ($entry) {
+                'function' => function ($entry) use ($now) {
                     $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
                         [
-                            'data_order' => function ($query) {
+                            'data_order' => function ($query) use ($now) {
                                 $query->where('payment_status', 2)
-                                    ->where('deleted_at', null);
+                                    ->where('deleted_at', null)
+                                    ->with([
+                                        'orderdetails' => function ($innerQuery) use ($now) {
+                                            $innerQuery->whereDate('start_order_date', '<=', $now)
+                                                ->whereDate('end_order_date', '>=', $now);
+                                        }
+                                    ]);
                             },
                             'project_order' => function ($query) {
                                 $query->where('payment_status', 2)
@@ -92,12 +101,18 @@ class SponsorCrudController extends CrudController
                 'label'    => 'Jumlah Donasi',
                 'type'     => 'closure',
                 'prefix' => 'Rp. ',
-                'function' => function ($entry) {
+                'function' => function ($entry) use ($now) {
                     $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
                         [
-                            'data_order' => function ($query) {
+                            'data_order' => function ($query) use ($now) {
                                 $query->where('payment_status', 2)
-                                    ->where('deleted_at', null);
+                                    ->where('deleted_at', null)
+                                    ->with([
+                                        'orderdetails' => function ($innerQuery) use ($now) {
+                                            $innerQuery->whereDate('start_order_date', '<=', $now)
+                                                ->whereDate('end_order_date', '>=', $now);
+                                        }
+                                    ]);
                             },
                             'project_order' => function ($query) {
                                 $query->where('payment_status', 2)
