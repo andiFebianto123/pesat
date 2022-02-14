@@ -96,31 +96,6 @@ class ChildMasterCrudController extends CrudController
                 });
             }
         );
-        $this->crud->addFilter(
-            [
-                'name'  => 'sponsor_id',
-                'type' => 'dropdown',
-            ],
-            function () { // the options that show up in the select2
-                return Sponsor::all()->pluck('name', 'sponsor_id')->toArray();
-            },
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', function ($query) use ($value) {
-                    $query->where('is_sponsored', 1)
-                        ->orWhereHas('detailorders', function ($innerQuery) use ($value) {
-                            $innerQuery->whereDate('start_order_date', '<=', $this->crud->dateNow)
-                                ->whereDate('end_order_date', '>=', $this->crud->dateNow)
-                                ->whereHas('order', function ($deepestQuery) use ($value) {
-                                    $deepestQuery->where('payment_status', '<=', 2)
-                                        ->whereHas('sponsorname', function ($sponsorQuery) use ($value) {
-                                            $sponsorQuery->where('sponsor_id', $value);
-                                        });
-                                });
-                        });
-                });
-            }
-        );
-
         //     $this->crud->removeButton('delete');
         $this->crud->addColumns([
             [

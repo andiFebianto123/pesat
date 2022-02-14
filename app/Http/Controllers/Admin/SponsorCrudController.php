@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\SponsorRequest;
 use App\Http\Requests\SponsorUpdateRequest as UpdateRequest;
 use App\Models\DataOrder;
+use App\Models\DataOrderProject;
 use App\Models\OrderDt;
 use App\Models\OrderHd;
 use App\Models\OrderProject;
@@ -55,8 +56,6 @@ class SponsorCrudController extends CrudController
      */
     function setupListOperation()
     {
-        $now = Carbon::now()->startOfDay();
-
         $this->crud->addButtonFromModelFunction('line', 'donationHistory', 'donationHistory', 'end');
 
         $this->crud->addColumns([
@@ -72,27 +71,10 @@ class SponsorCrudController extends CrudController
                 'name'     => 'total_order',
                 'label'    => 'Jumlah Order',
                 'type'     => 'closure',
-                'function' => function ($entry) use ($now) {
-                    $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
-                        [
-                            'data_order' => function ($query) use ($now) {
-                                $query->where('payment_status', 2)
-                                    ->where('deleted_at', null)
-                                    ->with([
-                                        'orderdetails' => function ($innerQuery) use ($now) {
-                                            $innerQuery->whereDate('start_order_date', '<=', $now)
-                                                ->whereDate('end_order_date', '>=', $now);
-                                        }
-                                    ]);
-                            },
-                            'project_order' => function ($query) {
-                                $query->where('payment_status', 2)
-                                    ->where('deleted_at', null);
-                            }
-                        ]
-                    )->first();
+                'function' => function ($entry) {
 
-                    $totalOrder = $sponsor->data_order->count() + $sponsor->project_order->count();
+                    $totalOrder = DataOrder::where('sponsor_id', $entry->sponsor_id)->where('payment_status', 2)->count() +
+                        DataOrderProject::where('sponsor_id', $entry->sponsor_id)->where('payment_status', 2)->count();
                     return $totalOrder;
                 }
             ],
@@ -101,27 +83,10 @@ class SponsorCrudController extends CrudController
                 'label'    => 'Jumlah Donasi',
                 'type'     => 'closure',
                 'prefix' => 'Rp. ',
-                'function' => function ($entry) use ($now) {
-                    $sponsor = $entry->where('sponsor_id', $entry->sponsor_id)->with(
-                        [
-                            'data_order' => function ($query) use ($now) {
-                                $query->where('payment_status', 2)
-                                    ->where('deleted_at', null)
-                                    ->with([
-                                        'orderdetails' => function ($innerQuery) use ($now) {
-                                            $innerQuery->whereDate('start_order_date', '<=', $now)
-                                                ->whereDate('end_order_date', '>=', $now);
-                                        }
-                                    ]);
-                            },
-                            'project_order' => function ($query) {
-                                $query->where('payment_status', 2)
-                                    ->where('deleted_at', null);
-                            }
-                        ]
-                    )->first();
+                'function' => function ($entry) {
 
-                    $totalDonation = $sponsor->data_order->sum('total_price') + $sponsor->project_order->sum('price');
+                    $totalDonation = DataOrder::where('sponsor_id', $entry->sponsor_id)->where('payment_status', 2)->sum('total_price') +
+                        DataOrderProject::where('sponsor_id', $entry->sponsor_id)->where('payment_status', 2)->sum('price');
                     return number_format($totalDonation, 2, ',', '.');;
                 }
             ],

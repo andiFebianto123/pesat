@@ -107,6 +107,22 @@ class DataOrderCrudController extends CrudController
                 'label' => 'Status Midtrans',
             ],
         ]);
+
+
+        $this->crud->addFilter(
+            [
+                'name'  => 'sponsor_id',
+                'type' => 'dropdown',
+            ],
+            function () { // the options that show up in the select2
+                return Sponsor::all()->pluck('name', 'sponsor_id')->toArray();
+            },
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', function ($query) use ($value) {
+                    $query->where('sponsor_id', $value);
+                });
+            }
+        );
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
