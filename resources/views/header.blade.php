@@ -32,6 +32,9 @@
     -webkit-transition: .5s;
 }
 </style>
+@section('after_styles')
+@endsection
+
 </head>
 <body>
 <div class="navigation position-relative">

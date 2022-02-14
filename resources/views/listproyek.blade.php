@@ -1,6 +1,6 @@
 
 @include('header')
-    <div class="container">
+    <div class="container pb-5 pb-md-0">
         <div class="col-12" >
             <div class="bs-callout bs-callout-primary">
                 <h2>Sponsor Proyek</h2>
@@ -38,10 +38,10 @@
         <div class="row">
             @foreach ($projects as $key => $project)
     
-            <div class="col-4">
+            <div class="col-md-6 col-lg-4 mb-4">
                 <a href="{{url('project-detail/'.$project->project_id)}}" style="text-decoration:none;color: inherit;">
                     <input type="hidden" name="projectid" value="{{$project->project_id}}">
-                        <div class="card" style="width: 23rem;margin-left:25px; margin-bottom:30px;">
+                        <div class="card h-100">
                             @if($project->featured_image == '')
                             <img class="card-img-top" src="{{asset('storage/image/blank.png')}}" alt="Card image cap">
                             @else
