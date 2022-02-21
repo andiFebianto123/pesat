@@ -96,6 +96,10 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
             $anak->internal_discription = null;
             $anak->status_dlp = 0;
             $anak->created_by = backpack_auth()->user()->id;
+            if ($row['image_url'] != null) {
+                $anak->setPhotoProfileAttribute($row['image_url'], true);
+            }
+
             //$anak->is_active = 1;
             $anak->save();
         } catch (Exception $e) {
@@ -251,6 +255,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
             'sekolah' => 'required|max:255',
             'masuk_fc' => 'string|nullable',
             'keluar_fc' => 'string|nullable',
+            'image_url' => 'string|nullable',
         ];
     }
 

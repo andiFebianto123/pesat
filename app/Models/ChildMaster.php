@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Traits\CustomRevisionableTrait;
+use Exception;
 
 class ChildMaster extends Model
 {
@@ -85,7 +86,7 @@ class ChildMaster extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-  public function setPhotoProfileAttribute($value)
+  public function setPhotoProfileAttribute($value, $fromUrl = false)
   {
     // $attribute_name = "featured_image";
     // $disk = "public";
@@ -105,15 +106,18 @@ class ChildMaster extends Model
     }
 
     // if a base64 was sent, store it in the db
-    if (str_starts_with($value, 'data:image')) {
-      // 0. Make the image
-      $image = \Image::make($value)->encode('jpg', 90);
-      // 1. Generate a filename.
-      $filename = md5($value . time()) . '.jpg';
-      // 2. Store the image on disk.
-      \Storage::disk($disk)->put($destination_path . '/' . $filename, $image->stream());
-      // 3. Save the path to the database
-      $this->attributes[$attribute_name] = $destination_path . '/' . $filename;
+    if (str_starts_with($value, 'data:image') || $fromUrl) {
+      try {
+        // 0. Make the image
+        $image = \Image::make($value)->encode('jpg', 90);
+        // 1. Generate a filename.
+        $filename = md5($value . time()) . '.jpg';
+        // 2. Store the image on disk.
+        \Storage::disk($disk)->put($destination_path . '/' . $filename, $image->stream());
+        // 3. Save the path to the database
+        $this->attributes[$attribute_name] = $destination_path . '/' . $filename;
+      } catch (Exception $e) {
+      }
     }
   }
   public function setFileProfileAttribute($value)
