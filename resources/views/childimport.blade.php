@@ -144,6 +144,7 @@
 
                     },
                     error: function(xhr, desc, err) {
+                        $('#loading-image').hide();
                         $('#formSubmit').removeAttr('disabled');
                         new Noty({
                             type: 'danger',

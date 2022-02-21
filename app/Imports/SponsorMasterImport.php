@@ -42,6 +42,13 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
 
 
     public $errorsMessage = [];
+    public $pass;
+
+    function __construct()
+    {
+        $this->pass = bcrypt('pesat');
+    }
+
 
     public function onRow(Row $row)
     {
@@ -55,57 +62,113 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
             return;
         }
 
-        $sponsor = Sponsor::where('sponsor_id', $row['kode'] ?? null)->first();
+        try {
 
-        if (empty($sponsor)) {
-            // maka dia buat data baru
-            $sponsor = new Sponsor;
+            $isValid = $this->isValidData($row->toArray());
+
+            if (!$isValid) return;
+
+            $row = $this->convertRowData($row->toArray(), $rowIndex);
+
+            $sponsor = Sponsor::where('sponsor_id', $row['id'] ?? null)->first();
+
+            if (empty($sponsor)) {
+                // maka dia buat data baru
+                $sponsor = new Sponsor;
+                $sponsor->sponsor_id = $row['id'];
+            }
+
+            $sponsor->name = $row['nama'];
+            $sponsor->first_name = $row['first_name'] ?? null;
+            $sponsor->last_name = $row['last_name'] ?? null;
+            $sponsor->full_name = $row['nama'];
+
+            $sponsor->hometown = $row['tempat_lahir'] ?? null;
+            $sponsor->date_of_birth = ($row['tanggal_lahir'] === null ? null : Carbon::parse($row['tanggal_lahir']));
+            $sponsor->address = $row['alamat'] ?? null;
+            $sponsor->no_hp = $row['no_ponsel__whatsapp'] ?? null;
+            $sponsor->church_member_of = $row['jemaat_dari_gereja'] ?? null;
+            $sponsor->email = $row['user_email'];
+            //generated password test 
+            $sponsor->password = $this->pass;
+            $sponsor->save();
+        } catch (Execption $e) {
+            $this->errorsMessage[] = ['row' => $rowIndex, 'message' => $e->getMessage()];
         }
-
-        $sponsor->sponsor_id = $row['kode'];
-        $sponsor->full_name = $row['n_a_m_a'];
-        $sponsor->name = $row['n_a_m_a'];
-        $sponsor->hometown = $row['tpt_lahir'] ?? null;
-        $sponsor->date_of_birth = ($row['tgl_lahir'] === null ? null : $this->convertNumbertoDate($row['tgl_lahir']));
-        $sponsor->address = $row['alamat'] ?? null;
-        $sponsor->no_hp = $row['handphone'];
-        $sponsor->church_member_of = $row['gereja'] ?? null;
-        $sponsor->email = $row['email'];
-        //generated password test 
-        $sponsor->password = bcrypt('pesat');
-        $sponsor->save();
     }
 
-    function convertNumbertoDate($str){
-        try{
-            $date = \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($str))
-            ->format('Y-m-d');
-            return $date;
+    private function isValidData($data)
+    {
+        $isValid = true;
+
+        if ($data['user_email'] == null) {
+            $isValid = false;
+        } else if (!filter_var($data['user_email'], FILTER_VALIDATE_EMAIL)) {
+            $isValid = false;
+        } else {
+            $emailExist = Sponsor::where('email', $data['user_email'])->first();
+            if ($emailExist != null) $isValid = false;
         }
-        catch(Exception $e){
-            return null;
+        if (!isset($data['nama'])) {
+            $isValid = false;
         }
+
+        return $isValid;
+    }
+
+
+
+    private function convertRowData($data, $index)
+    {
+        if ($data['nama']) {
+            $name = explode(" ", $data['nama']);
+            if (count($name) >= 2) {
+                $data['first_name'] = $name[0];
+                $data['last_name'] = $name[1];
+            }
+        }
+
+        if ($data['tempat_lahir'] != null) {
+            // cek tempat lahir terlebih dahulu
+            $kabupaten = trim($data['tempat_lahir']);
+            $cekKota = City::where('city_name', 'LIKE', "%{$kabupaten}%")->limit(1);
+            if ($cekKota->exists()) {
+                // jika ada 
+                $data['tempat_lahir'] = $cekKota->get()[0]->city_id;
+            } else {
+                $data['tempat_lahir'] = null;
+            }
+        }
+
+        if ($data['tanggal_lahir']) {
+            $birthday = explode("/", $data['tanggal_lahir']);
+            if (count($birthday) == 3) {
+                $birthday = join("-", $birthday);
+                $data['tanggal_lahir'] = $birthday;
+            }
+
+            try {
+                Carbon::parse($data['tanggal_lahir']);
+            } catch (\Exception $e) {
+                $data['tanggal_lahir'] = null;
+            }
+        }
+
+        return $data;
     }
 
     public function rules($data): array
     {
         return [
-            'kode' => ['nullable', 'integer', function($attribute, $value, $onFailure){
-                if((strlen($value) > 0)){
-                    // jika ada id nya maka akan dilakukan cek
-                    if (!Sponsor::where('sponsor_id', $value)->exists()) {
-                        $onFailure('ID of sponsor is not exists to update');
-                    }
-                }
-            }],
-            'n_a_m_a' => 'required|max:255',
+            'id' => 'required|integer',
+            'nama' => 'nullable|max:255',
             // 'status' => 'required',
-            'tpt_lahir' => 'nullable|max:255',
-            'tgl_lahir' => 'nullable|numeric',
+            'tempat_lahir' => 'nullable|max:255',
+            'tanggal_lahir' => 'nullable|max:255',
             'alamat' => 'nullable|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('sponsor_master')->ignore(($data['kode'] ?? null), 'sponsor_id')],
-            'handphone' => 'required|max:255',
-            'gereja' => 'nullable|max:255',
+            'user_email' => 'nullable|max:255',
+            'no_ponsel__whatsapp' => 'nullable|max:255',
+            'jemaat_dari_gereja' => 'nullable|max:255',
         ];
     }
 

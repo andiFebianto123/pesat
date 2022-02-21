@@ -39,6 +39,14 @@
                         </div>
                         <input type="submit" class="btn btn-primary btn-sm" id="formSubmit" value="Submit" />
                     </form>
+                    <img id="loading-image" style="position: absolute;
+                                                                top: 50%;
+                                                                left: 50%;
+                                                                transform: translate(-50%, -50%);
+                                                                z-index: 10;
+                                                                display:none;
+                                                            "
+                        src="{{ url('/packages/backpack/crud/img/ajax-loader.gif') }}" alt="Processing...">
                 </div>
             </div>
         </div>
@@ -94,6 +102,7 @@
                 if (files.length > 0) {
                     dataForm.append('file', files[0]);
                 }
+                $('#loading-image').show();
                 $.ajax({
                     type: "POST",
                     url: actionUrl,
@@ -102,6 +111,7 @@
                     contentType: false,
                     success: function(result) {
                         $(form)[0].reset();
+                        $('#loading-image').hide();
                         $('#formSubmit').removeAttr('disabled');
                         if (result.validator) {
                             $('#formFile').addClass('is-invalid');
@@ -134,6 +144,7 @@
 
                     },
                     error: function(xhr, desc, err) {
+                        $('#loading-image').hide();
                         $('#formSubmit').removeAttr('disabled');
                         new Noty({
                             type: 'danger',
