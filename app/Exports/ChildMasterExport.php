@@ -2,17 +2,20 @@
 
 namespace App\Exports;
 
-use App\Models\ChildMaster;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Contracts\Support\Responsable;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Carbon\Carbon;
 
-class ChildMasterExport implements Responsable, WithHeadings, WithStyles
+class ChildMasterExport implements Responsable, WithHeadings, WithStyles, FromArray, WithColumnFormatting
 {
     use Exportable;
 
@@ -23,41 +26,86 @@ class ChildMasterExport implements Responsable, WithHeadings, WithStyles
     {
         return [
             'ID',
-            'No. Induk',
-            'N a m a',
+            'No Induk',
+            'Nama',
             'Panggilan',
-            'S',
-            'Status',
-            'Tpt Lahir',
+            'Jenis Kelamin',
+            'Tanggal Lahir',
+            'Tempat Lahir',
+            'Alamat Kabupaten',
+            'Alamat Kecamatan',
+            'Alamat Propinsi',
             'FC',
+            'Nominal Sponsor',
             'Agama',
-            'Alamat',
-            'Kecamatan',
-            'Kabupaten',
-            'Propinsi',
             'Ayah',
             'Ibu',
             'Pekerjaan',
-            'Eko',
+            'Ekonomi',
             'Kelas',
-            'an',
+            'Tahun Ajaran',
             'Sekolah',
             'Masuk FC',
             'Keluar FC',
             'Alasan Keluar',
-            'Keterangan'
+            'Keterangan',
+            'Foto Profile Url'
         ];
     }
 
+    public function array(): array
+    {
+        return [
+            [
+                '10197',
+                'JW/CLN/00001',
+                'Dhiana Sari',
+                'Diana',
+                'P',
+                Date::dateTimeToExcel(Carbon::parse('03-09-2002')),
+                'Kabupaten Semarang',
+                'Kabupaten Semarang',
+                'Pedurungan',
+                'Jawa Tengah',
+                'Celengan',
+                150000,
+                'Islam',
+                'Mohamad Yasin',
+                'Sartini',
+                'Buruh - Irt',
+                'Miskin',
+                'XII',
+                '2020-2021',
+                'SMA',
+                Date::dateTimeToExcel(Carbon::parse('01-01-2006')),
+                Date::dateTimeToExcel(Carbon::parse('30-07-2020')),
+                'LULUS SMA/SMK',
+                'DLP MAR 2011 OK... LULUS SMA/SMK TP 2019-2020.',
+                'https://pesat.org/wp-content/uploads/2019/07/Dhiana-Sari-XI-SMA.jpg'
+            ]
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'F' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+            'L' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'U' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+            'V' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+        ];
+    }
+
+
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:X1')->getFont()->setBold(true);
-        foreach (range('A', 'X') as $columnID) {
+        $sheet->getStyle('A1:Y1')->getFont()->setBold(true);
+        foreach (range('A', 'Y') as $columnID) {
             $sheet->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
 
-        $sheet->getStyle('A1:X1')->getBorders()
+        $sheet->getStyle('A1:Y1')->getBorders()
             ->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
     }
