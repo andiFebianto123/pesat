@@ -37,7 +37,7 @@ class ChildMasterRequest extends FormRequest
             'full_name'             =>  'required|max:255',
             'nickname'              =>  'required|max:255',
             'gender'                =>  'required|max:255',
-            'hometown'              =>  'regex:/^[0-9]+$/',
+            'hometown'              =>  'required|regex:/^[0-9]+$/',
             'date_of_birth'         =>  'required|date|date_format:Y-m-d',
             'religion_id'           =>  'regex:/^[0-9]+$/',
             'fc'                    =>  'max:255',
