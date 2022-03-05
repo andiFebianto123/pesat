@@ -58,6 +58,11 @@ class DataOrder extends Model
         return $this->hasMany(DataDetailOrder::class, 'order_id', 'order_id');
     }
 
+    public function oneorderdetail()
+    {
+        return $this->hasOne(DataDetailOrder::class, 'order_id', 'order_id');
+    }
+
     public function orders()
     {
         return $this->orderdt()->belongsTo(ChildMaster::class, 'child_id', 'child_id');

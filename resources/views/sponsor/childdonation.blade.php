@@ -34,6 +34,11 @@
         <td>
           <div>
             <a class="btn btn-sm btn-primary" href="{{url('child-donation-detail/'.$order->order_id)}}" role="button">Detail</a>
+            @if ($order->oneorderdetail != null)
+            <a href="{{url('list-dlp/'.$order->oneorderdetail->child_id)}}" class="btn btn-sm btn-primary">
+             List DLP
+            </a>
+            @endif
             @if ($order->payment_status == 1)
               <a class="btn btn-sm btn-primary"  href="{{url('checkout-order/' . $order->order_id)}}">Pay</a>
             @endif

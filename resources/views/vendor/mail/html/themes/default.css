@@ -239,6 +239,14 @@ img {
     border-top: 8px solid #2d3748;
 }
 
+.button-light-blue{
+    background-color: #2196f3;
+    border-bottom: 8px solid #2196f3;
+    border-left: 18px solid #2196f3;
+    border-right: 18px solid #2196f3;
+    border-top: 8px solid #2196f3;
+}
+
 .button-green,
 .button-success {
     background-color: #48bb78;

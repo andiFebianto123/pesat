@@ -24,7 +24,6 @@
     <tr>
       <th scope="col">Donasi</th>
       <th scope="col">Total</th>
-      <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -32,11 +31,6 @@
     <tr>
       <td>{{$order->child_name." - 1 Bulan x ".$order->monthly_subscription}}</td>
       <td>Rp{{ number_format($order->price_dt, 2, ',', '.') }}</td>
-      <td>
-      <a href="{{url('list-dlp/'.$order->child_id)}}">
-        <button class="btn btn-sm btn-primary" type="submit">List DLP</button>
-        </a>
-      </td>
     </tr>
 @endforeach
     <tr>

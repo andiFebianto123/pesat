@@ -69,7 +69,8 @@ class PaymentReminder extends Command
                     'cm.child_id', 'cm.full_name as child_name', 'cm.registration_number', 'cm.gender', 'cm.date_of_birth', 'cm.class', 'cm.school', 'cm.school_year'
                 )
                 ->get();
-           $this->handlePaymentReminder($orders);
+        
+            $this->handlePaymentReminder($orders);
 
             $dateafter3days = $now->copy()->addDay(3);
             $orders1month = DataDetailOrder::join('order_hd', 'order_hd.order_id', '=', 'order_dt.order_id')
@@ -126,7 +127,7 @@ class PaymentReminder extends Command
             $order = DataOrder::where('order_id', $orderId)->with('sponsorname')->first();
             if($order != null){
                 Mail::to($order->sponsorname->email)
-                ->send(new ReminderOrder($order, $orderDetails, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, false));
+                ->send(new ReminderOrder($order, $orderDetails, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, true));
             }
         }
     }

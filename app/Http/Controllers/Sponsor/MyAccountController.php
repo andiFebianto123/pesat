@@ -34,6 +34,7 @@ class MyAccountController extends Controller
         $getUserId = $user->sponsor_id;
 
         $getOrder = DataOrder::where('sponsor_id', $getUserId)
+        ->with('oneorderdetail:order_id,child_id')
             ->orderBy('order_id', 'desc')->paginate(5);
         $data['orders'] = $getOrder;
         $data['title'] = "List Anak";

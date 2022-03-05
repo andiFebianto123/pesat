@@ -161,7 +161,7 @@ class CreateChildOrder extends Command
 
             $order->has_child = 1;
             $order->save();
-            $uniqueOrderId[$order->order_id] = true;
+            $uniqueOrderId[$dataOrder->order_id] = true;
         }
 
         foreach($uniqueOrderId as $orderId => $boolean){
@@ -169,7 +169,7 @@ class CreateChildOrder extends Command
             $order = DataOrder::where('order_id', $orderId)->with('sponsorname')->first();
             if($order != null){
                 Mail::to($order->sponsorname->email)
-                ->send(new ReminderOrder($order, $orderDetails, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Terakhir Pembaharuan Donasi di Pesat #' . $order->order_id, true));
+                ->send(new ReminderOrder($order, $orderDetails, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, 'Info Pembaharuan Donasi di Pesat #' . $order->order_id, false));
             }
         }
     }

@@ -57,6 +57,9 @@
         <p></p>
         {{$sponsor->email}}
     </div>
+    @component('mail::button', ['url' => url('checkout-order/' . $orderId), 'color' => 'light-blue'])
+    Pay Now
+    @endcomponent
     Mohon untuk segera melakukan pembayaran sebelum tanggal berakhirnya masa sponsor.
     <p style="margin: 0px"></p>
     Abaikan email ini jika Anda sudah melakukan pembayaran.

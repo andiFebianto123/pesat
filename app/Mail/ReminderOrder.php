@@ -52,6 +52,7 @@ class ReminderOrder extends Mailable
             'subtotal' => number_format($this->order->total_price, 2, ',', '.'),
             'total' => number_format($this->order->total_price, 2, ',', '.'),
             'payment_method' => $this->order->payment_type,
+            'orderId' => $this->order->order_id,
             'orderDetails' => $this->orderDetails,
             'lastReminder' => $this->lastReminder
         ]);
