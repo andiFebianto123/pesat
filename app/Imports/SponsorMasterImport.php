@@ -54,6 +54,15 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
     {
         $rowIndex = $row->getIndex();
         $dataRow  = $row->toArray();
+        if (isset($dataRow['tanggal_lahir']) && is_numeric($dataRow['tanggal_lahir'])) {
+            try{
+                $dataRow['tanggal_lahir'] = $this->formatDateExcel($dataRow['tanggal_lahir']);
+            }
+            catch(Exception $e){
+                $dataRow['tanggal_lahir'] = null;
+            }
+        }
+
 
         $validator = Validator::make($dataRow, $this->rules($dataRow));
 
@@ -63,19 +72,20 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
         }
 
         try {
+            $row = $dataRow;
 
-            $isValid = $this->isValidData($row->toArray());
+            $isValid = $this->isValidData($row);
 
             if (!$isValid) return;
 
-            $row = $this->convertRowData($row->toArray(), $rowIndex);
+            $row = $this->convertRowData($row, $rowIndex);
 
             $sponsor = Sponsor::where('sponsor_id', $row['id'] ?? null)->first();
 
             if (empty($sponsor)) {
                 // maka dia buat data baru
                 $sponsor = new Sponsor;
-                $sponsor->sponsor_id = $row['id'];
+                // $sponsor->sponsor_id = $row['id'];
             }
 
             $sponsor->name = $row['nama'];
@@ -86,7 +96,7 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
             $sponsor->hometown = $row['tempat_lahir'] ?? null;
             $sponsor->date_of_birth = ($row['tanggal_lahir'] === null ? null : Carbon::parse($row['tanggal_lahir']));
             $sponsor->address = $row['alamat'] ?? null;
-            $sponsor->no_hp = $row['no_ponsel__whatsapp'] ?? null;
+            $sponsor->no_hp = $row['no_ponsel_whatsapp'] ?? null;
             $sponsor->church_member_of = $row['jemaat_dari_gereja'] ?? null;
             $sponsor->email = $row['user_email'];
             //generated password test 
@@ -120,39 +130,37 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
 
     private function convertRowData($data, $index)
     {
-        if ($data['nama']) {
-            $name = explode(" ", $data['nama']);
-            if (count($name) >= 2) {
-                $data['first_name'] = $name[0];
-                $data['last_name'] = $name[1];
-            }
+        $name = explode(" ", $data['nama']);
+        if (count($name) >= 2) {
+            $data['first_name'] = $name[0];
+            $data['last_name'] = $name[1];
         }
+        
+        // if ($data['tempat_lahir'] != null) {
+        //     // cek tempat lahir terlebih dahulu
+        //     $kabupaten = trim($data['tempat_lahir']);
+        //     $cekKota = City::where('city_name', 'LIKE', "%{$kabupaten}%")->limit(1);
+        //     if ($cekKota->exists()) {
+        //         // jika ada 
+        //         $data['tempat_lahir'] = $cekKota->get()[0]->city_id;
+        //     } else {
+        //         $data['tempat_lahir'] = null;
+        //     }
+        // }
 
-        if ($data['tempat_lahir'] != null) {
-            // cek tempat lahir terlebih dahulu
-            $kabupaten = trim($data['tempat_lahir']);
-            $cekKota = City::where('city_name', 'LIKE', "%{$kabupaten}%")->limit(1);
-            if ($cekKota->exists()) {
-                // jika ada 
-                $data['tempat_lahir'] = $cekKota->get()[0]->city_id;
-            } else {
-                $data['tempat_lahir'] = null;
-            }
-        }
+        // if (isset($data['tanggal_lahir'])) {
+            // $birthday = explode("/", $data['tanggal_lahir']);
+            // if (count($birthday) == 3) {
+            //     $birthday = join("-", $birthday);
+            //     $data['tanggal_lahir'] = $birthday;
+            // }
 
-        if ($data['tanggal_lahir']) {
-            $birthday = explode("/", $data['tanggal_lahir']);
-            if (count($birthday) == 3) {
-                $birthday = join("-", $birthday);
-                $data['tanggal_lahir'] = $birthday;
-            }
-
-            try {
-                Carbon::parse($data['tanggal_lahir']);
-            } catch (\Exception $e) {
-                $data['tanggal_lahir'] = null;
-            }
-        }
+            // try {
+            //     Carbon::parse($data['tanggal_lahir']);
+            // } catch (\Exception $e) {
+            //     $data['tanggal_lahir'] = null;
+            // }
+        // }
 
         return $data;
     }
@@ -160,14 +168,14 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
     public function rules($data): array
     {
         return [
-            'id' => 'required|integer',
-            'nama' => 'nullable|max:255',
+            'id' => 'nullable|integer',
+            'nama' => 'required|max:255',
             // 'status' => 'required',
             'tempat_lahir' => 'nullable|max:255',
-            'tanggal_lahir' => 'nullable|max:255',
+            'tanggal_lahir' => 'nullable|date',
             'alamat' => 'nullable|max:255',
-            'user_email' => 'nullable|max:255',
-            'no_ponsel__whatsapp' => 'nullable|max:255',
+            'user_email' => 'required|email|max:255',
+            'no_ponsel_whatsapp' => 'nullable|max:255',
             'jemaat_dari_gereja' => 'nullable|max:255',
         ];
     }
@@ -182,5 +190,10 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
         return [
             0 => $this,
         ];
+    }
+
+    function formatDateExcel($dateExcel)
+    {
+        return Carbon::createFromTimestamp(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp($dateExcel));
     }
 }

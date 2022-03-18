@@ -29,11 +29,10 @@ class SponsorExport implements Responsable, WithHeadings, WithStyles, FromArray,
             'Nama',
             'Tanggal Lahir',
             'Tempat Lahir',
-            'Alamat Kabupaten',
-            'Alamat Lengkap',
-            'Nomor Hp',
-            'Gereja',
-            'Email'
+            'Alamat',
+            'No Ponsel / Whatsapp',
+            'Jemaat Dari Gereja',
+            'User Email'
         ];
     }
 
@@ -41,10 +40,9 @@ class SponsorExport implements Responsable, WithHeadings, WithStyles, FromArray,
     {
         return [
             [
-                '32',
+                '',
                 'Sunadi Purnomo',
                 Date::dateTimeToExcel(Carbon::parse('19-08-1970')),
-                'Kabupaten Semarang',
                 'Kabupaten Semarang',
                 'PT. Anugerah Steel, Jl. Raya Pangeran Tubagus Angke Komplek Ruko Taman Duta mas Blok E1 No.10',
                 '081333122213',

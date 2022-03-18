@@ -15,6 +15,7 @@
                 Sponsor</a>
             <div class="card">
                 <div class="card-body">
+                    <p><span class="font-weight-bold">INFO</span> : Apabila ID tidak ditemukan maka akan dibuat data Sponsor baru.</p>
                     <form action="{{ backpack_url('importsponsor') }}" class="" id="custom-form"
                         method="POST" enctype="multipart/form-data">
                         @if ($message = Session::get('success'))

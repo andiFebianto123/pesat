@@ -32,9 +32,9 @@ class ChildMasterExport implements Responsable, WithHeadings, WithStyles, FromAr
             'Jenis Kelamin',
             'Tanggal Lahir',
             'Tempat Lahir',
-            'Alamat Kabupaten',
-            'Alamat Kecamatan',
-            'Alamat Propinsi',
+            'Kabupaten',
+            'Kecamatan',
+            'Propinsi',
             'FC',
             'Nominal Sponsor',
             'Agama',
@@ -57,7 +57,7 @@ class ChildMasterExport implements Responsable, WithHeadings, WithStyles, FromAr
     {
         return [
             [
-                '10197',
+                '',
                 'JW/CLN/00001',
                 'Dhiana Sari',
                 'Diana',

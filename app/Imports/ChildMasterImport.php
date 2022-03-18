@@ -52,6 +52,33 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
         $rowIndex = $row->getIndex();
         $dataRow  = $row->toArray();
 
+        if (isset($dataRow['tanggal_lahir']) && is_numeric($dataRow['tanggal_lahir'])) {
+            try{
+                $dataRow['tanggal_lahir'] = $this->formatDateExcel($dataRow['tanggal_lahir']);
+            }
+            catch(Exception $e){
+                $dataRow['tanggal_lahir'] = null;
+            }
+        }
+
+        if (isset($dataRow['masuk_fc']) && is_numeric($dataRow['masuk_fc'])) {
+            try{
+                $dataRow['masuk_fc'] = $this->formatDateExcel($dataRow['masuk_fc']);
+            }
+            catch(Exception $e){
+                $dataRow['masuk_fc'] = null;
+            }
+        }
+
+        if (isset($dataRow['keluar_fc']) && is_numeric($dataRow['keluar_fc'])) {
+            try{
+                $dataRow['keluar_fc'] = $this->formatDateExcel($dataRow['keluar_fc']);
+            }
+            catch(Exception $e){
+                $dataRow['keluar_fc'] = null;
+            }
+        }
+
         $validator = Validator::make($dataRow, $this->rules($dataRow));
 
         if ($validator->fails()) {
@@ -60,35 +87,39 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
         }
 
         try {
-            $row = $this->convertRowData($row->toArray(), $rowIndex);
+            $row = $this->convertRowData($dataRow, $rowIndex);
+
+            if($row === null){
+                return;
+            }
 
             $anak = ChildMaster::where('child_id', $row['id'] ?? null)->first();
 
             if (empty($anak)) {
                 // maka dia buat data baru
                 $anak = new ChildMaster;
-                $anak->child_id = $row['id'];
+                // $anak->child_id = $row['id'];
             }
 
             $anak->registration_number = $row['no_induk'];
-            $anak->full_name = $row['title'];
-            $anak->nickname = $row['panggilan'];
+            $anak->full_name = $row['nama'];
+            $anak->nickname = $row['panggilan'] ?? null;
             $anak->gender = $row['jenis_kelamin'];
             $anak->hometown = $row['tempat_lahir'];
             $anak->date_of_birth = Carbon::parse($row['tanggal_lahir']);
-            $anak->fc = $row['fc'];
-            $anak->price = 150000;
+            $anak->fc = $row['fc']  ?? null;
+            $anak->price = $row['nominal_sponsor'];
             $anak->city_id = $row['kabupaten'];
             $anak->districts = $row['kecamatan'];
             $anak->religion_id = $row['agama'];
             $anak->province_id = $row['propinsi'];
-            $anak->father = $row['ayah'];
-            $anak->mother = $row['ibu'];
-            $anak->profession = $row['pekerjaan'];
-            $anak->economy = $row['ekonomi'];
+            $anak->father = $row['ayah'] ?? null;
+            $anak->mother = $row['ibu'] ?? null;
+            $anak->profession = $row['pekerjaan'] ?? null;
+            $anak->economy = $row['ekonomi']  ?? null;
             $anak->class = $row['kelas'];
             $anak->school = $row['sekolah'];
-            $anak->school_year = $row['th_ajaran'];
+            $anak->school_year = $row['tahun_ajaran'];
             $anak->sign_in_fc = ($row['masuk_fc'] === null) ? null : Carbon::parse($row['masuk_fc']);
             $anak->leave_fc = ($row['keluar_fc'] === null) ? null : Carbon::parse($row['keluar_fc']);
             $anak->reason_to_leave = $row['alasan_keluar'] ?? null;
@@ -96,8 +127,8 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
             $anak->internal_discription = null;
             $anak->status_dlp = 0;
             $anak->created_by = backpack_auth()->user()->id;
-            if ($row['image_url'] != null) {
-                $anak->setPhotoProfileAttribute($row['image_url'], true);
+            if (isset($row['foto_profile_url'])) {
+                $anak->setPhotoProfileAttribute($row['foto_profile_url'], true);
             }
 
             //$anak->is_active = 1;
@@ -110,7 +141,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
 
     private function convertRowData($data, $index)
     {
-
+        $errors = [];
         if ($data['tempat_lahir'] != null) {
             // cek tempat lahir terlebih dahulu
             $kabupaten = trim($data['tempat_lahir']);
@@ -119,6 +150,7 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
                 // jika ada 
                 $data['tempat_lahir'] = $cekKota->get()[0]->city_id;
             } else {
+                $errors[] = trans('validation.in', ['attribute' => 'tempat lahir']);
                 $data['tempat_lahir'] = null;
             }
         }
@@ -130,18 +162,8 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
                 // jika ada 
                 $data['agama'] = $cekData->get()[0]->religion_id;
             } else {
+                $errors[] = trans('validation.in', ['attribute' => 'agama']);
                 $data['agama'] = null;
-            }
-        }
-
-        if ($data['kabupaten'] != null) {
-            $kabupaten = trim($data['kabupaten']);
-            $cekData =  City::where('city_name', 'LIKE', "%{$kabupaten}%")->limit(1);
-            if ($cekData->exists()) {
-                // jika ada 
-                $data['kabupaten'] = $cekData->get()[0]->city_id;
-            } else {
-                $data['kabupaten'] = null;
             }
         }
 
@@ -152,82 +174,100 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
                 // jika ada 
                 $data['propinsi'] = $cekData->get()[0]->province_id;
             } else {
+                $errors[] = trans('validation.in', ['attribute' => 'propinsi']);
                 $data['propinsi'] = null;
             }
         }
 
-        if ($data['tanggal_lahir']) {
-            $birthday = explode("-", $data['tanggal_lahir']);
-            if (count($birthday) == 3) {
-                switch ($birthday[1]) {
-                    case "Mei":
-                        $birthday[1] = "May";
-                        break;
-                    case "Ags":
-                        $birthday[1] = "Aug";
-                        break;
-                    case "Okt":
-                        $birthday[1] = "Oct";
-                        break;
-                    case "Des":
-                        $birthday[1] = "Dec";
-                        break;
-                }
 
-                $birthday = join("-", $birthday);
-
-                $data['tanggal_lahir'] = $birthday;
+        if ($data['kabupaten'] != null) {
+            $kabupaten = trim($data['kabupaten']);
+            $cekData =  City::where('city_name', 'LIKE', "%{$kabupaten}%")
+            ->where('province_id', ($data['propinsi'] ?? null))->limit(1);
+            if ($cekData->exists()) {
+                // jika ada 
+                $data['kabupaten'] = $cekData->get()[0]->city_id;
+            } else {
+                $errors[] = trans('validation.in', ['attribute' => 'kabupaten']);
+                $data['kabupaten'] = null;
             }
+        }
+
+        if (isset($data['tanggal_lahir'])) {
+            // $birthday = explode("-", $data['tanggal_lahir']);
+            // if (count($birthday) == 3) {
+            //     switch ($birthday[1]) {
+            //         case "Mei":
+            //             $birthday[1] = "May";
+            //             break;
+            //         case "Ags":
+            //             $birthday[1] = "Aug";
+            //             break;
+            //         case "Okt":
+            //             $birthday[1] = "Oct";
+            //             break;
+            //         case "Des":
+            //             $birthday[1] = "Dec";
+            //             break;
+            //     }
+
+            //     $birthday = join("-", $birthday);
+
+            //     $data['tanggal_lahir'] = $birthday;
+            // }
         }
 
         if ($data['masuk_fc']) {
-            $enterFc = explode("-", $data['masuk_fc']);
-            if (count($enterFc) == 3) {
-                switch ($enterFc[1]) {
-                    case "Mei":
-                        $enterFc[1] = "May";
-                        break;
-                    case "Ags":
-                        $enterFc[1] = "Aug";
-                        break;
-                    case "Okt":
-                        $enterFc[1] = "Oct";
-                        break;
-                    case "Des":
-                        $enterFc[1] = "Dec";
-                        break;
-                }
+            // $enterFc = explode("-", $data['masuk_fc']);
+            // if (count($enterFc) == 3) {
+            //     switch ($enterFc[1]) {
+            //         case "Mei":
+            //             $enterFc[1] = "May";
+            //             break;
+            //         case "Ags":
+            //             $enterFc[1] = "Aug";
+            //             break;
+            //         case "Okt":
+            //             $enterFc[1] = "Oct";
+            //             break;
+            //         case "Des":
+            //             $enterFc[1] = "Dec";
+            //             break;
+            //     }
 
-                $enterFc = join("-", $enterFc);
+            //     $enterFc = join("-", $enterFc);
 
-                $data['masuk_fc'] = $enterFc;
-            }
+            //     $data['masuk_fc'] = $enterFc;
+            // }
         }
 
-        if ($data['keluar_fc']) {
-            $keluarFc = explode("-", $data['keluar_fc']);
-            if (count($keluarFc) == 3) {
-                switch ($keluarFc[1]) {
-                    case "Mei":
-                        $keluarFc[1] = "May";
-                        break;
-                    case "Ags":
-                        $keluarFc[1] = "Aug";
-                        break;
-                    case "Okt":
-                        $keluarFc[1] = "Oct";
-                        break;
-                    case "Des":
-                        $keluarFc[1] = "Dec";
-                        break;
-                }
+        if (isset($data['keluar_fc'])) {
+            // $keluarFc = explode("-", $data['keluar_fc']);
+            // if (count($keluarFc) == 3) {
+            //     switch ($keluarFc[1]) {
+            //         case "Mei":
+            //             $keluarFc[1] = "May";
+            //             break;
+            //         case "Ags":
+            //             $keluarFc[1] = "Aug";
+            //             break;
+            //         case "Okt":
+            //             $keluarFc[1] = "Oct";
+            //             break;
+            //         case "Des":
+            //             $keluarFc[1] = "Dec";
+            //             break;
+            //     }
 
-                $keluarFc = join("-", $keluarFc);
+            //     $keluarFc = join("-", $keluarFc);
 
-                $data['keluar_fc'] = $keluarFc;
-            }
+            //     $data['keluar_fc'] = $keluarFc;
+            // }
         }
-
+        if(count($errors) != 0){
+            $this->errorsMessage[] = ['row' => $index, 'message' => collect($errors)->join('<br />')];
+            return null;
+        }
         return $data;
     }
 
@@ -235,27 +275,31 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
     public function rules($data): array
     {
         return [
-            'id' => 'required|integer',
-            'title' => 'required|max:255',
+            'id' => 'nullable|integer',
+            'nama' => 'required|max:255',
             'panggilan' => 'string|nullable',
             'no_induk' => 'required|max:255',
             'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'string|nullable',
-            'agama' => 'string|nullable',
-            'tanggal_lahir' => 'string|nullable',
+            'tempat_lahir' => 'string|required',
+            'agama' => 'string|required',
+            'tanggal_lahir' => 'required|date',
             'kecamatan' => 'required|max:255',
             'kabupaten' => 'required|string',
-            'propinsi' => 'string|nullable',
+            'propinsi' => 'string|required',
+            'nominal_sponsor' => 'required|integer|min:1',
             'ayah' => 'string|nullable',
             'ibu' => 'string|nullable',
             'pekerjaan' => 'string|nullable',
             'ekonomi' => 'nullable',
+            'fc' => 'nullable',
             'kelas' => 'required|max:255',
-            'th_ajaran' => 'required|max:255', // tahun ajaran
+            'tahun_ajaran' => 'required|max:255', // tahun ajaran
             'sekolah' => 'required|max:255',
-            'masuk_fc' => 'string|nullable',
-            'keluar_fc' => 'string|nullable',
-            'image_url' => 'string|nullable',
+            'masuk_fc' => 'nullable|date',
+            'keluar_fc' => 'nullable|date',
+            'alasan_keluar' => 'nullable|max:255',
+            'keterangan' => 'nullable|max:255',
+            'foto_profile_url' => 'string|nullable',
         ];
     }
 
@@ -269,5 +313,10 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
         return [
             0 => $this,
         ];
+    }
+
+    function formatDateExcel($dateExcel)
+    {
+        return Carbon::createFromTimestamp(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp($dateExcel));
     }
 }
