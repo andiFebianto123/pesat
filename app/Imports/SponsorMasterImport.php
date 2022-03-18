@@ -76,7 +76,10 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
 
             $isValid = $this->isValidData($row);
 
-            if (!$isValid) return;
+            if (!$isValid){
+                $this->errorsMessage[] = ['row' => $rowIndex, 'message' => trans('validation.unique', ['attribute' => 'user email'])];
+                return;
+            }
 
             $row = $this->convertRowData($row, $rowIndex);
 
@@ -116,7 +119,7 @@ class SponsorMasterImport implements OnEachRow, WithHeadingRow, WithMultipleShee
         } else if (!filter_var($data['user_email'], FILTER_VALIDATE_EMAIL)) {
             $isValid = false;
         } else {
-            $emailExist = Sponsor::where('email', $data['user_email'])->where('sponsor_id', '!=', $data['id'])->first();
+            $emailExist = Sponsor::where('email', $data['user_email'])->where('sponsor_id', '!=', $data['id'] ?? null)->first();
             if ($emailExist != null) $isValid = false;
         }
         if (!isset($data['nama'])) {

@@ -62,13 +62,13 @@ class SponsorExport implements Responsable, WithHeadings, WithStyles, FromArray,
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         foreach (range('A', 'I') as $columnID) {
             $sheet->getColumnDimension($columnID)
                 ->setAutoSize(true);
         }
 
-        $sheet->getStyle('A1:I1')->getBorders()
+        $sheet->getStyle('A1:H1')->getBorders()
             ->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
     }
