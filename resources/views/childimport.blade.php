@@ -16,6 +16,18 @@
             <div class="card">
                 <div class="card-body">
                     <p><span class="font-weight-bold">INFO</span> : Apabila ID tidak ditemukan maka akan dibuat data Anak baru.</p>
+                    <p class="mb-0"><span class="font-weight-bold">REQUIRED FIELD</span> : </p>
+                    <p class="mb-0">1. Nama</p>
+                    <p class="mb-0">2. No Induk</p>
+                    <p class="mb-0">3. Jenis Kelamin</p>
+                    <p class="mb-0">4. Tempat Lahir</p>
+                    <p class="mb-0">5. Agama</p>
+                    <p class="mb-0">6. Tanggal Lahir</p>
+                    <p class="mb-0">7. Kecamatan</p>
+                    <p class="mb-0">8. Kabupaten</p>
+                    <p class="mb-0">9. Propinsi</p>
+                    <p class="mb-0">10. Nominal Sponsor</p>
+                    <p>11. Tahun Ajaran</p>
                     <form action="{{ backpack_url('import') }}" class="" id="custom-form" method="POST"
                         enctype="multipart/form-data">
                         @if ($message = Session::get('success'))

@@ -16,6 +16,14 @@
             <div class="card">
                 <div class="card-body">
                     <p><span class="font-weight-bold">INFO</span> : Apabila ID tidak ditemukan maka akan dibuat data Sponsor baru.</p>
+                    <p class="mb-0"><span class="font-weight-bold">REQUIRED FIELD</span> : </p>
+                    <p class="mb-0">1. Nama</p>
+                    <p class="mb-0">2. Tempat Lahir</p>
+                    <p class="mb-0">3. Tanggal Lahir</p>
+                    <p class="mb-0">4. Alamat</p>
+                    <p class="mb-0">5. User Email</p>
+                    <p class="mb-0">6. No Ponsel Whatsapp</p>
+                    <p>7. Jemaat dari Gereja</p>
                     <form action="{{ backpack_url('importsponsor') }}" class="" id="custom-form"
                         method="POST" enctype="multipart/form-data">
                         @if ($message = Session::get('success'))
