@@ -93,6 +93,13 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
                 return;
             }
 
+            $isValid = $this->isValidData($row);
+
+            if (!$isValid){
+                $this->errorsMessage[] = ['row' => $rowIndex, 'message' => trans('validation.unique', ['attribute' => 'no induk'])];
+                return;
+            }
+
             $anak = ChildMaster::where('child_id', $row['id'] ?? null)->first();
 
             if (empty($anak)) {
@@ -138,6 +145,19 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
         }
     }
 
+    private function isValidData($data)
+    {
+        $isValid = true;
+
+        if ($data['no_induk'] == null) {
+            $isValid = false;
+        } else {
+            $noIndukValid = ChildMaster::where('registration_number', $data['no_induk'])->where('child_id', '!=', $data['id'] ?? null)->first();
+            if ($noIndukValid != null) $isValid = false;
+        }
+
+        return $isValid;
+    }
 
     private function convertRowData($data, $index)
     {
