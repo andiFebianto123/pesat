@@ -898,6 +898,8 @@ class ChildMasterCrudController extends CrudController
         // MERGE USER
         $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
 
+        $this->crud->getRequest()->merge(['class' => $this->crud->getRequest()->class ?? '' , 'school' => $this->crud->getRequest()->school ?? '']);
+
         // insert item in the db
         $item = $this->crud->create($this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
@@ -953,6 +955,8 @@ class ChildMasterCrudController extends CrudController
 
         // MERGE USER
         $this->crud->getRequest()->merge(['created_by' => backpack_user()->id]);
+
+        $this->crud->getRequest()->merge(['class' => $this->crud->getRequest()->class ?? '' , 'school' => $this->crud->getRequest()->school ?? '']);
 
         $item = $this->crud->update(
             $request->get($this->crud->model->getKeyName()),

@@ -117,8 +117,8 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
             $anak->mother = $row['ibu'] ?? null;
             $anak->profession = $row['pekerjaan'] ?? null;
             $anak->economy = $row['ekonomi']  ?? null;
-            $anak->class = $row['kelas'];
-            $anak->school = $row['sekolah'];
+            $anak->class = $row['kelas'] ?? '';
+            $anak->school = $row['sekolah'] ?? '';
             $anak->school_year = $row['tahun_ajaran'];
             $anak->sign_in_fc = ($row['masuk_fc'] === null) ? null : Carbon::parse($row['masuk_fc']);
             $anak->leave_fc = ($row['keluar_fc'] === null) ? null : Carbon::parse($row['keluar_fc']);
@@ -292,9 +292,9 @@ class ChildMasterImport implements OnEachRow, WithHeadingRow, WithMultipleSheets
             'pekerjaan' => 'string|nullable',
             'ekonomi' => 'nullable',
             'fc' => 'nullable',
-            'kelas' => 'required|max:255',
+            'kelas' => 'nullable|max:255',
             'tahun_ajaran' => 'required|max:255', // tahun ajaran
-            'sekolah' => 'required|max:255',
+            'sekolah' => 'nullable|max:255',
             'masuk_fc' => 'nullable|date',
             'keluar_fc' => 'nullable|date',
             'alasan_keluar' => 'nullable|max:255',
