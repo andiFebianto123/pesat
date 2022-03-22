@@ -156,12 +156,16 @@
                         }
 
                     },
-                    error: function(xhr, desc, err) {
+                    error: function(result, desc, err) {
                         $('#loading-image').hide();
                         $('#formSubmit').removeAttr('disabled');
+                        var defaultText = "Failed to process data from the server. Please try again / refresh the page."; 			
+                        if(result.status != 500 && result.responseJSON != null && result.responseJSON.message != null && result.responseJSON.message.length != 0){ 
+                            defaultText = result.responseJSON.message; 
+                        }
                         new Noty({
                             type: 'danger',
-                            text: err
+                            text: defaultText
                         }).show();
                     }
                 });
