@@ -99,6 +99,10 @@ class ChildMasterCrudController extends CrudController
         //     $this->crud->removeButton('delete');
         $this->crud->addColumns([
             [
+                'name' => 'registration_number',
+                'label' => 'No Induk'
+            ],
+            [
                 'name' => 'full_name',
                 'label' => 'Name',
             ],
