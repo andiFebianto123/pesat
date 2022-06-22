@@ -36,7 +36,7 @@ class ChildMasterRequest extends FormRequest
             )->ignore($this->child_id,'child_id')],
             'full_name'             =>  'required|max:255',
             'nickname'              =>  'required|max:255',
-            'gender'                =>  'required|max:255',
+            'gender'                =>  'required|in:L,P',
             'hometown'              =>  'required|regex:/^[0-9]+$/',
             'date_of_birth'         =>  'required|date|date_format:Y-m-d',
             'religion_id'           =>  'regex:/^[0-9]+$/',

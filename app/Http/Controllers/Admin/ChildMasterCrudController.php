@@ -193,7 +193,7 @@ class ChildMasterCrudController extends CrudController
             'type' => 'select2_from_array',
             'allows_null' => false,
             'default'     => 'one',
-            'options' => ['laki-laki' => 'Laki-Laki', 'perempuan' => 'Perempuan'],
+            'options' => ['L' => 'L', 'P' => 'P'],
         ];
 
         $hometown = [
@@ -457,7 +457,7 @@ class ChildMasterCrudController extends CrudController
             'type' => 'select2_from_array',
             'allows_null' => false,
             'default'     => 'one',
-            'options' => ['laki-laki' => 'Laki-Laki', 'perempuan' => 'Perempuan'],
+            'options' => ['L' => 'L', 'P' => 'P'],
         ];
 
         $hometown = [

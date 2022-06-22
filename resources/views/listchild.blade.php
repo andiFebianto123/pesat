@@ -36,8 +36,8 @@
                     <p>Gender :<p>
                         <select class="form-select" name="gender" aria-label="Default select example">
                             <option selected></option>
-                            <option value="1">Laki-Laki</option>
-                            <option value="2">Perempuan</option>
+                            <option value="L">Laki-Laki</option>
+                            <option value="P">Perempuan</option>
                         </select>
                 </div>
                 <div class='col-md-6 col-lg-4'>

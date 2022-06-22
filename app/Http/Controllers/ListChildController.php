@@ -39,12 +39,12 @@ class ListChildController extends Controller
                 $childs = $childsdatas->where('province_id', $provinceid)
                     ->paginate(9);
             }
-            if ($gender == 1) {
-                $childs = $childsdatas->where('gender', 'LIKE', "%laki%")
+            if ($gender == 'L') {
+                $childs = $childsdatas->where('gender', '=', 'L')
                     ->paginate(9);
             }
-            if ($gender == 2) {
-                $childs = $childsdatas->where('gender', 'LIKE', "%perem%")
+            if ($gender == 'P') {
+                $childs = $childsdatas->where('gender', '=', 'P')
                     ->paginate(9);
             }
             if (isset($class)) {
