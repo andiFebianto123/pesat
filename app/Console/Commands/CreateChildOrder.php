@@ -85,7 +85,7 @@ class CreateChildOrder extends Command
                     'order_dt.has_child',
                     'order_hd.order_id', 'order_hd.parent_order_id', 'order_hd.order_no', 'order_hd.total_price', 'order_hd.payment_status',
                     'order_dt.order_dt_id', 'order_dt.parent_order_dt_id', 'order_dt.price', 'order_dt.monthly_subscription', 'order_dt.start_order_date', 'order_dt.end_order_date',
-                    'sm.sponsor_id', 'sm.full_name as sponsor_name', 'sm.email', 'sm.address as sponsor_address', 'sm.no_hp', 'cm.child_id', 'cm.full_name as child_name',
+                    'sm.sponsor_id', 'sm.full_name as sponsor_name', 'sm.email', 'sm.address as sponsor_address', 'sm.no_hp', 'cm.child_id', 'cm.full_name as child_name', 'cm.price as cm_price',
                     'cm.registration_number', 'cm.gender', 'cm.date_of_birth', 'cm.class', 'cm.school', 'cm.school_year'
                 )
                 ->get();
@@ -104,7 +104,7 @@ class CreateChildOrder extends Command
         $uniqueOrderId = [];
         foreach($orders as $order){
             $sponsorid = $order->sponsor_id;
-            $totalPrice = $order->price;
+            $totalPrice = $order->cm_price;
             $dataOrder = DataOrder::create([
                 'parent_order_id' => $order->order_id,
                 'sponsor_id' => $sponsorid,
